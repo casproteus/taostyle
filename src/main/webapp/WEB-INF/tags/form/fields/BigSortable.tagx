@@ -196,19 +196,16 @@
 						</td>
 					</c:if>
 					<c:if test="${update}">
-						<td class="utilbox tWireless"><spring:url
-								value="${path}/${itemId}" var="update_form_url">
+						<td class="utilbox tWireless">
+							<spring:url value="${path}/${itemId}" var="update_form_url">
 								<spring:param name="form" />
-							</spring:url> <spring:url value="/resources/images/changeText.png"
-								var="update_img_url" /> <spring:message
-								arguments="${typeName}" code="entity_update" var="update_label"
-								htmlEscape="false" /> <a href="${update_form_url}"
-							alt="${fn:escapeXml(update_label)}"
-							title="${fn:escapeXml(update_label)}"> <img
-								alt="${fn:escapeXml(update_label)}"
-								class="image btn btn-warning" src="${update_img_url}"
-								title="${fn:escapeXml(update_label)}" />
-						</a></td>
+							</spring:url> 
+							<spring:url value="/resources/images/changeText.png" var="update_img_url" /> 
+							<spring:message arguments="${typeName}" code="entity_update" var="update_label" htmlEscape="false" /> 
+							<a href="${update_form_url}" alt="${fn:escapeXml(update_label)}" title="${fn:escapeXml(update_label)}"> 
+								<img alt="${fn:escapeXml(update_label)}" class="image btn btn-warning" src="${update_img_url}" title="${fn:escapeXml(update_label)}" />
+							</a>
+						</td>
 					</c:if>
 					<c:if test="${delete}">
 						<td class="utilbox tWireless"><spring:url
