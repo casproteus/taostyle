@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields" version="2.0">
+    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/>
+    <page:list id="pl_com_stgo_taostyle_domain_orders_Material" items="${materials}" z="QHAkDyKzAJvrpUD/UwCOUrGx7fg=">
+        <table:table data="${materials}" id="l_com_stgo_taostyle_domain_orders_Material" path="/materials" z="1LwBq2uEXWXjCrXnj/UnRIty+XM=">
+            <table:column id="c_com_stgo_taostyle_domain_orders_Material_mainOrder" property="mainOrder" z="2KKZxy1ZDOCi8hZSPxubr0XDsps="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_Material_portionName" property="portionName" z="CAYo3KjEwtATK+nxZJqCZwss4j4="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_Material_dencity" property="dencity" z="Mhl0zbSf0X/CqYAPHl6mJ+t0AcE="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_Material_MenFu" property="menFu" z="FzbflbNdEySwYGxH1DLS92mAOm0="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_Material_color" property="color" z="GcbA1EanzM6okCCZOl139ajwZaY="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_Material_location" property="location" z="KaHBfPuFiPVx75JlzZAWlgHgLmI="/>
+        </table:table>
+    </page:list>
+</div>

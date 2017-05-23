@@ -1,0 +1,176 @@
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log opened at 2013-01-25 13:25:10
+project --topLevelPackage com.stgo.taostyle --projectName taostyle --java 6 --packaging JAR
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log closed at 2013-01-25 13:25:21
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log opened at 2013-01-25 13:26:08
+persistence setup --database HYPERSONIC_PERSISTENT --provider HIBERNATE
+entity jpa --class com.stgo.taostyle.domain.City
+entity jpa --class com.stgo.taostyle.domain.Country
+entity jpa --class com.stgo.taostyle.domain.Person
+field date --fieldName birthday --type java.util.Date
+web mvc setup
+web mvc all --package com.stgo.taostyle.web
+web mvc all --package com.stgo.taostyle.web
+focus --class ~.domain.City
+field reference --fieldName country --type ~.domain.Country --cardinality MANY_TO_ONE --notNull true
+web mvc all --package com.stgo.taostyle.web
+focus --class ~.domain.City
+field boolean --fieldName isActive
+focus --class ~.domain.Person
+field reference --type ~.domain.City --fieldName city --cardinality MANY_TO_ONE
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log closed at 2013-01-25 23:25:55
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log opened at 2013-01-26 16:11:08
+web mvc all --package com.stgo.taostyle.web
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log closed at 2013-01-26 17:02:01
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log opened at 2013-01-26 17:15:37
+focus --class ~.domain.City
+field reference --type ~.domain.Country --fieldName country
+entity jpa --class ~.domain.City --identifierType java.lang.String --versionType java.lang.Long
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log closed at 2013-01-27 14:26:56
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log opened at 2013-01-27 14:27:06
+focus --class ~.domain.Country
+field string --fieldName description --sizeMax 500
+focus --class ~.domain.City
+field reference --fieldName country --type ~.domain.Country
+field reference --fieldName country --type ~.domain.Country --fetch LAZY
+focus --class ~.domain.Country
+field set --fieldName cities --type ~.domain.City --mappedBy country --cardinality ONE_TO_MANY
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log opened at 2013-08-20 05:07:58
+persistence setup --database HYPERSONIC_PERSISTENT --provider HIBERNATE
+persistence setup --database GOOGLE_APP_ENGINE --provider DATANUCLEUS
+web mvc all --package com.stgo.taostyle.web
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log closed at 2013-08-20 07:19:19
+// Spring Roo 1.2.3.RELEASE [rev 7fd62b6] log opened at 2013-08-20 07:19:39
+// Spring Roo 1.2.2.RELEASE [rev 7d75659] log opened at 2013-11-05 22:39:33
+persistence setup --database HYPERSONIC_PERSISTENT --provider HIBERNATE
+perform eclipse
+persistence setup --database HYPERSONIC_PERSISTENT --provider OPENJPA
+perform eclipse
+exit
+// Spring Roo 1.2.2.RELEASE [rev 7d75659] log closed at 2013-11-05 22:52:47
+// Spring Roo 1.2.2.RELEASE [rev 7d75659] log opened at 2013-11-17 22:04:08
+perform eclipse
+// Spring Roo 1.2.2.RELEASE [rev 7d75659] log opened at 2013-11-22 21:31:46
+entity jpa --class ~.domain.Customize --testAutomatically
+field string --fieldName cusKey --notNull --unique
+field string --fieldName cusValue --notNull
+
+entity jpa --class ~.model.MediaUpload
+field string --fieldName filepath --notNull true --sizeMax 128
+field number --type long --fieldName filesize --notNull true
+field string --fieldName contentType --notNull true
+json all
+web mvc json all
+email sender setup --hostServer smtp.gmail.com --username casproteus@gmail.com --password Ollwin_02 --port 587 --protocol SMTP 
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2016-05-08 00:06:35
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2016-05-08 10:23:08
+persistence setup --database MYSQL --provider HIBERNATE 
+persistence setup --provider OPENJPA --database MYSQL 
+persistence setup --database MYSQL --provider HIBERNATE 
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2016-05-08 10:42:50
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2016-05-08 10:43:48
+perform eclipse 
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2016-05-08 10:52:11
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2016-05-08 10:53:52
+persistence setup --provider OPENJPA --database MYSQL 
+// [failed] quit
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2016-05-08 11:07:58
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2016-05-08 11:11:18
+persistence setup --database MYSQL --provider HIBERNATE 
+perform command --mavenCommand install
+perform command --mavenCommand clean
+perform command --mavenCommand compile
+perform command --mavenCommand install
+perform command --mavenCommand install
+perform command --mavenCommand install
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2016-05-08 11:29:01
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2016-09-13 14:03:46
+persistence setup --database POSTGRES --provider HIBERNATE 
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2016-09-13 15:43:17
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2016-12-18 14:52:33
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2016-12-18 14:54:51
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2016-12-18 14:54:58
+persistence setup --database MYSQL --provider HIBERNATE 
+persistence setup --database MYSQL --provider HIBERNATE 
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2016-12-18 23:43:56
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2017-01-05 20:02:13
+// [failed] entity jpa --class ~.domain.Cart
+// [failed] field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.Cart
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.City
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.Country
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.Customize
+// [failed] field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.M
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.MediaUpload
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.MultiLanguageabl
+// [failed] field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.Product
+// [failed] field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.Service
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.TextContent
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.UserAccount
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.MainOrder
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.Material
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.PackageStyle
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.ShipmentStyle
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.SizeProportion
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.TaxonomyMaterial
+field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.TaxonomyMaterialOrder
+// [failed] field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.TaxonomyMaterial
+// [failed] field reference --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE --class ~.domain.orders.TaxonomyMaterialOrder
+field number --fieldName status --type int
+// [failed] field number --fieldName status --type int --class ~.domain.Cart
+field number --fieldName status --type int --class ~.domain.City
+// [failed] field number --fieldName recordStatus --type int --class ~.domain.Cart
+field number --fieldName recordStatus --type int --class ~.domain.City
+field number --fieldName recordStatus --type int --class ~.domain.Country
+field number --fieldName recordStatus --type int --class ~.domain.Customize
+// [failed] field number --fieldName recordStatus --type int --class ~.domain.Customize
+field number --fieldName recordStatus --type int --class ~.domain.MediaUpload
+field number --fieldName recordStatus --type int --class ~.domain.MultiLanguageabl
+field number --fieldName recordStatus --type int --class ~.domain.Person
+// [failed] field number --fieldName recordStatus --type int --class ~.domain.Product
+// [failed] field number --fieldName recordStatus --type int --class ~.domain.Service
+field number --fieldName recordStatus --type int --class ~.domain.TextContent
+field number --fieldName recordStatus --type int --class ~.domain.UserAccount
+// [failed] field number --fieldName recordStatus --type int --class ~.domain.UserAccount
+field number --fieldName recordStatus --type int --class ~.domain.orders.MainOrder
+field number --fieldName recordStatus --type int --class ~.domain.orders.Material
+field number --fieldName recordStatus --type int --class ~.domain.orders.PackageStyle
+field number --fieldName recordStatus --type int --class ~.domain.orders.ShipmentStyle
+field number --fieldName recordStatus --type int --class ~.domain.orders.SizeProportion
+field number --fieldName recordStatus --type int --class ~.domain.orders.TaxonomyMaterial
+field number --fieldName recordStatus --type int --class ~.domain.orders.TaxonomyMaterialOrder
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2017-01-10 09:22:10
+// [failed] field reference --class ~.domain.Cart --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE 
+// [failed] field reference --class ~.domain.Product --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE 
+// [failed] field reference --class ~.domain.Service --fieldName person --type ~.domain.Person --cardinality MANY_TO_ONE 
+// [failed] field number --fieldName recordStatus --type int --class ~.domain.Cart
+// [failed] controller all --package ~.web
+// [failed] field number --fieldName recordStatus --type int --class ~.domain.Cart
+// [failed] field string --fieldName password --class ~.domain.Person --sizeMax 128
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2017-01-20 23:28:15
+persistence setup --database POSTGRES --provider HIBERNATE 
+quit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2017-01-21 10:38:14
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2017-04-07 23:05:03
+entity jpa --class ~.domain.Feature --testAutomatically 
+field string --fieldName menuIdx --notNull 
+field string --fieldName refMenuIdx --notNull 
+field string --fieldName itemsToShow
+field reference --type ~.domain.TextContent --fieldName groupTitle
+field reference --type ~.domain.Person --fieldName person --notNull 
+field string --fieldName groupTitle
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2017-05-13 15:40:34
+// [failed] entity jpa --class ~.domain.or
+exit
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log closed at 2017-05-14 11:24:45
+// Spring Roo 1.3.1.RELEASE [rev f4f5256] log opened at 2017-05-19 00:40:51
+// [failed] entity jpa --class ~.domain.orders.TaxonomyMaterial
+focus --class ~.domain.orders.TaxonomyMaterial
+// [failed] field date --fieldName time --type java.util.Date
+field date --fieldName logtime --type java.util.Date

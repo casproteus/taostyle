@@ -1,0 +1,48 @@
+<html xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:tiles="http://tiles.apache.org/tags-tiles"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:util="urn:jsptagdir:/WEB-INF/tags/util">
+
+<jsp:output doctype-root-element="HTML"
+	doctype-system="about:legacy-compat" />
+<jsp:directive.page contentType="text/html;charset=UTF-8" />
+<jsp:directive.page pageEncoding="UTF-8" />
+
+<head>
+<meta name="google-site-verification" content="krCjecjKCEH5vm3gw9EkIamJ3DNwy3YROHGQe8ty-ks" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=10" />
+
+<util:load-headers />
+
+<title><spring:message code="welcome_titlepane"
+		arguments="${app_name}" /></title>
+
+</head>
+
+<body style="background-color: #${background_app}">
+	<util:changeImg position="bg_2" />
+	<tiles:insertAttribute name="header" ignore="true" />
+	<!--<table class="bkcontainer" align="center" background="getImage/bg_2"><tbody><tr><td>
+		 <div class="subPagebkcontainer" style="background-image:url(getImage/bg_2)"> -->
+	<div class="container">
+		<div id="main" class="row">
+			<tiles:insertAttribute name="leftbar" />
+			<tiles:insertAttribute name="body" />
+		</div>
+	</div>
+	<tiles:insertAttribute name="footer" ignore="true" />
+	<util:contentEditor />
+	<util:qrCode />
+	<!-- </div> 
+		</td></tr></tbody></table>-->
+		
+	<util:load-scripts />
+	
+	
+	<c:if test="${debugFlag eq 'true'}">
+		${debugInfo}
+	</c:if>
+</body>
+</html>

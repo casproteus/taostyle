@@ -1,0 +1,33 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+	<jsp:output omit-xml-declaration="yes" />
+
+	<jsp:directive.attribute name="render" type="java.lang.Boolean"
+		required="false" rtexprvalue="true"
+		description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
+	<jsp:directive.attribute name="returnPath" type="java.lang.String"
+		required="true" rtexprvalue="true"
+		description="Indicate where the contents will be pu onto" />
+
+	<c:if test="${empty render or render}">
+		<spring:url value="${returnPath}" var="form_url" />
+		<form name="f" action="${fn:escapeXml(form_url)}" method="POST" >
+			<div align="left" style="margin-left: ${margin_left}px">
+				<input id="j_username" type="search" name='loginname' value=""
+					placeholder="Name"
+					style="border: 1px solid #bebdaa; border-radius: 5px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 0px; transition: all 0.7s ease 0s; width: 240px;" />
+				<br /> <input id="j_email" type="email" name='email'
+					required="required" placeholder="Email*"
+					style="border: 1px solid #bebdaa; border-radius: 5px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 0px; transition: all 0.7s ease 0s; width: 240px;" />
+				<br /> <input id="j_tel" type="tel" name='tel'
+					placeholder="Telephone number"
+					style="border: 1px solid #bebdaa; border-radius: 5px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 0px; transition: all 0.7s ease 0s; width: 240px;" />
+				<br /> <input id="proceed" type="submit" value="Register"
+					style="border: 1px solid #bebdaa; border-radius: 5px; color: #222222; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 140px; transition: all 0.7s ease 0s; width: 100px;" />
+			</div>
+		</form>
+	</c:if>
+</jsp:root>
+

@@ -1,0 +1,377 @@
+<div xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions" version="2.0">
+	<jsp:directive.page contentType="text/html;charset=UTF-8" />
+	<jsp:output omit-xml-declaration="yes" />
+
+	<spring:message var="title" code="welcome_titlepane"
+		arguments="${app_name}" htmlEscape="false" />
+
+	<!-- the varibles for document.wirte(...) javascirps -->
+	<spring:message var="linkA_JIMG" code="linkA_JIMG" htmlEscape="false" />
+	<spring:message var="imgTag" code="imgTag" htmlEscape="false" />
+	<spring:message var="anglebrackets_left" code="anglebrackets_left"
+		htmlEscape="false" />
+	<spring:message var="ahref" code="ahref" htmlEscape="false" />
+	<spring:message var="endOfLink" code="endOfLink" htmlEscape="false" />
+	<spring:message var="theEnd" code="theEnd" htmlEscape="false" />
+	<spring:message var="liElementOn" code="liElementOn" htmlEscape="false" />
+	<spring:message var="liElement1" code="liElement1" htmlEscape="false" />
+	<spring:message var="liElement2" code="liElement2" htmlEscape="false" />
+
+	<!-- dosen't work, because absolute path doesn't work even for local tomcat! <spring:url var="imgBasePath" value="${imgBasePath}" /> -->
+	<!-- can not replace the imaged insite Root.war, and can not allow it lost when update the application.  <spring:url var="imgBasePath" value="/resources/images/" /> -->
+	<!-- Main -->
+	<c:if test="${not empty show_MainSlider}">
+		<div id="myCarousel" class="carousel slide"
+			style="margin-bottom: ${show_MainSlider}px;">
+			<div class="carousel-inner">
+				<div class="item active" align="center">
+					<img src="getImage/slide_superBig_1" />
+					<util:changeImg position="slide_superBig_1"/>
+					<c:if test="${not empty showTextOnSlider}">
+						<div class="carousel-caption" style="left:${showTextOnSlider}px">
+							${text_on_slid[0]}
+							<util:edit position="text_on_slid_1" content="${text_on_slid[0]}"
+								richText="true" />
+							<br />
+						</div>
+					</c:if>
+				</div>
+				<c:if test="${user_role == '[ROLE_ADMIN]'}">
+					<c:set var="slide_superBig_amount" value="10" />
+				</c:if>
+				<c:forEach var="i" begin="2" end="${slide_superBig_amount}" step="1">
+					<div class="item" align="center">
+						<img src="getImage/slide_superBig_${i}" />
+						<util:changeImg position="slide_superBig_${i}"/>
+						<c:if test="${not empty showTextOnSlider}">
+							<div class="carousel-caption" style="left: ${showTextOnSlider}px">
+								${text_on_slid[i-1]}
+								<util:edit position="text_on_slid_${i}"
+									content="${text_on_slid[i-1]}" richText="true" />
+								<br />
+							</div>
+						</c:if>
+
+					</div>
+				</c:forEach>
+			</div>
+
+			<c:if
+				test="${slide_superBig_amount > 1 or user_role == '[ROLE_ADMIN]'}">
+				<a class="left carousel-control" href="#myCarousel"
+					data-slide="prev">
+					<!-- DO NOT REMOVE This comments -->
+				</a>
+				<a class="right carousel-control" href="#myCarousel"
+					data-slide="next">
+					<!-- DO NOT REMOVE This comments -->
+				</a>
+			</c:if>
+		</div>
+	</c:if>
+
+	<c:if test="${not empty show_SmallSlider}">
+		<table
+			style="width:860px; border:100px; margin-bottom: ${show_SmallSlider}px"
+			align="center">
+			<tr>
+				<td valign="top" align="center" width="300px"><img
+					src="../images/${gift}" /></td>
+				<td></td>
+				<td valign="top" align="center" width="100%">
+					<div class="promotion">
+						<br />
+						<div class="STYLE3">Special</div>
+						<div>coming soon...</div>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</c:if>
+
+	<!-- Promotion -->
+	<c:if test="${show_3swicher}">
+		<div class="container" style="margin-bottom:${show_3swicher}px;">
+			<div class="jumbotron">
+				<table id="pictable" style="DISPLAY: none">
+					<tr>
+						<TD><IMG src="getImage/promotion_1" /></TD>
+						<TD>${text_promotion1}</TD>
+						<TD>menu_3_1_1</TD>
+					</tr>
+					<tr>
+						<TD><IMG src="getImage/promotion_2" /></TD>
+						<TD>${text_promotion2}</TD>
+						<TD>menu_3_1_2</TD>
+					</tr>
+					<tr>
+						<TD><IMG src="getImage/promotion_3" /></TD>
+						<TD>${text_promotion3}</TD>
+						<TD>menu_3_1_3</TD>
+					</tr>
+				</table>
+
+				<div class="div_xixi">
+					<script type="text/javascript">
+		         var picarry={};
+		         var lnkarry={};
+		         var ttlarry={};
+		         function FixCode(str){
+		           return str.replace("'","=");
+		         }
+		         var t=document.getElementById("pictable");
+		         var rl=t.rows.length;
+		         var baseu=document.URL.replace(/(http.*\/)(.*)/, "$1");
+		         if(baseu.indexOf("/servlet/")>=0){
+		           baseu = baseu.replace("/servlet/","/");
+		         }
+		         var txt="";
+		         for(var i=0; i &lt; rl; i++){
+		             try{
+		               picarry[i]=t.rows[i].cells[0].childNodes[0].src;
+		               lnkarry[i]=t.rows[i].cells[2].innerHTML;
+		               ttlarry[i]=FixCode(t.rows[i].cells[1].innerHTML);
+		               document.getElementById("li_jimg"+i).innerHTML = '<a href="'+lnkarry[id]+'" target="_blank" class="img"><img src="'+picarry[id]+'"/></a>';
+		             }
+		             catch(e)
+		             {}
+		         }
+				 document.write(${linkA_JIMG} +lnkarry[0]+ "' title='' style='background:url("+picarry[1] + ")' >"
+						   +  ${imgTag} + picarry[0]+${anglebrackets_left}
+						   +   ${liElementOn}
+						   +      ${ahref} + lnkarry[0] + "' class='img'>" + ttlarry[0] + ${endOfLink}
+						   +   ${liElement1}
+						   +      ${ahref} + lnkarry[1] + "' class='img'>" + ttlarry[1] + ${endOfLink}
+						   +   ${liElement2}
+						   +      ${ahref} + lnkarry[2] + "' class='img'>" + ttlarry[2] + ${endOfLink}
+						   +   ${theEnd});
+		
+		        </script>
+				</div>
+				<div class="row-fluid" style="margin-left: 200px;">
+					<util:changeImg position="promotion_1"/>
+					<util:changeText position="text_promotion1"
+						content="${text_promotion1}" />
+					<util:changeImg position="promotion_2" />
+					<util:changeText position="text_promotion2"
+						content="${text_promotion2}" />
+					<util:changeImg position="promotion_3" />
+					<util:changeText position="text_promotion3"
+						content="${text_promotion3}"/>
+				</div>
+
+				<spring:url value="/resources/js/promotionSwitcher.js"
+					var="promotionSwitcher_url" />
+				<script type="text/javascript" src="${promotionSwitcher_url}"><!-- required for FF3 and Opera --></script>
+			</div>
+		</div>
+	</c:if>
+
+	<c:if test="${not empty showFloatingPromotion}">
+		<div style="position: fixed; z-index: 3000; top: 100px; right: 10px">
+			<util:taoImg src="getImage/floating_promotion"
+				link="${showFloatingPromotion}" />
+			<util:changeImg position="floating_promotion" />
+		</div>
+	</c:if>
+
+	<c:if test="${not empty show_1_TextObject}">
+		<div style="margin-bottom: ${show_1_TextObject}px;">${text_subTitle0}</div>
+		<util:edit position="text_subTitle0" content="${text_subTitle0}"
+			richText="true" />
+	</c:if>
+
+	<c:if test="${not empty show_1_imgObject}">
+		<div class="row">
+			<div 
+				style="margin-bottom: ${show_1_imgObject}px; text-align: center;">
+				<util:taoImg src="getImage/One_Center_img"
+					link="${link_One_Center_img}" width="${Center_img_w}" />
+				<util:changeImg position="One_Center_img" />
+			</div>
+		</div>
+	</c:if>
+
+	<!-- firstLine -->
+	<c:if test="${not empty show_3_Object_inSmallerRow}">
+		<div class="row" style="width: 80%; margin-left: ${margin_left}px; margin-right: ${margin_right}px; margin-bottom: ${show_3_Object_inSmallerRow}px">
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4"
+				style="text-align: center;">
+				<!-- <c:if test="${(not empty text_firstLineTitle1 and not empty text_firstLineTitle2 and not empty text_firstLineTitle3) or user_role == '[ROLE_ADMIN]'}" >
+		        	<div>${text_firstLineTitle1}</div> <util:edit position="text_firstLineTitle1" content="${text_firstLineTitle1}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/firstLine_1" link="${link_firstLine1}" />
+				<util:changeImg position="firstLine_1" />
+				<!-- <c:if test="${(not empty text_firstLineContent1 and not empty text_firstLineContent2 and not empty text_firstLineContent3) or user_role == '[ROLE_ADMIN]'}" >
+		          	<div align="left">${text_firstLineContent1}</div> <util:edit position="text_firstLineContent1" content="${text_firstLineContent1}" richText="true"/>
+		        </c:if> -->
+			</div>
+
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_firstLineTitle1 and not empty text_firstLineTitle2 and not empty text_firstLineTitle3) or user_role == '[ROLE_ADMIN]'}" >
+			        <div>${text_firstLineTitle2}</div> <util:edit position="text_firstLineTitle2" content="${text_firstLineTitle2}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/firstLine_2" link="${link_firstLine2}" />
+				<util:changeImg position="firstLine_2" />
+				<!-- <c:if test="${(not empty text_firstLineContent1 and not empty text_firstLineContent2 and not empty text_firstLineContent3) or user_role == '[ROLE_ADMIN]'}" >
+		 	        <div  align="left">${text_firstLineContent2}</div> <util:edit position="text_firstLineContent2" content="${text_firstLineContent2}" richText="true"/>
+		        </c:if> -->
+			</div>
+
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_firstLineTitle1 and not empty text_firstLineTitle2 and not empty text_firstLineTitle3) or user_role == '[ROLE_ADMIN]'}" >
+		         	<div>${text_firstLineTitle3}</div> <util:edit position="text_firstLineTitle3" content="${text_firstLineTitle3}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/firstLine_3" link="${link_firstLine3}" />
+				<util:changeImg position="firstLine_3" />
+				<!-- <c:if test="${(not empty text_firstLineContent1 and not empty text_firstLineContent2 and not empty text_firstLineContent3) or user_role == '[ROLE_ADMIN]'}" >
+			        <div align="left">${text_firstLineContent3}</div> <util:edit position="text_firstLineContent3" content="${text_firstLineContent3}" richText="true"/>
+		        </c:if> -->
+			</div>
+		</div>
+	</c:if>
+
+	<!-- second line -->
+	<c:if test="${not empty show_4_Object}">
+		<div class="row" style="${margin_left}px; margin-right: ${margin_right}px; margin-bottom: ${show_4_Object}px">
+			<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_categoryTitle1 and not empty text_categoryTitle2 and not empty text_categoryTitle3 and not empty text_categoryTitle4) or user_role == '[ROLE_ADMIN]'}" >
+		        	<div>${text_categoryTitle1}</div> <util:edit position="text_categoryTitle1" content="${text_categoryTitle1}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/category_1" link="${link_secondLine1}" />
+				<util:changeImg position="category_1" />
+				<!-- <c:if test="${(not empty text_categoryContent1 and not empty text_categoryContent2 and not empty text_categoryContent3 and not empty text_categoryContent4) or user_role == '[ROLE_ADMIN]'}" >
+		          	<div align="left">${text_categoryContent1}</div> <util:edit position="text_categoryContent1" content="${text_categoryContent1}" richText="true"/>
+		        </c:if> -->
+			</div>
+
+			<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_categoryTitle1 and not empty text_categoryTitle2 and not empty text_categoryTitle3 and not empty text_categoryTitle4) or user_role == '[ROLE_ADMIN]'}" >
+			        <div>${text_categoryTitle2}</div> <util:edit position="text_categoryTitle2" content="${text_categoryTitle2}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/category_2" link="${link_secondLine2}" />
+				<util:changeImg position="category_2" />
+				<!-- <c:if test="${(not empty text_categoryContent1 and not empty text_categoryContent2 and not empty text_categoryContent3 and not empty text_categoryContent4) or user_role == '[ROLE_ADMIN]'}" >
+		 	        <div  align="left">${text_categoryContent2}</div> <util:edit position="text_categoryContent2" content="${text_categoryContent2}" richText="true"/>
+		        </c:if> -->
+			</div>
+
+			<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_categoryTitle1 and not empty text_categoryTitle2 and not empty text_categoryTitle3 and not empty text_categoryTitle4) or user_role == '[ROLE_ADMIN]'}" >
+		         	<div>${text_categoryTitle3}</div> <util:edit position="text_categoryTitle3" content="${text_categoryTitle3}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/category_3" link="${link_secondLine3}" />
+				<util:changeImg position="category_3" />
+				<!-- <c:if test="${(not empty text_categoryContent1 and not empty text_categoryContent2 and not empty text_categoryContent3 and not empty text_categoryContent4) or user_role == '[ROLE_ADMIN]'}" >
+			        <div align="left">${text_categoryContent3}</div> <util:edit position="text_categoryContent3" content="${text_categoryContent3}" richText="true"/>
+		        </c:if> -->
+			</div>
+
+			<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_categoryTitle1 and not empty text_categoryTitle2 and not empty text_categoryTitle3 and not empty text_categoryTitle4) or user_role == '[ROLE_ADMIN]'}" >
+			        <div>${text_categoryTitle4}</div> <util:edit position="text_categoryTitle4" content="${text_categoryTitle4}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/category_4" link="${link_secondLine4}" />
+				<util:changeImg position="category_4" />
+				<!-- <c:if test="${(not empty text_categoryContent1 and not empty text_categoryContent2 and not empty text_categoryContent3 and not empty text_categoryContent4) or user_role == '[ROLE_ADMIN]'}" >
+		 	         <div align="left">${text_categoryContent4}</div> <util:edit position="text_categoryContent4" content="${text_categoryContent4}" richText="true"/>
+		        </c:if> -->
+			</div>
+		</div>
+	</c:if>
+
+	<!-- log -->
+	<c:if test="${not empty show_3_Object}">
+		<div class="row" style="margin-left: ${margin_left}px; margin-right: ${margin_right}px; margin-bottom: ${show_3_Object}px;">
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_LogTitle1 and not empty text_LogTitle2 and not empty text_LogTitle3) or user_role == '[ROLE_ADMIN]'}" >
+		        	<div>${text_LogTitle1}</div> <util:edit position="text_LogTitle1" content="${text_LogTitle1}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/log_1" link="${link_log1}" />
+				<util:changeImg position="log_1" />
+				<c:if test="${not empty show_3_Object_text}">
+					<div align="center"
+						style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent1}</div>
+					<util:edit position="text_logContent1"
+						content="${text_logContent1}" richText="true" />
+				</c:if>
+				<br />
+			</div>
+
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_logTitle1 and not empty text_logTitle2 and not empty text_logTitle3) or user_role == '[ROLE_ADMIN]'}" >
+			        <div>${text_logTitle2}</div> <util:edit position="text_logTitle2" content="${text_logTitle2}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/log_2" link="${link_log2}" /> <!-- usemap="#Map" />
+				<map name="Map" id="Map">
+					<spring:url var="enURL" value="/menu_1?lang=en" />
+					<area shape="rect" coords="10,20,340,115" href="${link_log2}" />
+					<area shape="rect" coords="10,116,340,180" href="mailto:reservation@spaviva.ca" />
+				</map> -->
+				<util:changeImg position="log_2" />
+				<c:if test="${not empty show_3_Object_text}">
+					<div align="center" style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent2}</div>
+					<util:edit position="text_logContent2" content="${text_logContent2}" richText="true" />
+				</c:if>
+				<br />
+			</div>
+
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_logTitle1 and not empty text_logTitle2 and not empty text_logTitle3 and not empty text_logTitle4) or user_role == '[ROLE_ADMIN]'}" >
+		         	<div>${text_logTitle3}</div> <util:edit position="text_logTitle3" content="${text_logTitle3}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/log_3" link="${link_log3}" />
+				<util:changeImg position="log_3" />
+				<c:if test="${not empty show_3_Object_text}">
+					<div align="center" style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent3}</div>
+					<util:edit position="text_logContent3" content="${text_logContent3}" richText="true" />
+				</c:if>
+				<br />
+			</div>
+		</div>
+	</c:if>
+
+	<!-- for startup initialization -->
+	<script type='text/javascript'>
+	    /* if it doesn't work, might because there's some thing stopped the document from fully load. then try to use 
+	    window.onload = function(){playit();$('.carousel').carousel({interval: 5000})}; Please remember to call the 
+	    "playit();", because it's for the promotion swicher, and was difined in external js file, in JSP, if we define a 
+	    window.onload in html file, looks like it can replace the window.onload in external js file.*/   
+	    $(document).ready(function(){$('.carousel').carousel({interval: 5000})});
+	
+		var showEmailConfirmation = ${email ne null};	//@NOTE: when it's changing picture, must make sure that contnet is null!
+		if(showEmailConfirmation == true)			//first check if it's modifying text.
+			$('#"emailConformation"').modal('show');
+	  </script>
+	<!-- for sharethis,  while seems no effect on local, but has effect on openshift! don't know why yet.-->
+	<c:if test="${not empty show_shareThis}">
+		<script type="text/javascript">
+			stLight.options({
+				publisher : "a1800cce-5aac-40c5-8fbd-e0e4c83315a0",
+				doNotHash : false,
+				doNotCopy : false,
+				hashAddressBar : false
+			});
+		</script>
+		<script>
+			var options = {
+				"publisher" : "a1800cce-5aac-40c5-8fbd-e0e4c83315a0",
+				"position" : "right",
+				"ad" : {
+					"visible" : false,
+					"openDelay" : 5,
+					"closeDelay" : 0
+				},
+				"chicklets" : {
+					"items" : [ "facebook", "twitter", "linkedin", "email",
+							"sharethis", "googleplus" ]
+				}
+			};
+			var st_hover_widget = new sharethis.widgets.hoverbuttons(options);
+		</script>
+	</c:if>
+</div>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<div xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:page="urn:jsptagdir:/WEB-INF/tags/form" xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields" version="2.0">
+    <jsp:directive.page contentType="text/html;charset=UTF-8"/>
+    <jsp:output omit-xml-declaration="yes"/>
+    <page:list id="pl_com_stgo_taostyle_domain_orders_MainOrder" items="${mainorders}" z="KyiJbBxKU9uiwTPXLV/MXzWKSik=">
+        <table:table data="${mainorders}" id="l_com_stgo_taostyle_domain_orders_MainOrder" path="/mainorders" z="aef/eFjRHfTcGT0yidjv7ToX7A8=">
+            <table:column id="c_com_stgo_taostyle_domain_orders_MainOrder_client" property="client" z="J0W0Wz83O/aQscy8ijuiOZqNmC8="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_MainOrder_clientSideOrderNumber" property="clientSideOrderNumber" z="Regqk8eCN4ZhQf/8N1fPK7BxdRc="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_MainOrder_clientSideModelNumber" property="clientSideModelNumber" z="tu2u88KZd8Rf3G+Y+9AjC4LitLs="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_MainOrder_model" property="model" z="/fG5Q2QG9vuCwi/0zdn5JuTooSs="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_MainOrder_picture" property="picture" z="pdUQ0QkU8s/WQvPW4ndY/yB5CGo="/>
+            <table:column id="c_com_stgo_taostyle_domain_orders_MainOrder_productName" property="productName" z="VMwDPSzAlsZINudfH4o6G9KqXBo="/>
+        </table:table>
+    </page:list>
+</div>

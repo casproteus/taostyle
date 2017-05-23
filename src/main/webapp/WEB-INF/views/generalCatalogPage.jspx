@@ -1,0 +1,235 @@
+<div xmlns:spring="http://www.springframework.org/tags"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+	xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields"
+	xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields" version="2.0">
+	<jsp:directive.page contentType="text/html;charset=UTF-8" />
+	<jsp:output omit-xml-declaration="yes" />
+
+	<spring:url value="/resources/css/blueimp-gallery.min.css"
+		var="blueimp_gallery" />
+	<link rel="stylesheet" href="${blueimp_gallery}" />
+
+	<!-- don't display by default -->
+	<c:set value=" col-xs-12 col-sm-12 col-md-12 col-lg-12" var="span" />
+	<c:set value="0px" var="leftmargin" />
+	
+	<!-- if have menu, then display -->
+	<c:if test="${not empty subMenu}">
+		<c:set value="col-xs-12 col-sm-8 col-md-9 col-lg-9" var="span" />
+		<c:set value="0px" var="leftmargin" />
+	</c:if>
+
+	<!-- Main Content -->
+	<!-- if it's above employee level, display the list view. -->
+	<c:if
+		test="${pageContext['request'].userPrincipal != null and user_role != '[ROLE_CLIENT]'}">
+		<div id="Listview" class="${span}" align="center"
+			style="margin-left:${leftmargin}">
+			<page:list_catalog id="pl_com_stgo_taostyle_domain_Product"
+				items="${products}" z="7xcAhB6xUOrJpSYdVJ8eg7jtLBY=">
+				<table:table_catalog data="${products}"
+					id="l_com_stgo_taostyle_domain_Product"
+					show="${user_role == '[ROLE_PARTNER]'}"
+					update="${user_role != '[ROLE_PARTNER]'}"
+					delete="${user_role != '[ROLE_PARTNER]'}" path="/products"
+					position="catalog_${menuIdx}" z="eLX4jN/N3mPoKiTBxtOuyTc4KmY=">
+					<!--should have little picture show on first column-->
+					<table:column id="c_com_stgo_taostyle_domain_Product_partNo"
+						property="partNo" z="VCSotlg3Bb8ETwIEFM8gCYZ6es8=" />
+					<table:column id="c_com_stgo_taostyle_domain_Product_name"
+						property="name" z="ZmpoeGQpD5pOL0D0dOMu3C7KL9k=" />
+					<table:column id="c_com_stgo_taostyle_domain_Product_packagesname"
+						property="packagesname" z="" />
+					<table:column id="c_com_stgo_taostyle_domain_Product_producedplace"
+						property="producedplace" z="BzJSKMxklIbO3PLDbpro0HtuW8I=" />
+					<table:column id="c_com_stgo_taostyle_domain_Product_c2"
+						property="c2" z="0ECSSDlqpbyPBud/Jy3AByKxjYg=" />
+					<table:column id="c_com_stgo_taostyle_domain_Product_c3"
+						property="c3" z="wDBEIz3rzAHdnyf+yfCx9ozcKIk=" />
+				</table:table_catalog>
+			</page:list_catalog>
+		</div>
+	</c:if>
+
+	<!-- the grid view should always available, while if it's above employee level, make it invisible by default. -->
+	<div id="gridview"
+		class="gallery ${span} ${pageContext['request'].userPrincipal != null and user_role != '[ROLE_CLIENT]' ? 'hide' : ''}"
+		align="center"
+		style="margin-left:${leftmargin}; padding:10px; background:#${background_subpage}; opacity:${subpage_opacity};">
+		<!-- <spring:url value="/searchProductUrl" var="searchProductUrl">
+			<spring:param name="searchProducts"/>
+			<spring:param name="position" value="catalog_${menuIdx}"/>
+		</spring:url>
+		<form class="navbar-form navbar-left" action="${searchProductUrl}" method="POST" style="padding-bottom: 10px">
+		    <div class="form-group">
+		        <input type="text" id = "searchContent" name="searchContent" class="form-control" placeholder="Search"/>
+		    	<button id="proceed" type="submit" style="width:22px;height:22px; cursor:pointer; background-color: transparent; border: 0px; ">
+		    	 	<spring:url value="/resources/images/search.png" var="add_img_url" />
+			        <img src="${add_img_url}" title="click me to Search." />
+		    	</button>
+		    </div>
+		</form> -->
+		<c:set var="clumnNumber" value="${span eq 'span9' ? '2' : '3'}" />
+		<c:set var="idx" value="1" />
+		<table>
+			<tr>
+				<c:forEach items="${products}" var="product">
+					<!-- use a table to display the image and contents. -->
+					<td style="padding: 4px">
+						<table border="1">
+							<tr>
+								<td
+									style="width: 120px; border-color: #888888; border-width: 0px; border-style: solid;">
+									<!-- <a href="products/${product['id']}"> --> <a
+									href="javascript:showDetail('${product['id']}','${lang}')"
+									title="Click to check detailed information"> <img
+										src="getImage/product_${product['partNo']}_thum" alt="image" />
+								</a>
+								</td>
+								<td
+									style="border-color: #888888; border-width: 0px; border-style: solid;">
+									<div>N:${product['localName']}</div>
+									<table>
+										<tr>
+											<td width="100$"><table>
+													<tr>
+														<td>PK:${product['producedplace']}</td>
+													</tr>
+													<tr>
+														<td>P:${product['packagesname']}</td>
+													</tr>
+													<tr>
+														<td>W:${product['litorweight']} ${product['unit']}</td>
+													</tr>
+												</table></td>
+											<td
+												style="width: 72px; border-color: #888888; border-width: 0px; border-style: solid;"><img
+												width="72px" src="getImage/product_${product['partNo']}_3d"
+												alt="3d barcode" /></td>
+										</tr>
+									</table>
+									<div>C:${product['partNo']}</div>
+									<div align="right">
+										<img src="getImage/product_${product['partNo']}_2d"
+											alt="2d barcode" />
+									</div>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<c:set var="idx" value="${idx + 1}" />
+					<c:if test="${idx > clumnNumber}">
+						<spring:message code="table_row_connect_string" htmlEscape="false" />
+						<c:set var="idx" value="1" />
+					</c:if>
+				</c:forEach>
+			</tr>
+		</table>
+	</div>
+
+	<script type="text/javascript">
+	function showDetail(id,lang) {
+	    var response;
+	    $.ajax({
+	    	headers: "Accept=application/json",
+	        type: "GET",
+	        url: "showProductJson/"+id,
+	        data: "lang=" + lang,
+	        async:false,
+	        success:function(product){
+	        	$("#d_partNumber").text(product.partNo);
+	        	$("#d_name").text(product.localName);
+	        	$("#d_place").text(product.producedplace);
+	        	$("#d_weight").text(product.litorweight + " " + product.unit);
+	        	$("#d_package").text(product.itemquantity + " " + product.packagesname);
+	        	$("#d_length").text(product.lenth + " cm");
+	        	$("#d_w").text(product.width + " cm");
+	        	$("#d_h").text(product.height + " cm");
+	        	$("#d_description").text(product.localDescription);
+	        	var a='product_'+product.partNo;
+	        	$("#d_photo").attr("src","getImage/" + a);
+	    		$("#luanchDetailDlg").click();
+	        }
+	    });
+	}
+	</script>
+
+	<!-- the pop up window! -->
+	<a id="luanchDetailDlg" class="hide" href="#windowTitleDialog"
+		data-toggle="modal" />
+	<div id="windowTitleDialog"
+		class="gallery modal hide fade in col-xs-12 col-sm-10 col-md-8 col-lg-6"
+		aria-hidden="true" aria-labelledby="windowTitleLabel" role="dialog"
+		tabindex="-1"
+		style="background:#${background_pop}; opacity:${pop_opacity}">
+		<div class="modal-header">
+			<a class="close" data-dismiss="modal" href="#">X</a>
+		</div>
+		<div class="modal-body" style="max-height: 600px;">
+			<table>
+				<tr>
+					<td style="padding-left: 20px"><img id="d_photo" alt="image" />
+					</td>
+					<td style="padding: 10px;">
+						<table>
+							<tr>
+								<td align="right">Part Number :</td>
+								<td><label id="d_partNumber" type='text'
+									name='d_partNumber' style="width: 150px" /></td>
+							</tr>
+							<tr>
+								<td align="right">Name:</td>
+								<td><label id="d_name" type='text' name='name'
+									style="width: 150px" /></td>
+							</tr>
+							<tr>
+								<td align="right">Place :</td>
+								<td><label id="d_place" type='text' name='place'
+									style="width: 150px" /></td>
+							</tr>
+							<tr>
+								<td align="right">Weight :</td>
+								<td><label id="d_weight" type='text' name='weight'
+									style="width: 150px" /></td>
+							</tr>
+							<tr>
+								<td align="right">Package :</td>
+								<td><label id="d_package" type='text' name='package'
+									style="width: 150px" /></td>
+							</tr>
+							<tr>
+								<td align="right">L :</td>
+								<td><label id="d_length" type='text' name='lenth'
+									style="width: 150px" /></td>
+							</tr>
+							<tr>
+								<td align="right">W :</td>
+								<td><label id="d_w" type='text' name='width'
+									style="width: 150px" /></td>
+							</tr>
+							<tr>
+								<td align="right">H :</td>
+								<td><label id="d_h" type='text' name='height'
+									style="width: 150px" /></td>
+							</tr>
+							<tr>
+								<td align="right">Description :</td>
+								<td><label id="d_description" type='text'
+									name='description' style="width: 150px" /></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2"></td>
+				</tr>
+			</table>
+			<!-- <div align="center">
+			<button data-dismiss="modal">Close</button>
+		  </div> -->
+		</div>
+	</div>
+</div>

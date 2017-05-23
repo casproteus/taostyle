@@ -1,0 +1,225 @@
+<div xmlns:spring="http://www.springframework.org/tags"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:util="urn:jsptagdir:/WEB-INF/tags/util"
+	xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:page="urn:jsptagdir:/WEB-INF/tags/form"
+	xmlns:table="urn:jsptagdir:/WEB-INF/tags/form/fields"
+	xmlns:field="urn:jsptagdir:/WEB-INF/tags/form/fields"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions" version="2.0">
+	<jsp:directive.page contentType="text/html;charset=UTF-8" />
+	<jsp:output omit-xml-declaration="yes" />
+
+	<spring:url value="/resources/css/blueimp-gallery.min.css"
+		var="blueimp_gallery" />
+	<link rel="stylesheet" href="${blueimp_gallery}" />
+
+	<!-- left menu -->
+	<c:set value="span12" var="span" />
+	<c:set value="0px" var="leftmargin" />
+
+	<!-- if it's General Editor mode, display the list view. -->
+	<c:if
+		test="${pageContext['request'].userPrincipal != null and (not empty todoList or not empty infoList or not empty mainOrderList)}">
+		<div id="todoAndMyDocListview" class="${span}" align="center" style="margin-left:${leftmargin}">
+
+			<!-- the todo list means GE distributed some document to you for adding comments or modifying directly on the document. -->
+			<!-- if you see this list, then you can see/add the comments for it, you can download and upload again with you modification directly on it.-->
+			<!-- if you are the GE, then you have an extra button for distribute the document -->
+			<page:list id="pl_com_stgo_taostyle_domain_MediaUpload" label="Todo"
+				labelPlural="Inbox:" items="${todoList}"
+				render="${fn:length(todoList) gt 0}" z="user-managed">
+				
+				<c:set var="name_db" value="${fn:toLowerCase(pageContext['request'].userPrincipal.name)}"/>
+				<c:set var="position" value="${fn:indexOf(name_db, '*')}" /> 
+				<c:set var="name_db" value="${fn:substring(name_db, 0, position)}"/>
+				<table:BigSortable data="${todoList}"
+					id="l_com_stgo_taostyle_domain_MediaUpload" path="/mediauploads"
+					z="user-managed" create="false"
+					delete="${name_db eq fn:toLowerCase(app_ContentManager)}">
+					<table:column id="c_com_stgo_taostyle_domain_MediaUpload_filepath"
+						property="filepath" z="user-managed" />
+					<table:column
+						id="c_com_stgo_taostyle_domain_MediaUpload_contentType"
+						label="Type" property="contentType" z="user-managed" />
+					<table:column id="c_com_stgo_taostyle_domain_MediaUpload_filesize"
+						property="filesize" z="user-managed" />
+					<table:column
+						id="c_com_stgo_taostyle_domain_MediaUpload_contentType"
+						label="Submit Time" property="submitDate" z="user-managed" />
+					<c:if test="${user_role eq '[ROLE_MANAGER]'}">
+						<!-- if it's employee(only the GE are employee when in GE mode, then display all fields -->
+						<table:column id="c_com_stgo_taostyle_domain_MediaUpload_audient"
+							label="reviser" property="audient" z="user-managed" />
+					</c:if>
+					<table:column
+						id="c_com_stgo_taostyle_domain_MediaUpload_contentType"
+						label="Status" property="status" z="user-managed" />
+				</table:BigSortable>
+			</page:list>
+
+			<br />
+			<!-- the document user uploaded to the cloud, if the app_ContentManager mode is on, these file can be viewed by GE, and distributed to others. -->
+			<!-- user can open the details of a document, and view/add comments to it.-->
+			<!-- added a check might because some client might need to check the resume she/he uploaded. -->
+			<c:if
+				test="${not empty infoList and (user_role ne '[ROLE_CLIENT]' or not empty show_myDocs_toClient)}">
+				<page:list id="pl_com_stgo_taostyle_domain_MediaUpload"
+					label="Documents" labelPlural="My Documents:" items="${infoList}"
+					z="user-managed">
+					<table:BigSortable data="${infoList}" create="false" delete="false"
+						id="l_com_stgo_taostyle_domain_MediaUpload" path="/mediauploads"
+						z="user-managed">
+						<table:column id="c_com_stgo_taostyle_domain_MediaUpload_filepath"
+							property="filepath" z="user-managed" />
+						<table:column
+							id="c_com_stgo_taostyle_domain_MediaUpload_contentType"
+							label="Type" property="contentType" z="user-managed" />
+						<table:column id="c_com_stgo_taostyle_domain_MediaUpload_filesize"
+							property="filesize" z="user-managed" />
+						<table:column
+							id="c_com_stgo_taostyle_domain_MediaUpload_contentType"
+							label="Submit Time" property="submitDate" z="user-managed" />
+						<table:column
+							id="c_com_stgo_taostyle_domain_MediaUpload_contentType"
+							label="Status" property="status" z="user-managed" />
+					</table:BigSortable>
+				</page:list>
+			</c:if>
+			
+			<br />
+			<!-- MainOrder list -->
+			<page:list id="pl_com_stgo_taostyle_domain_MainOrder" label="Order" labelPlural="" items="${mainOrderList}" render="${fn:length(mainOrderList) gt 0}" z="user-managed">
+				<!-- 
+				<c:set var="name_db" value="${fn:toLowerCase(pageContext['request'].userPrincipal.name)}"/>
+				<c:set var="position" value="${fn:indexOf(name_db, '*')}" /> 
+				<c:set var="name_db" value="${fn:substring(name_db, 0, position)}"/>
+				 -->
+				<table:BigSortable data="${mainOrderList}" id="l_com_stgo_taostyle_domain_MainOrder" path="/showDetailOrder" 
+				selectable="true" returnPath="./dashboard" create="false" update="false"  delete="false">
+					<!-- table:column id="c_com_stgo_taostyle_domain_mainorder_id" label="ID" property="id"/-->
+					<table:column id="c_com_stgo_taostyle_domain_mainorder_delieverdate" date="true" dateTimePattern="HH:mm:ss" label="Target" property="delieverdate"/>
+					<table:column id="c_com_stgo_taostyle_domain_mainorder_sizetable" label="Customer" property="sizeTable"/>
+					<table:column id="c_com_stgo_taostyle_domain_mainorder_recordStatus" label="Status" property="recordStatus"/>
+					<table:column id="c_com_stgo_taostyle_domain_mainorder_paycondition" label="Total" property="payCondition"/>
+				</table:BigSortable>
+				<c:if test="${user_role eq '[ROLE_MANAGER]'}">
+					<input id="OrderClean" type="submit" class="btn btn-primary" onclick="javascript:cleanHistoricalMainOrder()" value="Clean" />
+				</c:if>
+			</page:list>
+			
+			<spring:url value="/resources/images/link.png" var="link_img_url" />
+			<img alt="Merge" src="${link_img_url}" title="Merge into an other order." onclick="javascript:combineMainOrder()" style="cursor:pointer"/>
+			 | 
+			<spring:url value="/resources/images/clean.png" var="clean_img_url" />
+			<img alt="Merge" src="${clean_img_url}" title="Clean the order from the list" onclick="javascript:cleanOrders()" style="cursor:pointer"/>
+		</div>
+	</c:if>
+
+	<!-- personal info -->
+	<page:show id="ps_com_stgo_taostyle_domain_UserAccount" label="or modify personal Info?"
+		object="${useraccount}" delete="false" create="false" list="false"
+		path="/useraccounts" z="user-managed">
+		<!--
+		<field:display field="loginname"
+			id="s_com_stgo_taostyle_domain_UserAccount_loginname"
+			object="${useraccount}" z="user-managed" />
+		<field:display field="tel"
+			id="s_com_stgo_taostyle_domain_UserAccount_tel"
+			object="${useraccount}" z="user-managed" />
+		<field:display field="email"
+			id="s_com_stgo_taostyle_domain_UserAccount_email"
+			object="${useraccount}" z="user-managed" />
+		-->
+	</page:show>
+
+	<script type="text/javascript">
+	
+		function combineMainOrder() {
+			var chkBoxes = $('#l_com_stgo_taostyle_domain_MainOrder').find('input:checked');
+
+	        if (chkBoxes.length != 2) {
+	        	alert("Please select 2 rows to merge. You have selected " + chkBoxes.length);
+	            return;
+	        }
+	        
+	        var ids = [ ];
+	        $(chkBoxes).each(function() {
+	            ids.push($(this).attr('id'));
+	        }); 
+
+	        $.ajax({
+		    	headers: "Accept=application/json",
+		        type: "POST",
+		        url: "combineAnOrder/"+ids[0],
+		        data: "targetOrder="+ids[1],
+		        async:false,
+		        success:function(textContent){
+		        	if(textContent == null || textContent.length == 0){
+		        	}else{
+		        		alert( "Please check the connection of internet or cotact the admin.");
+		        	}
+		        	window.location = "./dashboard";
+		        }
+		    });
+		}
+		
+		function cleanOrders(){
+			var chkBoxes = $('#l_com_stgo_taostyle_domain_MainOrder').find('input:checked');
+
+	        if (chkBoxes.length == 0) {
+	        	alert("Please select at least 1 row to do batch clean.");
+	            return;
+	        }
+	        
+	        alert("Are you sure you want to remove the rows from list? Currently selected rows :" + chkBoxes.length);
+	        
+	        var ids = [ ];
+	        $(chkBoxes).each(function() {
+	            ids.push($(this).attr('id'));
+	        }); 
+
+			$.ajax({
+		    	headers: "Accept=application/json",
+		        type: "POST",
+		        url: "updateAnOrderStatus/"+ids,
+		        data: "recordStatus=-1",
+		        async:false,
+		        success:function(textContent){
+		        	if(textContent == null || textContent.length == 0){
+		        	}else{
+		        		alert( "Please check the connection of internet or cotact the admin.");
+		        	}
+		        	window.location = "./dashboard";
+		        }
+		    });
+			
+		}
+		
+		function cleanHistoricalMainOrder() {
+			$.ajax({
+		    	headers: "Accept=application/json",
+		        type: "POST",
+		        url: "cleanHistoricalMainOrder/",
+		        async:false,
+		        success:function(textContent){
+		        	if(textContent == null || textContent.length == 0){
+		        	}else{
+		        		alert( "Please check the connection of internet or cotact the admin.");
+		        	}
+		        	window.location = "./dashboard";
+		        }
+		    });
+		}
+	</script>
+	
+	<c:if test="${user_role eq '[ROLE_EMPLOYEE]'}">
+		<script type="text/javascript">
+			//self refresh.
+			function start(){
+				window.location = "./dashboard";
+			} 
+			setTimeout('start()', ${(20+refresh_time) * 1000});
+		</script>
+	</c:if>
+
+</div>
