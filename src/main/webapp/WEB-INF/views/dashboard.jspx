@@ -95,7 +95,7 @@
 				<c:set var="name_db" value="${fn:substring(name_db, 0, position)}"/>
 				 -->
 				<table:BigSortable data="${mainOrderList}" id="l_com_stgo_taostyle_domain_MainOrder" path="/showDetailOrder" 
-				selectable="true" returnPath="./dashboard" create="false" update="false"  delete="false">
+				selectable="true" create="false" update="false"  delete="false">
 					<!-- table:column id="c_com_stgo_taostyle_domain_mainorder_id" label="ID" property="id"/-->
 					<table:column id="c_com_stgo_taostyle_domain_mainorder_delieverdate" date="true" dateTimePattern="HH:mm:ss" label="Target" property="delieverdate"/>
 					<table:column id="c_com_stgo_taostyle_domain_mainorder_sizetable" label="Customer" property="sizeTable"/>
@@ -150,8 +150,8 @@
 	        $.ajax({
 		    	headers: "Accept=application/json",
 		        type: "POST",
-		        url: "combineAnOrder/"+ids[0],
-		        data: "targetOrder="+ids[1],
+		        url: "combineAnOrder/"+ids[1],
+		        data: "targetOrder="+ids[0],
 		        async:false,
 		        success:function(textContent){
 		        	if(textContent == null || textContent.length == 0){

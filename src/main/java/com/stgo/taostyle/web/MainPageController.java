@@ -1554,7 +1554,7 @@ public class MainPageController extends BaseController {
             return new ResponseEntity<String>(textContent.toJson(), HttpStatus.ALREADY_REPORTED);
         }
 
-        String[] items = StringUtils.split(orderedItems, ",");
+        String[] items = "emptyOrder".equals(orderedItems) ? new String[] {} : StringUtils.split(orderedItems, ",");
         String source = request.getParameter("source");
         String[] params = StringUtils.split(source, ",");
         String sizeTable = "";
@@ -1613,7 +1613,8 @@ public class MainPageController extends BaseController {
 
         // ----------------re-update the mainOrder-----------------------
         if (total == 0) {//
-            sourcdAndNewMainOrder.setRecordStatus(5);// means this is actually a customer needing help.
+            sourcdAndNewMainOrder.setRecordStatus(5);// means this is actually a customer changed place and employee
+                                                     // create a new one to merge.
             sourcdAndNewMainOrder.persist();
         } else {
             sourcdAndNewMainOrder.setPayCondition(moneyLetter + String.valueOf(total)); // actual deal price.
@@ -1639,9 +1640,16 @@ public class MainPageController extends BaseController {
         taxonomyMaterial.setPerson(person);
         taxonomyMaterial.setRemark(request.getRequestURI());// what ordered e.g.
                                                             // /taostyle/thai/createAnOrder/3_2_0_3,3_2_0_1,3_1_0_1
-        taxonomyMaterial.setSpecification(params[4]);
-        taxonomyMaterial.setQuality(params[5]);
         taxonomyMaterial.setLogtime(new Date());
+        // the last two string are location. while sometime the content before meight be null. so the ary could be
+        // shorter.
+        if (params.length > 5) {
+            taxonomyMaterial.setSpecification(params[4]);
+            taxonomyMaterial.setQuality(params[5]);
+        } else if (params.length > 2) {
+            taxonomyMaterial.setSpecification(params[1]);
+            taxonomyMaterial.setQuality(params[2]);
+        }
         taxonomyMaterial.persist();
 
         // ----------------return-----------------------

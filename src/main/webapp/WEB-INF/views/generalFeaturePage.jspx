@@ -28,6 +28,11 @@
 		<c:set var="isAboveManager"  value="true" />
 	</c:if>
 	
+  	<c:set var="isAboveEmployee"  value="false" />
+	<c:if test="${user_role == '[ROLE_ADMIN]'  or user_role == '[ROLE_MANAGER]' or user_role == '[ROLE_EMPLOYEE]'}">
+		<c:set var="isAboveEmployee"  value="true" />
+	</c:if>
+			
 	<!-- Main Content -->
 	<c:set var="length" value="${fn:length(features)}"/>
 	<c:if test="${length > 0 }">
@@ -112,7 +117,7 @@
 		  </div>
 		  <div style="position: fixed; z-index: 3000; top: 380px; right: 5px; cursor:pointer">
 			<img alt="hide unchecked items" src="getImage/bell" title="Click here to submit or call a waiter."
-				onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}')"/>
+				onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')"/>
 			<util:changeImg position="bell" />
 		  </div>
 	  	</div>
@@ -135,7 +140,7 @@
 		longitude = position.coords.longitude;
 	}
 	
-	function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff) {
+	function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
 
 		//build string of selected producs/services.
 		var orderedItems = "";
@@ -156,9 +161,8 @@
 				}
 			}
 		}
-
-		//selected nothing? notice and return.
-		if(orderedItems.length &lt; 1){
+		//selected nothing? notice and return. while employee has reason to do it.
+		if((orderedItems.length &lt; 1) &amp; ((isAboveEmployee == 'false') || (tableID.length &lt; 1))){
 			alert("Please touch the buttons under the dishes you want first, then click me to order.");
 			return;
 		}
@@ -229,7 +233,9 @@
 			}
 		}
 		source = source + "," + latitude + "," + longitude;
-
+		if(orderedItems.length == 0){
+			orderedItems = "emptyOrder";
+		}
 		$.ajax({
 	    	headers: "Accept=application/json",
 	        type: "POST",
@@ -361,7 +367,7 @@
 		</div>
 
 		<!-- display the edit button, this button must not reuse the tags, because we need to use it's uniq id to set value into it when service clicked. -->
-		<c:if test="${user_role == '[ROLE_ADMIN]'  or user_role == '[ROLE_MANAGER]' or user_role == '[ROLE_EMPLOYEE]'}">
+		<c:if test="${isAboveEmployee}">
 			<div class="span1">
 				<spring:url value="/changeContentForm" var="form_url" />
 				<form action="${fn:escapeXml(form_url)}" method="GET">
