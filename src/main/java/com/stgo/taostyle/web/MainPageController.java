@@ -560,7 +560,8 @@ public class MainPageController extends BaseController {
             HttpServletRequest request,
             String posStr,
             String description) {
-        if (posStr.startsWith("service_") && posStr.endsWith("_description")) {
+        Object need_calculate_price = request.getSession().getAttribute("need_calculate_price");
+        if ("true".equals(need_calculate_price) && posStr.startsWith("service_") && posStr.endsWith("_description")) {
             String langPrf = TaoUtil.getLangPrfWithDefault(request);
             String moneyLetter = CC.money.valueOf(langPrf.substring(0, 2)).getValue();
 
@@ -2216,8 +2217,9 @@ public class MainPageController extends BaseController {
         createACustomize(request, "img_service_thum_w", "270", person);
         createACustomize(request, "service_number_sm", "12", person);
         createACustomize(request, "service_number_xs", "12", person);
-        createACustomize(request, "show_service_cBox", "true", person);
         createACustomize(request, "show_service_bell", "true", person);
+        createACustomize(request, "show_service_cBox", "true", person);
+        createACustomize(request, "need_calculate_price", "true", person);
         createACustomize(request, "app_ContentManager", "true", person);// when someone is promoted to be a manager,
                                                                         // shall we set his name here?
 
