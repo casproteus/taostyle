@@ -16,19 +16,65 @@
 	<c:set value="span12" var="span" />
 	<c:set value="0px" var="leftmargin" />
 
-	<!-- if it's General Editor mode, display the list view. -->
+	<c:set value="${user_role != '[ROLE_PRINTER]'}" var="isNotPrinter" />
 	<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
 		<div id="printPreview" class="${span}" align="center" style="margin-left:${leftmargin}">
 			<!-- Material list -->
 			<page:BigList id="pl_com_stgo_taostyle_domain_material" label="${targetTime} ( ${sizeTable}${contactPhone} )" items="${materials}"
 			 mainOrderID="${mainOrderID}" render="${fn:length(materials) gt 0}">
 				<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
-				update="true"  delete="true" total="${total}">
+				update="${isNotPrinter}"  delete="${isNotPrinter}" total="${isNotPrinter? total : null}">
 					<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="portionName"/>
-					<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>
+					<c:if test="${isNotPrinter}">
+						<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>
+					</c:if>
 					<table:column id="c_com_stgo_taostyle_domain_material_remark" label="Note" property="remark"/>
 				</table:BigSortable>
 			</page:BigList>
+			
+			<c:if test="${user_role == '[ROLE_PRINTER]'}">
+				<input id="mainOrderID" value="${mainOrderID}" />
+			</c:if>
 		</div>
+	</c:if>
+	
+	<c:if test="${user_role == '[ROLE_PRINTER]'}">
+		<script type="text/javascript">
+		    function printDiv() {
+		    	if(document.getElementById("printPreview")){
+				     var printContents = document.getElementById("printPreview").innerHTML;
+					 var mainOrderID = document.getElementById("mainOrderID").value;
+					 $.ajax({
+					    	headers: "Accept=application/json",
+					        type: "POST",
+					        url: "updateAnOrderStatus/"+mainOrderID,
+					        data: "recordStatus=20",
+					        async:true,
+					        success:function(textContent){
+					        	//ask for next printable order.(which status is 10)
+					        	if(textContent == null || textContent.length == 0){
+					        	}else{
+					        		alert( "Please check the connection of internet or cotact the admin.");
+					        	}
+					        }
+					 });
+
+			       	 //todo change to printonly specific div.
+			     	 document.body.innerHTML = printContents;
+			     	 //window.print();
+					 //alert("content printed, fetching another record immediatly.");
+			         fetchPrintableOrder();
+				 }else{
+					 //alert("// no content to print, then wait for 20 seconds before check again.");
+				  	 setTimeout('fetchPrintableOrder()', ${(20+refresh_time) * 1000});
+				 }
+		    }
+			
+		    function fetchPrintableOrder(){
+		    	window.location = "../taostyle/dashboard";
+		    }
+
+			printDiv();
+		</script>
 	</c:if>
 </div>

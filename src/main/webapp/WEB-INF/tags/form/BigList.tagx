@@ -53,21 +53,25 @@
 				</c:choose>
 			</div>
 			
-			<spring:url value="/resources/images/back.png" var="back_img_url" />
-			<img alt="Back" src="${back_img_url}" title="Back to main order page." onclick="javascript:backToMainOrder()" style="cursor:pointer"/>
-			 | 
-			<spring:url value="/resources/images/print.png" var="print_img_url" />
-			<img alt="Print" src="${print_img_url}" title="Send the order to printer." onclick="javascript:printMainOrder('${mainOrderID}', '${wsUri}')" style="cursor:pointer"/>
-			 | 
-			<spring:url value="/resources/images/money.png" var="money_img_url" />
-			<img alt="Served" src="${money_img_url}" title="Ready for receve money." onclick="javascript:orderCompleted('${mainOrderID}')" style="cursor:pointer"/>
-			 | 
-			<spring:url value="/resources/images/clean.png" var="clean_img_url" />
-			<img alt="Merge" src="${clean_img_url}" title="Clean the order from the list" onclick="javascript:cleanAnOrder('${mainOrderID}')" style="cursor:pointer"/>
-			<!-- input id="OrderCleaned" type="submit" class="btn btn-primary" onclick="javascript:closeAnOrder('${mainOrderID}')" value="Close" /-->
+			<c:if test="${user_role != '[ROLE_PRINTER]'}">
+				<spring:url value="/resources/images/back.png" var="back_img_url" />
+				<img alt="Back" src="${back_img_url}" title="Back to main order page." onclick="javascript:backToMainOrder()" style="cursor:pointer"/>
+				 | 
+				<spring:url value="/resources/images/print.png" var="print_img_url" />
+				<img alt="Print" src="${print_img_url}" title="Send the order to printer." onclick="javascript:printMainOrder('${mainOrderID}', '${wsUri}')" style="cursor:pointer"/>
+				 | 
+				<spring:url value="/resources/images/money.png" var="money_img_url" />
+				<img alt="Served" src="${money_img_url}" title="Ready for receve money." onclick="javascript:orderCompleted('${mainOrderID}')" style="cursor:pointer"/>
+				 | 
+				<spring:url value="/resources/images/clean.png" var="clean_img_url" />
+				<img alt="Merge" src="${clean_img_url}" title="Clean the order from the list" onclick="javascript:cleanAnOrder('${mainOrderID}')" style="cursor:pointer"/>
+				<!-- input id="OrderCleaned" type="submit" class="btn btn-primary" onclick="javascript:closeAnOrder('${mainOrderID}')" value="Close" /-->
+			</c:if>
 		</div>
 		
+		<c:if test="${user_role != '[ROLE_PRINTER]'}">
 		<script type="text/javascript">
+		
 		function backToMainOrder() {
 			window.location = "../dashboard";
 		}
@@ -132,5 +136,6 @@
 		}
 		
 		</script>
+		</c:if>
 	</c:if>
 </jsp:root>

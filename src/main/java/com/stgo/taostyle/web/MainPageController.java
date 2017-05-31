@@ -405,7 +405,9 @@ public class MainPageController extends BaseController {
         if ("ROLE_MANAGER".equalsIgnoreCase(securityLevel)) {
             mainOrders = MainOrder.findMainOrdersByPerson(person, "desc");
         } else if ("ROLE_PRINTER".equalsIgnoreCase(securityLevel)) {
-            mainOrders = MainOrder.findMainOrdersByStatusAndPerson(CC.STATUS_TO_PRINT, person, "desc");
+            mainOrders = MainOrder.findMainOrdersByStatusAndPerson(CC.STATUS_TO_PRINT, person, "asc");
+            return showDetailOrder(mainOrders != null && mainOrders.size() > 0 ? mainOrders.get(0).getId() : -1, model,
+                    request);
         } else {
             mainOrders = MainOrder.findUnCompletedMainOrdersByPerson(person, "desc");
         }
@@ -422,16 +424,19 @@ public class MainPageController extends BaseController {
             Long mainOrderId,
             Model model,
             HttpServletRequest request) {
-        List<Material> materials = Material.findAllMaterialsByMainOrderId(mainOrderId);
-        model.addAttribute("materials", materials);
+        if (mainOrderId > -1) {
+            List<Material> materials = Material.findAllMaterialsByMainOrderId(mainOrderId);
+            model.addAttribute("materials", materials);
 
-        MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
-        model.addAttribute("sizeTable", mainOrder.getSizeTable());
-        model.addAttribute("mainOrderID", mainOrder.getId());
-        model.addAttribute("targetTime", mainOrder.getDelieverdate());
-        model.addAttribute("contactPhone", mainOrder.getClient());// actually client's cellphone
-        model.addAttribute("total", mainOrder.getPayCondition());
-
+            MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
+            model.addAttribute("sizeTable", mainOrder.getSizeTable());
+            model.addAttribute("mainOrderID", mainOrder.getId());
+            model.addAttribute("targetTime", mainOrder.getDelieverdate());
+            model.addAttribute("contactPhone", mainOrder.getClient());// actually client's cellphone
+            model.addAttribute("total", mainOrder.getPayCondition());
+        } else {
+            model.addAttribute("materials", null);
+        }
         return "printpreview";
     }
 
