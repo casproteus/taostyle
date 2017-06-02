@@ -405,6 +405,7 @@ public class MainPageController extends BaseController {
         if ("ROLE_MANAGER".equalsIgnoreCase(securityLevel)) {
             mainOrders = MainOrder.findMainOrdersByPerson(person, "desc");
         } else if ("ROLE_PRINTER".equalsIgnoreCase(securityLevel)) {
+            request.getSession().setAttribute("show_footArea", "false");
             mainOrders = MainOrder.findMainOrdersByStatusAndPerson(CC.STATUS_TO_PRINT, person, "asc");
             return showDetailOrder(mainOrders != null && mainOrders.size() > 0 ? mainOrders.get(0).getId() : -1, model,
                     request);
@@ -431,7 +432,7 @@ public class MainPageController extends BaseController {
             MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
             model.addAttribute("sizeTable", mainOrder.getSizeTable());
             model.addAttribute("mainOrderID", mainOrder.getId());
-            model.addAttribute("targetTime", mainOrder.getDelieverdate());
+            model.addAttribute("targetTime", TaoUtil.formateDate(request, mainOrder.getDelieverdate()));
             model.addAttribute("contactPhone", mainOrder.getClient());// actually client's cellphone
             model.addAttribute("total", mainOrder.getPayCondition());
         } else {
@@ -1726,12 +1727,17 @@ public class MainPageController extends BaseController {
             Long id = Long.valueOf(orderId);
             MainOrder mainOrder = MainOrder.findMainOrder(id);
             String recordStatus = request.getParameter("recordStatus");
-            mainOrder.setRecordStatus(Integer.valueOf(recordStatus));
+            int status = Integer.valueOf(recordStatus);
+            mainOrder.setRecordStatus(status);
 
             Object userId = request.getSession().getAttribute("currentUserID");
             mainOrder.setContactPerson(UserAccount.findUserAccount(Long.valueOf(userId.toString())));
 
             mainOrder.persist();
+
+            if (status == CC.STATUS_PRINTED) {
+                request.getSession().setAttribute("show_footArea", "true");
+            }
         }
         return new ResponseEntity<String>(HttpStatus.OK);
     }

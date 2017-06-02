@@ -1,10 +1,13 @@
 package com.stgo.taostyle.web;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -957,5 +960,17 @@ public class TaoUtil {
         }
 
         return sb.toString() + html;
+    }
+
+    public static String formateDate(
+            HttpServletRequest request,
+            Date date) {
+        if (date == null) {
+            return null;
+        }
+        Object dateFormate = request.getSession().getAttribute("DateFormat");
+        String format = dateFormate != null ? dateFormate.toString() : "hh:mm:ss";
+        SimpleDateFormat df5 = new SimpleDateFormat(format, Locale.getDefault());
+        return df5.format(date);
     }
 }

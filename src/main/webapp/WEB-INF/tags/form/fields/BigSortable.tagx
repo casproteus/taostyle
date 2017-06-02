@@ -43,10 +43,13 @@
 	<jsp:directive.attribute name="render" type="java.lang.Boolean"
 		required="false" rtexprvalue="true"
 		description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
+	<jsp:directive.attribute name="showHeader" type="java.lang.Boolean"
+		required="false"
+		description="Used for determine if the header are visible" />
 	<jsp:directive.attribute name="z" type="java.lang.String"
 		required="false"
 		description="Used for checking if element has been modified (to recalculate simply provide empty string value)" />
-
+		
 	<c:if test="${empty render or render}">
 
 		<c:set var="columnProperties" scope="request" />
@@ -70,7 +73,10 @@
 		<c:if test="${empty delete}">
 			<c:set var="delete" value="true" />
 		</c:if>
-
+		<c:if test="${empty showHeader or showHeader == 'true'}">
+			<c:set var="showHeader" value="true" />
+		</c:if>
+			
 		<spring:message var="typeName"
 			code="menu_item_${fn:toLowerCase(fn:split(id,'_')[fn:length(fn:split(id,'_')) - 1])}_new_label"
 			htmlEscape="false" />
@@ -82,10 +88,12 @@
 			scope="request" />
 		<c:set var="patterns"
 			value="${fn:split(columnDatePatterns, '&#9999;')}" scope="request" />
-
+		
+			
 		<spring:eval var="colCounter" expression="1" />
 		<table id="${id}"
 			class="table table-striped table-hover table-condensed table-bordered">
+			<c:if test="${showHeader}">
 			<thead>
 				<tr>
 					<c:if test="${selectable}">
@@ -119,6 +127,8 @@
 					</c:if>
 				</tr>
 			</thead>
+			</c:if>
+			
 			<c:forEach items="${data}" var="item">
 				<tr>
 					<c:if test="${selectable}">

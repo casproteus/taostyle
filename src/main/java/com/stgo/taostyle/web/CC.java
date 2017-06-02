@@ -49,7 +49,8 @@ public interface CC {
     String STATUS_COMMENTED = "reviewed";
     String STATUS_DELETED = "deleted";
     int STATUS_TO_PRINT = 10;
-
+    int STATUS_PRINTED =20;
+    
     String APPEND = "append";
     String OVERWRITE = "overwrite";
     
