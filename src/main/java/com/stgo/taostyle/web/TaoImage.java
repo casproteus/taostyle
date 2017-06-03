@@ -23,6 +23,8 @@ import org.hsqldb.lib.HashMap;
 import com.google.zxing.common.BitMatrix;
 import com.stgo.taostyle.domain.MediaUpload;
 import com.stgo.taostyle.domain.Person;
+import com.stgo.taostyle.domain.Product;
+import com.stgo.taostyle.domain.Service;
 import com.stgo.taostyle.domain.TextContent;
 
 public class TaoImage {
@@ -602,6 +604,19 @@ public class TaoImage {
                     posInPage = posInPage.substring(0, index + 1);
                     textContent.setPosInPage(posInPage + (i + countOfNewImage) + "_description");
                     textContent.persist();
+                }
+            }
+            if (key.startsWith("service_")) {
+                Service service = Service.findServiceByCatalogAndPerson(key.substring(8), person);
+                if (service != null) {
+                    service.setC1(keyStr + "_" + (i + countOfNewImage));
+                    service.persist();
+                }
+            } else if (key.startsWith("product_")) {
+                Product product = Product.findProductByCatalogAndPerson(key.substring(8), person);
+                if (product != null) {
+                    product.setC1(keyStr + "_" + (i + countOfNewImage));
+                    product.persist();
                 }
             }
         }

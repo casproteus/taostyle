@@ -9,6 +9,8 @@ public interface CC {
     String ROLE_EMPLOYEE = "ROLE_EMPLOYEE";
     String ROLE_ADMIN = "ROLE_ADMIN";
     String ROLE_MANAGER = "ROLE_MANAGER";
+    String ROLE_PRINTER = "ROLE_PRINTER";
+    
     // --------------------------------------
     String HTML = "HTML";
 
@@ -23,6 +25,7 @@ public interface CC {
     String CLIENT = "client";
     String debugFlag = "debugFlag";
     String debugInfo = "debugInfo";
+    String currentUser = "currentUser";
 
     String app_name = "app_name";
     String app_ContentManager = "app_ContentManager";

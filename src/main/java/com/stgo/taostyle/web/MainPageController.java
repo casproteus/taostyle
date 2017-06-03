@@ -43,6 +43,7 @@ import com.stgo.taostyle.domain.Feature;
 import com.stgo.taostyle.domain.MediaUpload;
 import com.stgo.taostyle.domain.Person;
 import com.stgo.taostyle.domain.Product;
+import com.stgo.taostyle.domain.Service;
 import com.stgo.taostyle.domain.TextContent;
 import com.stgo.taostyle.domain.UserAccount;
 import com.stgo.taostyle.domain.orders.MainOrder;
@@ -402,12 +403,13 @@ public class MainPageController extends BaseController {
         model.addAttribute("infoList", MediaUpload.findMediaByAuthor(userAccount));
         List<MainOrder> mainOrders = null;
         String securityLevel = userAccount.getSecuritylevel();
-        if ("ROLE_MANAGER".equalsIgnoreCase(securityLevel)) {
+        if (CC.ROLE_MANAGER.equalsIgnoreCase(securityLevel)) {
             mainOrders = MainOrder.findMainOrdersByPerson(person, "desc");
-        } else if ("ROLE_PRINTER".equalsIgnoreCase(securityLevel)) {
+        } else if (CC.ROLE_PRINTER.equalsIgnoreCase(securityLevel)) {
             request.getSession().setAttribute("show_footArea", "false");
+            request.getSession().setAttribute("show_foot", "false");
             mainOrders = MainOrder.findMainOrdersByStatusAndPerson(CC.STATUS_TO_PRINT, person, "asc");
-            return showDetailOrder(mainOrders != null && mainOrders.size() > 0 ? mainOrders.get(0).getId() : -1, model,
+            return showDetailOrder(mainOrders != null && mainOrders.size() > 0 ? mainOrders.get(0) : null, model,
                     request);
         } else {
             mainOrders = MainOrder.findUnCompletedMainOrdersByPerson(person, "desc");
@@ -426,12 +428,32 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request) {
         if (mainOrderId > -1) {
-            List<Material> materials = Material.findAllMaterialsByMainOrderId(mainOrderId);
+            MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
+            return showDetailOrder(mainOrder, model, request);
+        } else {
+            model.addAttribute("materials", null);
+            return "printpreview";
+        }
+    }
+
+    private String showDetailOrder(
+            MainOrder mainOrder,
+            Model model,
+            HttpServletRequest request) {
+        if (mainOrder != null) {
+            UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);
+            List<Material> materials = null;
+            if (CC.ROLE_PRINTER.equals(currentUser.getSecuritylevel())) {
+                materials = Material.findAllMaterialsByMainOrderIdAndPrinter(mainOrder, currentUser);
+            } else {
+                materials = Material.findAllMaterialsByMainOrder(mainOrder);
+            }
+
             model.addAttribute("materials", materials);
 
-            MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
             model.addAttribute("sizeTable", mainOrder.getSizeTable());
             model.addAttribute("mainOrderID", mainOrder.getId());
+            model.addAttribute("printStyle", currentUser.getFax());
             model.addAttribute("targetTime", TaoUtil.formateDate(request, mainOrder.getDelieverdate()));
             model.addAttribute("contactPhone", mainOrder.getClient());// actually client's cellphone
             model.addAttribute("total", mainOrder.getPayCondition());
@@ -553,7 +575,7 @@ public class MainPageController extends BaseController {
             tContent.setPosInPage(key);
         }
         String content = request.getParameter("content");
-        if (isContentValid(request, tPosStr, content)) {
+        if (isContentValid(request, tPosStr, content, person)) {
             tContent.setContent(content);
             tContent.persist();
         }
@@ -565,9 +587,11 @@ public class MainPageController extends BaseController {
     private boolean isContentValid(
             HttpServletRequest request,
             String posStr,
-            String description) {
+            String description,
+            Person person) {
         Object need_calculate_price = request.getSession().getAttribute("need_calculate_price");
-        if ("true".equals(need_calculate_price) && posStr.startsWith("service_") && posStr.endsWith("_description")) {
+        if ("true".equals(need_calculate_price) && (posStr.startsWith("service_") || posStr.startsWith("product_"))
+                && posStr.endsWith("_description")) {
             String langPrf = TaoUtil.getLangPrfWithDefault(request);
             String moneyLetter = CC.money.valueOf(langPrf.substring(0, 2)).getValue();
 
@@ -580,6 +604,19 @@ public class MainPageController extends BaseController {
                 Float.valueOf(payCondition);
             } catch (Exception e) {
                 return false;
+            }
+
+            // if it's valid, then update service and product record.
+            if (posStr.startsWith("service_")) {
+                Service service = Service.findServiceByCatalogAndPerson(posStr.substring(8), person);
+                service.setName(productName);
+                service.setDescription(payCondition);
+                service.persist();
+            } else if (posStr.startsWith("product_")) {
+                Product product = Product.findProductByCatalogAndPerson(posStr.substring(8), person);
+                product.setName(productName);
+                product.setDescription(payCondition);
+                product.persist();
             }
         }
         return true;
@@ -865,6 +902,19 @@ public class MainPageController extends BaseController {
                         textContent.remove();
                     }
                 }
+                // service and product
+                if (tKeyStr.startsWith("service_")) {
+                    Service service = Service.findServiceByCatalogAndPerson(tKeyStr.substring(8), person);
+                    if (service != null) {
+                        service.remove();
+                    }
+                } else if (tKeyStr.startsWith("product_")) {
+                    Product product = Product.findProductByCatalogAndPerson(tKeyStr.substring(8), person);
+                    if (product != null) {
+                        product.remove();
+                    }
+                }
+
                 needCleanUp = true;
             } else {
                 // ------------if need to save to disk-------------
@@ -874,6 +924,19 @@ public class MainPageController extends BaseController {
                 processFileType(fileName, media);
                 // save images to db----------------------------------------------------------------
                 saveImageToDB(model, content, fileName, media, tKeyStr, request);
+
+                // service and product
+                if (tKeyStr.startsWith("service_")) {
+                    Service service = new Service();
+                    service.setC1(tKeyStr.substring(8));
+                    service.setPerson(person);
+                    service.persist();
+                } else if (tKeyStr.startsWith("product_")) {
+                    Product product = new Product();// .findProductByCatalogAndPerson(tKeyStr.substring(8), person);
+                    product.setC1(tKeyStr.substring(8));
+                    product.setPerson(person);
+                    product.persist();
+                }
             }
             i++;
         }
@@ -1608,12 +1671,25 @@ public class MainPageController extends BaseController {
             String payCondition = TaoUtil.fetchProductPrice(description, moneyLetter);
             total += Float.valueOf(payCondition);
 
+            String menfu = "";
+            Service service = Service.findServiceByCatalogAndPerson(item, person);
+            if (service != null && service.getC3() != null) {
+                menfu = service.getC3().trim();
+            }
+            if (!menfu.startsWith(",")) {
+                menfu = "," + menfu;
+            }
+            if (!menfu.endsWith(",")) {
+                menfu = menfu + ",";
+            }
+
             Material material = new Material();
             material.setLocation(item);
             material.setMainOrder(sourcdAndNewMainOrder);
             material.setPortionName(productName);
             // this one could be added by employee....material.setRemark(remark);
             material.setDencity(moneyLetter + payCondition);
+            material.setMenFu(menfu);
             material.persist();
             materials.add(material);
         }
@@ -1730,13 +1806,14 @@ public class MainPageController extends BaseController {
             int status = Integer.valueOf(recordStatus);
             mainOrder.setRecordStatus(status);
 
-            Object userId = request.getSession().getAttribute("currentUserID");
-            mainOrder.setContactPerson(UserAccount.findUserAccount(Long.valueOf(userId.toString())));
+            Object user = request.getSession().getAttribute(CC.currentUser);
+            mainOrder.setContactPerson((UserAccount) user);
 
             mainOrder.persist();
 
             if (status == CC.STATUS_PRINTED) {
                 request.getSession().setAttribute("show_footArea", "true");
+                request.getSession().setAttribute("show_foot", "true");
             }
         }
         return new ResponseEntity<String>(HttpStatus.OK);
@@ -1771,7 +1848,7 @@ public class MainPageController extends BaseController {
         Person person = TaoUtil.getCurPerson(request);
         Long id = Long.valueOf(mainOrderID);
         MainOrder sourceMainOrder = MainOrder.findMainOrder(id);
-        List<Material> materials = Material.findAllMaterialsByMainOrderId(id);
+        List<Material> materials = Material.findAllMaterialsByMainOrder(sourceMainOrder);
 
         String targetOrderInfo = request.getParameter("targetOrder");
 
@@ -1788,8 +1865,8 @@ public class MainPageController extends BaseController {
             MainOrder sourceMainOrder,
             List<Material> materials,
             MainOrder mainOrder) {
-        Object userId = request.getSession().getAttribute("currentUserID");
-        mainOrder.setContactPerson(UserAccount.findUserAccount(Long.valueOf(userId.toString())));
+        Object user = request.getSession().getAttribute(CC.currentUser);
+        mainOrder.setContactPerson((UserAccount) user);
 
         updateMaterialMainOrderId(materials, mainOrder);
         addjustPayconditionAndLogs(mainOrder, sourceMainOrder);

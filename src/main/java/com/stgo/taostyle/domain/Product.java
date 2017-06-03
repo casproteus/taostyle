@@ -1,8 +1,5 @@
 package com.stgo.taostyle.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.ManyToOne;
@@ -72,7 +69,7 @@ public class Product implements MultiLanguageabl {
     @Transient
     private String localDescription;
 
-    public static List<com.stgo.taostyle.domain.Product> findProductsByCatalogAndPerson(
+    public static Product findProductByCatalogAndPerson(
             String pCatalog,
             Person person) {
         EntityManager tEntityManager = entityManager();
@@ -82,13 +79,13 @@ public class Product implements MultiLanguageabl {
                         Product.class);
         tQuery = tQuery.setParameter("pKey", pCatalog);
         tQuery = tQuery.setParameter("person", person);
-        List<Product> tProducts;
+        Product product = null;
         try {
-            tProducts = tQuery.getResultList();
+            product = tQuery.getSingleResult();
         } catch (Exception e) {
-            tProducts = new ArrayList<Product>();
+            // do nothing
         }
-        return tProducts;
+        return product;
     }
 
     public static com.stgo.taostyle.domain.Product findProductsByPartNoAndPerson(

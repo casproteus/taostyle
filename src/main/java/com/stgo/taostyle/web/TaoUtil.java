@@ -21,7 +21,6 @@ import com.stgo.taostyle.domain.Feature;
 import com.stgo.taostyle.domain.MediaUpload;
 import com.stgo.taostyle.domain.MultiLanguageabl;
 import com.stgo.taostyle.domain.Person;
-import com.stgo.taostyle.domain.Product;
 import com.stgo.taostyle.domain.TextContent;
 
 @Controller
@@ -557,14 +556,14 @@ public class TaoUtil {
         String menuIdx = completeMenuIdx(pMenuIdx, pSubMenuIdx, pSubSubMenuIdx, langPrf, person);
         String key = "catalog_" + menuIdx;
 
-        List tProducts = Product.findProductsByCatalogAndPerson(key, person);
+        // List tProducts = Product.findProductsByCatalogAndPerson(key, person);
+        //
+        // tProducts = languageRelevantProcess(tProducts, langPrf);
+        //
+        // model.addAttribute("products", tProducts);
+        // model.addAttribute("productAmount", tProducts.size());
 
-        tProducts = languageRelevantProcess(tProducts, langPrf);
-
-        model.addAttribute("products", tProducts);
-        model.addAttribute("productAmount", tProducts.size());
-
-        TaoDebug.info("start to initCatalogSubPage, menukey is {}, productAmount is {}", key, tProducts.size());
+        // TaoDebug.info("start to initCatalogSubPage, menukey is {}, productAmount is {}", key, tProducts.size());
         return menuIdx;
     }
 

@@ -1,8 +1,5 @@
 package com.stgo.taostyle.domain;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
@@ -40,23 +37,23 @@ public class Service implements MultiLanguageabl {
     @Transient
     private String localDescription;
 
-    public static List<com.stgo.taostyle.domain.Service> findServiceByCatalogAndPerson(
-            String pCatalog,
+    public static Service findServiceByCatalogAndPerson(
+            String catalog1,
             Person person) {
         EntityManager tEntityManager = entityManager();
         TypedQuery<Service> tQuery =
                 tEntityManager.createQuery(
-                        "SELECT o FROM Service AS o WHERE o.c1 = :pKey and o.person = :person ORDER BY o.id DESC",
+                        "SELECT o FROM Service AS o WHERE o.c1 = :catalog1 and o.person = :person ORDER BY o.id DESC",
                         Service.class);
-        tQuery = tQuery.setParameter("pKey", pCatalog);
+        tQuery = tQuery.setParameter("catalog1", catalog1);
         tQuery = tQuery.setParameter("person", person);
-        List<Service> tServices;
+        Service service = null;
         try {
-            tServices = tQuery.getResultList();
+            service = tQuery.getSingleResult();
         } catch (Exception e) {
-            tServices = new ArrayList<Service>();
+            // do nothing.
         }
-        return tServices;
+        return service;
     }
 
     public String getLocalName() {
