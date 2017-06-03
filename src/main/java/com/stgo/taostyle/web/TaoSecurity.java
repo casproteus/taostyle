@@ -16,10 +16,10 @@ public class TaoSecurity {
         String ip = request.getRemoteAddr();
 
         // out-region ip range can be added into dangerous_ip of for_demo user.
-        Object dangerous_ip = session.getAttribute("dangerous_ip");
-        if (dangerous_ip != null) {
-            dangerous_ip = dangerous_ip.toString().split(",");
-            for (String forbiddenIp : (String[]) dangerous_ip) {
+        Object dangerous_ips = session.getAttribute("dangerous_ip");
+        if (dangerous_ips != null) {
+            dangerous_ips = dangerous_ips.toString().split(",");
+            for (String forbiddenIp : (String[]) dangerous_ips) {
                 if (ip.startsWith(forbiddenIp)) {
                     return true;
                 }
@@ -27,7 +27,7 @@ public class TaoSecurity {
         }
 
         // internal visit can be trusted. so employ can visit any time.
-        if (ip.startsWith("192.168.")) {
+        if (ip.startsWith("192.168.") || ip.startsWith("0:0:0:0:0:0:0:1")) {
             return false;
         }
 

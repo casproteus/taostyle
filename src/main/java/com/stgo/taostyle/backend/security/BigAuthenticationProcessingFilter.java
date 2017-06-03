@@ -70,7 +70,7 @@ public class BigAuthenticationProcessingFilter extends AbstractAuthenticationPro
         // it's done here instead of in onAuthenticationSuccess() mehtod, because here we have login_name.
         if (authentication.getAuthorities().toString().indexOf(CC.ROLE_ADMIN) < 0) {
             UserAccount useraccount = UserAccount.findUserAccountByName(enrichedName);
-            request.getSession().setAttribute("currentUserID", useraccount.getId());
+            request.getSession().setAttribute(CC.currentUser, useraccount);
         } else {
             // do nothing, because it's already switched to this client.
             // Person person = Person.findPersonByName(login_name);

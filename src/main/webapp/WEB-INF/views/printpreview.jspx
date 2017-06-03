@@ -21,9 +21,9 @@
 		<div id="printPreview" class="${span}" align="center" style="margin-left:${leftmargin}">
 			<!-- Material list -->
 			<page:BigList id="pl_com_stgo_taostyle_domain_material" label="${targetTime} ( ${sizeTable}${contactPhone} )" items="${materials}"
-			 mainOrderID="${mainOrderID}" render="${fn:length(materials) gt 0}">
+			 mainOrderID="${mainOrderID}" printStyle="${printStyle}" render="${fn:length(materials) gt 0}">
 				<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
-				update="${isNotPrinter}"  delete="${isNotPrinter}" total="${isNotPrinter? total : null}">
+				update="${isNotPrinter}"  delete="${isNotPrinter}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}">
 					<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="portionName"/>
 					<c:if test="${isNotPrinter}">
 						<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>
@@ -31,19 +31,56 @@
 					<table:column id="c_com_stgo_taostyle_domain_material_remark" label="Note" property="remark"/>
 				</table:BigSortable>
 			</page:BigList>
-			
-			<c:if test="${user_role == '[ROLE_PRINTER]'}">
-				<input id="mainOrderID" value="${mainOrderID}" />
-			</c:if>
 		</div>
 	</c:if>
 	
 	<c:if test="${user_role == '[ROLE_PRINTER]'}">
 		<script type="text/javascript">
+			<![CDATA[
+			    function processPrint(elementId){
+			    	if(false){
+					    var html = '<HTML>\n<HEAD>\n';
+					    if (document.getElementsByTagName("head") != null){
+						    var headTags = document.getElementsByTagName("head");
+						    if (headTags.length > 0)
+						    	html += headTags[0].innerHTML;
+					    }
+			
+					    html += '\n</HE' + 'AD>\n<BODY>\n';
+					    var printReadyElem = document.getElementById(elementId);
+				
+					    html += printReadyElem.innerHTML;
+			
+					    html += '\n</BO' + 'DY>\n</HT' + 'ML>';
+					    //alert("html:"+html);
+					    var printWin = window.open("","processPrint");
+					    printWin.document.open();
+					    printWin.document.write(html);
+					    printWin.document.close();
+				
+					    printWin.print();
+					    //alert("print end!");
+			    	}else {
+					     var printContents = document.getElementById(elementId).innerHTML;
+				     	 document.body.innerHTML = printContents;
+				       	 //alert(document.body.innerHTML);
+				     	 window.print();
+			    	}
+			    }
+			]]>
+		
 		    function printDiv() {
-		    	if(document.getElementById("printPreview")){
-				     var printContents = document.getElementById("printPreview").innerHTML;
-					 var mainOrderID = document.getElementById("mainOrderID").value;
+		    	if(document.getElementById("printAreaForReceip")){
+				     //var printContents = document.getElementById("printPreview").innerHTML;
+			       	 //todo change to printonly specific div.
+			     	 //document.body.innerHTML = printContents;
+			       	 //alert(document.body.innerHTML);
+			     	 //window.print();
+			     	processPrint("printAreaForReceip");
+			     	
+
+			     	var mainOrderID = document.getElementById("mainOrderID").value;
+					//alert("mainOrderID:"+mainOrderID);
 					 $.ajax({
 					    	headers: "Accept=application/json",
 					        type: "POST",
@@ -59,15 +96,9 @@
 					        }
 					 });
 
-			       	 //todo change to printonly specific div.
-			     	 document.body.innerHTML = printContents;
-			     	 //window.print();
-					 //alert("content printed, fetching another record immediatly.");
-			         fetchPrintableOrder();
-				 }else{
-					 //alert("// no content to print, then wait for 20 seconds before check again.");
-				  	 setTimeout('fetchPrintableOrder()', ${(20+refresh_time) * 1000});
 				 }
+
+			  	 setTimeout('fetchPrintableOrder()', ${(20+refresh_time) * 1000});
 		    }
 			
 		    function fetchPrintableOrder(){

@@ -13,6 +13,7 @@ import org.springframework.roo.addon.jpa.activerecord.RooJpaActiveRecord;
 import org.springframework.roo.addon.tostring.RooToString;
 
 import com.stgo.taostyle.domain.Person;
+import com.stgo.taostyle.domain.UserAccount;
 
 @RooJavaBean
 @RooToString
@@ -40,6 +41,27 @@ public class Material {
             Long mainOrderId) {
         MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
         return findAllMaterialsByMainOrder(mainOrder);
+    }
+
+    // @!!when adding printer to material, make sure it starts and ends with ",", no space.
+    public static List<Material> findAllMaterialsByMainOrderIdAndPrinter(
+            MainOrder mainOrder,
+            UserAccount printer) {
+        EntityManager tEntityManager = entityManager();
+        List<Material> materials = new ArrayList<Material>();
+        if (mainOrder != null) {
+            TypedQuery<Material> tQuery =
+                    tEntityManager.createQuery(
+                            "SELECT o FROM Material AS o WHERE o.mainOrder = :mainOrder and o.MenFu like :printer",
+                            Material.class);
+            tQuery = tQuery.setParameter("mainOrder", mainOrder);
+            tQuery = tQuery.setParameter("printer", printer != null ? "%," + printer.getId() + ",%" : "");
+            try {
+                materials = tQuery.getResultList();
+            } catch (Exception e) {
+            }
+        }
+        return materials;
     }
 
     public static List<Material> findMaterialEntriesByMainOrderId(
@@ -70,13 +92,15 @@ public class Material {
     public static List<Material> findAllMaterialsByMainOrder(
             MainOrder mainOrder) {
         EntityManager tEntityManager = entityManager();
-        TypedQuery<Material> tQuery =
-                tEntityManager.createQuery("SELECT o FROM Material AS o WHERE o.mainOrder = :pKey", Material.class);
-        tQuery = tQuery.setParameter("pKey", mainOrder);
         List<Material> materials = new ArrayList<Material>();
-        try {
-            materials = tQuery.getResultList();
-        } catch (Exception e) {
+        if (mainOrder != null) {
+            TypedQuery<Material> tQuery =
+                    tEntityManager.createQuery("SELECT o FROM Material AS o WHERE o.mainOrder = :pKey", Material.class);
+            tQuery = tQuery.setParameter("pKey", mainOrder);
+            try {
+                materials = tQuery.getResultList();
+            } catch (Exception e) {
+            }
         }
         return materials;
     }

@@ -18,6 +18,9 @@
 	<jsp:directive.attribute name="mainOrderID" type="java.lang.Long"
 		required="true" rtexprvalue="true"
 		description="The id of MainOrder, it will be used to delete the whole order." />
+	<jsp:directive.attribute name="printStyle" type="java.lang.String"
+		required="false" rtexprvalue="true"
+		description="The style of Print, it could be all(print all item) or each(print each item in one bill)." />
 	<jsp:directive.attribute name="labelPlural" type="java.lang.String"
 		required="false" rtexprvalue="true"
 		description="The label used for this object, will default to a message bundle if not supplied" />
@@ -51,6 +54,10 @@
 						<jsp:doBody />
 					</c:otherwise>
 				</c:choose>
+				<c:if test="${user_role == '[ROLE_PRINTER]'}">
+					order id: <input id="mainOrderID" style="border-style:none" value="${mainOrderID}" /> 
+					print style: <input id="printStyle" style="border-style:none" value="${printStyle}" /> 
+				</c:if>
 			</div>
 			
 			<c:if test="${user_role != '[ROLE_PRINTER]'}">

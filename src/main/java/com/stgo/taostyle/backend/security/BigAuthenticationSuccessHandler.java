@@ -14,9 +14,7 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.StringUtils;
 
-import com.stgo.taostyle.domain.Person;
 import com.stgo.taostyle.web.CC;
-import com.stgo.taostyle.web.TaoUtil;
 
 public class BigAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
@@ -40,9 +38,8 @@ public class BigAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucc
             // by getRedirectStrategy().sendRedirect. so we dare not to use the personal space as default login success
             // page.
             String targetUrl = "/";
-            Person person = TaoUtil.getCurPerson(request);
-            if (person != null) {
-                targetUrl = targetUrl + person.getName();
+            if (request.getSession().getAttribute(CC.currentUser) != null) {
+                targetUrl = "/dashboard";
             }
             // to change the code of targetUrl back to "ISO-8859-1", other wise the chinese user name will be lost by
             // method sendRedirect

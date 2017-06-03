@@ -37,7 +37,8 @@ public class MaterialController {
         if (page != null || size != null) {
             int sizeNo = size == null ? 10 : size.intValue();
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
-            uiModel.addAttribute("materials", Material.findMaterialEntriesByMainOrderId(mainOrderId, firstResult, sizeNo));
+            uiModel.addAttribute("materials",
+                    Material.findMaterialEntriesByMainOrderId(mainOrderId, firstResult, sizeNo));
             float nrOfPages = (float) Material.countMaterials() / sizeNo;
             uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
                     : nrOfPages));
@@ -109,7 +110,7 @@ public class MaterialController {
         material.remove();
 
         // check if there's no material left.
-        List<Material> materials = Material.findAllMaterialsByMainOrderId(mainOrder.getId());
+        List<Material> materials = Material.findAllMaterialsByMainOrder(mainOrder);
         if (materials == null || materials.size() == 0) {
             mainOrder.remove();
             return "redirect:/dashboard";
