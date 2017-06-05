@@ -1591,6 +1591,44 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "updataPrinter/{imageKey}", headers = "Accept=application/json",
+            method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> updatePrinter(
+            @PathVariable("imageKey")
+            String imageKey,
+            Model model,
+            HttpServletRequest request) {
+        Person person = TaoUtil.getCurPerson(request);
+        // String featureId = request.getParameter("featureId");
+        // Feature feature = Feature.findFeature(Long.valueOf(featureId));
+        // String itemsToShow = feature.getItemsToShow();
+
+        Service service = Service.findServiceByCatalogAndPerson(imageKey.substring(8), person);
+        if (service == null) {
+            service = new Service();
+            service.setC1(imageKey);
+            service.setC3(",,");
+        }
+        String curPrinterName = TaoEncrypt.stripUserName(userContextService.getCurrentUserName());
+        String printersStr = service.getC3();// c3 is now used to pu printers string.
+        if (printersStr == null) {
+            printersStr = ",";
+        }
+        int p = printersStr.indexOf("," + curPrinterName + ",");
+        if (p < 0) {
+            if (!printersStr.endsWith(",")) {
+                printersStr = printersStr + ",";
+            }
+            printersStr = printersStr + curPrinterName + ",";
+        } else {
+            printersStr = printersStr.substring(0, p) + printersStr.substring(p + curPrinterName.length() + 1);
+        }
+        service.setC3(printersStr);
+        service.persist();
+        return new ResponseEntity<String>(HttpStatus.OK);
+    }
+
     // ===================Operations for dashboard==========================================================
     @RequestMapping(value = "/{client}/createAnOrder/{orderedItems}", headers = "Accept=application/json",
             method = RequestMethod.POST)

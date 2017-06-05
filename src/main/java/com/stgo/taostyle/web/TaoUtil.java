@@ -16,12 +16,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
+import com.stgo.taostyle.backend.security.TaoEncrypt;
 import com.stgo.taostyle.domain.Customize;
 import com.stgo.taostyle.domain.Feature;
 import com.stgo.taostyle.domain.MediaUpload;
 import com.stgo.taostyle.domain.MultiLanguageabl;
 import com.stgo.taostyle.domain.Person;
+import com.stgo.taostyle.domain.Service;
 import com.stgo.taostyle.domain.TextContent;
+import com.stgo.taostyle.domain.UserAccount;
 
 @Controller
 public class TaoUtil {
@@ -326,6 +329,39 @@ public class TaoUtil {
                         visibleStatus.add(itemToShow.contains(item) ? "true" : null);
                     }
                     visibleStatusList.add(visibleStatus);
+                } else if (isPrinter(session)) {
+                    Object user = session.getAttribute(CC.currentUser);
+                    if (user != null) {
+                        UserAccount userAccount = (UserAccount) user;
+                        String nameStrInService = "," + TaoEncrypt.stripUserName(userAccount.getLoginname()) + ",";
+
+                        // imageKeyLists
+                        String ref = feature.getRefMenuIdx();
+                        refList.add(ref);
+                        List<String> imageKeys =
+                                MediaUpload.listAllMediaUploadsKeyByKeyAndPerson("service_" + ref, person);
+
+                        imageKeys = TaoImage.stripThumOrderAndValidate(imageKeys);
+
+                        imageKeyLists.add(imageKeys);
+                        // relevant descriptions
+                        fillInDescriptions(langPrf, person, descriptions, imageKeys);
+
+                        // visibleStatusList
+                        List<String> visibleStatus = new ArrayList<String>();
+                        for (String item : imageKeys) {
+                            if (item.startsWith("service_")) {
+                                item = item.substring(8);
+                            }
+                            Service service = Service.findServiceByCatalogAndPerson(item, person);
+                            if (service != null && service.getC3() != null) {
+                                visibleStatus.add(service.getC3().contains(nameStrInService) ? "true" : null);
+                            } else {
+                                visibleStatus.add(null);
+                            }
+                        }
+                        visibleStatusList.add(visibleStatus);
+                    }
                 } else {
                     List<String> imageKeys = Arrays.asList(itemsStrs);
                     imageKeyLists.add(imageKeys);
@@ -382,11 +418,23 @@ public class TaoUtil {
     private static boolean isAboveManager(
             HttpSession session) {
         Object userRole = session.getAttribute(CC.user_role);
-        boolean isAboveManager =
-                userRole != null
-                        && (userRole.toString().contains(CC.ROLE_ADMIN) || userRole.toString()
-                                .contains(CC.ROLE_MANAGER));
-        return isAboveManager;
+        if (userRole != null) {
+            String role = userRole.toString();
+            return role.contains(CC.ROLE_ADMIN) || role.contains(CC.ROLE_MANAGER);
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean isPrinter(
+            HttpSession session) {
+        Object userRole = session.getAttribute(CC.user_role);
+        if (userRole != null) {
+            String role = userRole.toString();
+            return role.contains(CC.ROLE_PRINTER);
+        } else {
+            return false;
+        }
     }
 
     private static void fillInDescriptions(

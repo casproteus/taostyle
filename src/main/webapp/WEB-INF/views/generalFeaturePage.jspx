@@ -69,7 +69,7 @@
 			        </c:if>
 			        
 				    <c:set var="imageIdx"  value="${i}" />
-			 	    <c:if test="${isAboveManager eq 'true'}">
+			 	    <c:if test="${isAboveManager eq 'true' or user_role == '[ROLE_PRINTER]'}">
 						<c:set var="imageIdx"  value="${imageKeys[j][i]}" />
 			 	    </c:if>
 			  		
@@ -90,11 +90,11 @@
 				          <c:choose>
 							<c:when test="${not empty visibleStatusList and visibleStatusList[j][i] eq 'true'}">
 								<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${imageKeys[j][i]}"
-								 checked="checked" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${isAboveManager}')" />
+								 checked="checked" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}')" />
 				        	</c:when>
 					        <c:otherwise>
 								<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${imageKeys[j][i]}" style="width:80px; height:20px"
-								 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${isAboveManager}')" />
+								 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}')" />
 					        </c:otherwise>
 					      </c:choose>
 					    </c:if>
@@ -106,9 +106,9 @@
 	  </div>
 	 </c:forEach>
 	</c:if>
-	<util:addRemoveFeatureGroup allowedLevel="[ROLE_MANAGER]"/>
-	
-	<c:if test="${not empty show_service_bell}">
+	<util:addRemoveFeatureGroup allowedLevel="[ROLE_MANAGER]" />
+
+	<c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
 		<div id="bell">
 		  <div style="position: fixed; border-radius:5px; z-index: 3000; top: 340px; right: 5px; background:#EDB26D; opacity:0.9;">
 			Please click me to submit
@@ -275,13 +275,32 @@
 	}
 	
 	//the featureIdx could be feature.id or the index of the feature.
-	function updateStatus(imageKey,featureIdx,isAboveManager) {
-		if('true' == isAboveManager){
-			//if logged in as Manager or ordermin, then ajax to back end.
+	function updateStatus(imageKey,featureIdx,user_role) {
+		if('[ROLE_ADMIN]' == user_role || user_role == '[ROLE_MANAGER]'){
+			//if logged in as Manager or admin, then ajax to back end.
 		    $.ajax({
 		    	headers: "Accept=application/json",
 		        type: "POST",
 		        url: "updataFeature/"+imageKey,
+		        data: "featureId=" + featureIdx,
+		        async:false,
+		        success:function(textContent){
+		            var obj = document.getElementById("check-" + featureIdx + "-" + imageKey);
+		            var opacity = obj.checked ? 1: 0.1;
+	
+		            var obj = document.getElementById("img-" + featureIdx + "-" + imageKey);
+		            obj.style.cssText = "opacity: " + opacity; 
+	
+		            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
+		            obj.style.cssText = "opacity: " + opacity; 
+		        }
+		    });
+		}else if('[ROLE_PRINTER]' == user_role){
+			//if logged in as printer, then ajax to back end.
+		    $.ajax({
+		    	headers: "Accept=application/json",
+		        type: "POST",
+		        url: "updataPrinter/"+imageKey,
 		        data: "featureId=" + featureIdx,
 		        async:false,
 		        success:function(textContent){

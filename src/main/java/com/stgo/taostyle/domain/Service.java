@@ -24,7 +24,7 @@ public class Service implements MultiLanguageabl {
 
     private String c2;
 
-    private String c3;
+    private String c3;// c3 is now used to put printers string.
 
     @ManyToOne
     private Person person;
