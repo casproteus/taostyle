@@ -12,6 +12,7 @@ import org.springframework.roo.addon.javabean.RooJavaBean;
 import org.springframework.roo.addon.jpa.activerecord.RooJpaActiveRecord;
 import org.springframework.roo.addon.tostring.RooToString;
 
+import com.stgo.taostyle.backend.security.TaoEncrypt;
 import com.stgo.taostyle.domain.Person;
 import com.stgo.taostyle.domain.UserAccount;
 
@@ -55,7 +56,9 @@ public class Material {
                             "SELECT o FROM Material AS o WHERE o.mainOrder = :mainOrder and o.MenFu like :printer",
                             Material.class);
             tQuery = tQuery.setParameter("mainOrder", mainOrder);
-            tQuery = tQuery.setParameter("printer", printer != null ? "%," + printer.getId() + ",%" : "");
+            tQuery =
+                    tQuery.setParameter("printer",
+                            printer != null ? "%," + TaoEncrypt.stripUserName(printer.getLoginname()) + ",%" : "");
             try {
                 materials = tQuery.getResultList();
             } catch (Exception e) {

@@ -50,9 +50,12 @@ public interface CC {
     String STATUS_NEW = "new submit";
     String STATUS_WAITING = "waiting for review";
     String STATUS_COMMENTED = "reviewed";
+    String STATUS_FULL = "FULL";
+    String STATUS_MINE_ARE_FULL = "next";
     String STATUS_DELETED = "deleted";
     int STATUS_TO_PRINT = 10;
     int STATUS_PRINTED =20;
+    int LEVEL_FULL = 120;
     
     String APPEND = "append";
     String OVERWRITE = "overwrite";

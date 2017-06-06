@@ -406,11 +406,26 @@ public class MainPageController extends BaseController {
         if (CC.ROLE_MANAGER.equalsIgnoreCase(securityLevel)) {
             mainOrders = MainOrder.findMainOrdersByPerson(person, "desc");
         } else if (CC.ROLE_PRINTER.equalsIgnoreCase(securityLevel)) {
-            request.getSession().setAttribute("show_footArea", "false");
-            request.getSession().setAttribute("show_foot", "false");
+            request.setAttribute("show_footArea", "false");
+            request.setAttribute("show_foot", "false");
             mainOrders = MainOrder.findMainOrdersByStatusAndPerson(CC.STATUS_TO_PRINT, person, "asc");
-            return showDetailOrder(mainOrders != null && mainOrders.size() > 0 ? mainOrders.get(0) : null, model,
-                    request);
+            if (mainOrders != null) {
+                for (MainOrder mainOrder : mainOrders) {
+                    String returnPath = showDetailOrder(mainOrder, model, request);
+                    if (CC.STATUS_FULL.equals(returnPath)) {
+                        mainOrder.setRecordStatus(CC.STATUS_PRINTED);
+                        mainOrder.persist();
+                        continue;
+                    } else if (CC.STATUS_MINE_ARE_FULL.equals(returnPath)) {
+                        continue;
+                    } else {
+                        return returnPath;
+                    }
+                }
+            }
+            // if not return yet, means nothing to print for now.
+            model.addAttribute("materials", null);
+            return "printpreview";
         } else {
             mainOrders = MainOrder.findUnCompletedMainOrdersByPerson(person, "desc");
         }
@@ -442,9 +457,31 @@ public class MainPageController extends BaseController {
             HttpServletRequest request) {
         if (mainOrder != null) {
             UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);
+            String curPrinterName = "," + TaoEncrypt.stripUserName(currentUser.getLoginname()) + ",";
             List<Material> materials = null;
             if (CC.ROLE_PRINTER.equals(currentUser.getSecuritylevel())) {
-                materials = Material.findAllMaterialsByMainOrderIdAndPrinter(mainOrder, currentUser);
+                String processedPrinters = mainOrder.getColorCard();
+                boolean processed = processedPrinters.contains(curPrinterName);
+                materials = Material.findAllMaterialsByMainOrder(mainOrder);
+                boolean isAllFull = true;
+                for (int i = materials.size() - 1; i >= 0; i--) {
+                    Material material = materials.get(i);
+                    int status = material.getRecordStatus();
+                    if (status < (CC.LEVEL_FULL - 5)) {
+                        isAllFull = false;
+                    }
+                    if (!processed) {
+                        String printersStr = material.getMenFu();
+                        if (printersStr == null || !printersStr.contains(curPrinterName)) {
+                            materials.remove(material);
+                        }
+                    }
+                }
+                if (isAllFull) {
+                    return CC.STATUS_FULL;
+                } else if (processed) {
+                    return CC.STATUS_MINE_ARE_FULL;
+                }
             } else {
                 materials = Material.findAllMaterialsByMainOrder(mainOrder);
             }
@@ -608,11 +645,19 @@ public class MainPageController extends BaseController {
 
             // if it's valid, then update service and product record.
             if (posStr.startsWith("service_")) {
-                Service service = Service.findServiceByCatalogAndPerson(posStr.substring(8), person);
+                posStr = posStr.substring(8);
+                if (posStr.endsWith("_description")) {
+                    posStr = posStr.substring(0, posStr.length() - 12);
+                }
+                Service service = Service.findServiceByCatalogAndPerson(posStr, person);
                 service.setName(productName);
                 service.setDescription(payCondition);
                 service.persist();
             } else if (posStr.startsWith("product_")) {
+                posStr = posStr.substring(8);
+                if (posStr.endsWith("_description")) {
+                    posStr = posStr.substring(0, posStr.length() - 12);
+                }
                 Product product = Product.findProductByCatalogAndPerson(posStr.substring(8), person);
                 product.setName(productName);
                 product.setDescription(payCondition);
@@ -928,12 +973,12 @@ public class MainPageController extends BaseController {
                 // service and product
                 if (tKeyStr.startsWith("service_")) {
                     Service service = new Service();
-                    service.setC1(tKeyStr.substring(8));
+                    service.setC1(tKeyStr.substring(8) + "_" + i);
                     service.setPerson(person);
                     service.persist();
                 } else if (tKeyStr.startsWith("product_")) {
                     Product product = new Product();// .findProductByCatalogAndPerson(tKeyStr.substring(8), person);
-                    product.setC1(tKeyStr.substring(8));
+                    product.setC1(tKeyStr.substring(8) + "_" + i);
                     product.setPerson(person);
                     product.persist();
                 }
@@ -1604,11 +1649,13 @@ public class MainPageController extends BaseController {
         // Feature feature = Feature.findFeature(Long.valueOf(featureId));
         // String itemsToShow = feature.getItemsToShow();
 
-        Service service = Service.findServiceByCatalogAndPerson(imageKey.substring(8), person);
+        String keyIdx = imageKey.substring(8);
+        Service service = Service.findServiceByCatalogAndPerson(keyIdx, person);
         if (service == null) {
             service = new Service();
-            service.setC1(imageKey);
-            service.setC3(",,");
+            service.setPerson(person);
+            service.setC1(keyIdx);
+            service.setC3(",");
         }
         String curPrinterName = TaoEncrypt.stripUserName(userContextService.getCurrentUserName());
         String printersStr = service.getC3();// c3 is now used to pu printers string.
@@ -1835,6 +1882,9 @@ public class MainPageController extends BaseController {
             String mainOrderID,
             Model model,
             HttpServletRequest request) {
+
+        UserAccount user = (UserAccount) request.getSession().getAttribute(CC.currentUser);
+
         String[] ids = mainOrderID.split(",");
         for (String orderId : ids) {
 
@@ -1842,17 +1892,32 @@ public class MainPageController extends BaseController {
             MainOrder mainOrder = MainOrder.findMainOrder(id);
             String recordStatus = request.getParameter("recordStatus");
             int status = Integer.valueOf(recordStatus);
-            mainOrder.setRecordStatus(status);
-
-            Object user = request.getSession().getAttribute(CC.currentUser);
-            mainOrder.setContactPerson((UserAccount) user);
-
-            mainOrder.persist();
-
             if (status == CC.STATUS_PRINTED) {
-                request.getSession().setAttribute("show_footArea", "true");
-                request.getSession().setAttribute("show_foot", "true");
+                // not really setting the status, but up the level of each material. and put name to mainOrder.
+                // later on when someone fetching order to print, will update the order to "PRINTED".
+                // (to avoid multi-thread issue)
+                List<Material> materials = Material.findAllMaterialsByMainOrderIdAndPrinter(mainOrder, user);
+                String printerName = TaoEncrypt.stripUserName(user.getLoginname());
+                for (Material material : materials) {
+                    String printersStr = material.getMenFu();
+                    String[] ary = printersStr.split(",");
+                    int step = CC.LEVEL_FULL / (ary.length - 1);// @NOTE:7 and 9 will be trouble number. don't let a
+                    // dish link to7 or 9 printer.
+                    material.setRecordStatus(material.getRecordStatus() + step);
+                    material.persist();
+                }
+                String printerStr = mainOrder.getColorCard();
+                if (printerStr == null) {
+                    printerStr = "," + printerName + ",";
+                } else {
+                    printerStr = printerStr + printerName + ",";
+                }
+                mainOrder.setColorCard(printerStr);
+            } else {
+                mainOrder.setRecordStatus(status);
+                mainOrder.setContactPerson(user);
             }
+            mainOrder.persist();
         }
         return new ResponseEntity<String>(HttpStatus.OK);
     }

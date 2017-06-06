@@ -128,12 +128,14 @@
 	var latitude;
 	var longitude;
 
-	//init the location
-	if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(showPosition);
-    } else { 
-        alert("Geolocation is not supported by this browser.");
-    }
+	if(!('[ROLE_ADMIN]' == user_role || user_role == '[ROLE_MANAGER]' || user_role == '[ROLE_EMPLOYEE]' || user_role == '[ROLE_PRINTER]')){
+		//init the location
+	    if (navigator.geolocation) {
+	        navigator.geolocation.watchPosition(showPosition);
+	    } else { 
+	        alert("Geolocation is not supported by this browser.");
+	    }
+	}
 	
 	function showPosition(position) {
 		latitude = position.coords.latitude;
