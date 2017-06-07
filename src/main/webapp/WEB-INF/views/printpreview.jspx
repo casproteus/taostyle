@@ -17,28 +17,40 @@
 	<c:set value="0px" var="leftmargin" />
 
 	<c:set value="${user_role != '[ROLE_PRINTER]'}" var="isNotPrinter" />
-	<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
-		<div id="printPreview" class="${span}" align="center" style="margin-left:${leftmargin}">
-			<!-- Material list -->
-			<page:BigList id="pl_com_stgo_taostyle_domain_material" label="${targetTime} ( ${sizeTable}${contactPhone} )" items="${materials}"
-			 mainOrderID="${mainOrderID}" printStyle="${printStyle}" render="${fn:length(materials) gt 0}">
-				<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
-				update="${isNotPrinter}"  delete="${isNotPrinter}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}">
-					<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="portionName"/>
-					<c:if test="${isNotPrinter}">
-						<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>
-					</c:if>
-					<table:column id="c_com_stgo_taostyle_domain_material_remark" label="Note" property="remark"/>
-				</table:BigSortable>
-			</page:BigList>
-		</div>
+	<c:if test="${isNotPrinter}">
+		<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
+			<div id="printPreview" class="${span}" align="center" style="margin-left:${leftmargin}">
+			
+				<!-- Material list -->
+				<page:BigList id="pl_com_stgo_taostyle_domain_material" label="${targetTime} ( ${sizeTable}${contactPhone} )" items="${materials}"
+				 mainOrderID="${mainOrderID}" printStyle="${printStyle}" render="${fn:length(materials) gt 0}">
+					<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
+					update="${isNotPrinter}"  delete="${isNotPrinter}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}">
+						<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="portionName"/>
+						<c:if test="${isNotPrinter}">
+							<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>
+						</c:if>
+						<table:column id="c_com_stgo_taostyle_domain_material_remark" label="Note" property="remark"/>
+					</table:BigSortable>
+				</page:BigList>
+			</div>
+		</c:if>
 	</c:if>
-	
 	<c:if test="${user_role == '[ROLE_PRINTER]'}">
+		<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
+			<div id="plainTextForReceip" class="${span}" align="left" style="margin-left:${leftmargin}">
+				<c:forEach var="i" begin="1" end="${fn:length(materials)}" step="1">
+					<p>${i}) ${materials[i-1]['portionName']}</p>
+					<p align="right">${materials[i-1]['remark']}</p>
+				</c:forEach>
+				<p align="center">	order id: ${mainOrderID} print style: ${printStyle}</p>
+			</div>
+		</c:if>
 		<script type="text/javascript">
 			<![CDATA[
 			    function processPrint(elementId){
-			    	if(needToPrintEach){	//@TODO:need to add for loop, to go throuth each
+			    	var printStyle = document.getElementById("printStyle").value;
+			    	if(printStyle=='each'){	//@TODO:need to add for loop, to go throuth each
 					    var html = '<HTML>\n<HEAD>\n';
 					    if (document.getElementsByTagName("head") != null){
 						    var headTags = document.getElementsByTagName("head");
@@ -64,19 +76,17 @@
 			    		//@TODO:need to change the content to make the content bigger.
 					    var printContents = document.getElementById(elementId).innerHTML;
 				     	document.body.innerHTML = printContents;
-				       	alert(document.body.innerHTML);
-				     	window.print();
+				       	alert(document.body.outerHTML);
+				     	//window.print();
 			    	}
 			    }
 			]]>
 		
 		    function printDiv() {
 		    	if(document.getElementById("printAreaForReceip")){
-		    		
-			     	processPrint("printAreaForReceip");
-			     	
+			     	processPrint("plainTextForReceip");
 
-			     	var mainOrderID = document.getElementById("mainOrderID").value;
+/**			     	var mainOrderID = document.getElementById("mainOrderID").value;
 					//alert("mainOrderID:"+mainOrderID);
 					 $.ajax({
 					    	headers: "Accept=application/json",
@@ -92,16 +102,15 @@
 					        	}
 					        }
 					 });
-
+**/
 				 }
 
-			  	 setTimeout('fetchPrintableOrder()', ${(20+refresh_time) * 1000});
+			  	 //setTimeout('fetchPrintableOrder()', ${(20+refresh_time) * 1000});
 		    }
 			
 		    function fetchPrintableOrder(){
 		    	window.location = "../taostyle/dashboard";
 		    }
-
 			printDiv();
 		</script>
 	</c:if>

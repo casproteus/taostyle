@@ -396,7 +396,9 @@ public class MainPageController extends BaseController {
         String tUserName = userContextService.getCurrentUserName();
         Person person = TaoUtil.getCurPerson(request);
         UserAccount userAccount = UserAccount.findUserAccountByName(TaoEncrypt.enrichName(tUserName, person));
-        userAccount.setLoginname(TaoEncrypt.stripUserName(tUserName));
+        // @NOTE: if beautify the name here, then when the following mainOrder.persist() excuted, useraccount's
+        // loginName will be updated into db. DKW!
+        // userAccount.setLoginname(TaoEncrypt.stripUserName(tUserName));
         model.addAttribute("useraccount", userAccount);
         model.addAttribute("itemId", userAccount.getId());
         model.addAttribute("todoList", MediaUpload.findMediaByAudientAndPerson(userAccount, person));
@@ -406,15 +408,18 @@ public class MainPageController extends BaseController {
         if (CC.ROLE_MANAGER.equalsIgnoreCase(securityLevel)) {
             mainOrders = MainOrder.findMainOrdersByPerson(person, "desc");
         } else if (CC.ROLE_PRINTER.equalsIgnoreCase(securityLevel)) {
-            request.setAttribute("show_footArea", "false");
-            request.setAttribute("show_foot", "false");
+            request.setAttribute("show_footArea", "");
+            request.setAttribute("show_foot", "");
+            request.setAttribute("show_AboveMenu", "");
+            request.setAttribute("show_Menu", "");
+
             mainOrders = MainOrder.findMainOrdersByStatusAndPerson(CC.STATUS_TO_PRINT, person, "asc");
             if (mainOrders != null) {
                 for (MainOrder mainOrder : mainOrders) {
                     String returnPath = showDetailOrder(mainOrder, model, request);
                     if (CC.STATUS_FULL.equals(returnPath)) {
                         mainOrder.setRecordStatus(CC.STATUS_PRINTED);
-                        mainOrder.persist();
+                        mainOrder.persist(); // DKW! when this excuted, useraccount will be persist into db.
                         continue;
                     } else if (CC.STATUS_MINE_ARE_FULL.equals(returnPath)) {
                         continue;
@@ -461,7 +466,7 @@ public class MainPageController extends BaseController {
             List<Material> materials = null;
             if (CC.ROLE_PRINTER.equals(currentUser.getSecuritylevel())) {
                 String processedPrinters = mainOrder.getColorCard();
-                boolean processed = processedPrinters.contains(curPrinterName);
+                boolean processed = processedPrinters != null && processedPrinters.contains(curPrinterName);
                 materials = Material.findAllMaterialsByMainOrder(mainOrder);
                 boolean isAllFull = true;
                 for (int i = materials.size() - 1; i >= 0; i--) {

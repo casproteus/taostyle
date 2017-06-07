@@ -54,10 +54,6 @@
 						<jsp:doBody />
 					</c:otherwise>
 				</c:choose>
-				<c:if test="${user_role == '[ROLE_PRINTER]'}">
-					order id: <input id="mainOrderID" style="border-style:none" value="${mainOrderID}" /> 
-					print style: <input id="printStyle" style="border-style:none" value="${printStyle}" /> 
-				</c:if>
 			</div>
 			
 			<c:if test="${user_role != '[ROLE_PRINTER]'}">
