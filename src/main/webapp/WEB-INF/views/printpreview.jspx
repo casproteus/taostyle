@@ -38,7 +38,7 @@
 		<script type="text/javascript">
 			<![CDATA[
 			    function processPrint(elementId){
-			    	if(false){
+			    	if(needToPrintEach){	//@TODO:need to add for loop, to go throuth each
 					    var html = '<HTML>\n<HEAD>\n';
 					    if (document.getElementsByTagName("head") != null){
 						    var headTags = document.getElementsByTagName("head");
@@ -61,21 +61,18 @@
 					    printWin.print();
 					    //alert("print end!");
 			    	}else {
-					     var printContents = document.getElementById(elementId).innerHTML;
-				     	 document.body.innerHTML = printContents;
-				       	 //alert(document.body.innerHTML);
-				     	 window.print();
+			    		//@TODO:need to change the content to make the content bigger.
+					    var printContents = document.getElementById(elementId).innerHTML;
+				     	document.body.innerHTML = printContents;
+				       	alert(document.body.innerHTML);
+				     	window.print();
 			    	}
 			    }
 			]]>
 		
 		    function printDiv() {
 		    	if(document.getElementById("printAreaForReceip")){
-				     //var printContents = document.getElementById("printPreview").innerHTML;
-			       	 //todo change to printonly specific div.
-			     	 //document.body.innerHTML = printContents;
-			       	 //alert(document.body.innerHTML);
-			     	 //window.print();
+		    		
 			     	processPrint("printAreaForReceip");
 			     	
 

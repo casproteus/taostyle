@@ -306,49 +306,28 @@ public class TaoUtil {
             List<List<String>> descriptions = new ArrayList<List<String>>();
             List<List<String>> visibleStatusList = new ArrayList<List<String>>();
             List<String> refList = new ArrayList<String>();
+            List<String> menus = new ArrayList<String>();
+            String menuPRF = langPrf + "menu_";
             for (Feature feature : features) {
                 // get all visible images.
                 String itemToShow = feature.getItemsToShow();
                 String[] itemsStrs = StringUtils.split(itemToShow, ',');
-
-                if (isAboveManager(session)) {
-                    // imageKeyLists
-                    String ref = feature.getRefMenuIdx();
-                    refList.add(ref);
+                String ref = feature.getRefMenuIdx();
+                refList.add(ref);
+                String menuKey = menuPRF + ref;
+                TextContent textContent = TextContent.findContentsByKeyAndPerson(menuKey, person);
+                menus.add(textContent.getContent());
+                if (isAboveManager(session) || isPrinter(session)) {
                     List<String> imageKeys = MediaUpload.listAllMediaUploadsKeyByKeyAndPerson("service_" + ref, person);
-
                     imageKeys = TaoImage.stripThumOrderAndValidate(imageKeys);
-
                     imageKeyLists.add(imageKeys);
-                    // relevant descriptions
                     fillInDescriptions(langPrf, person, descriptions, imageKeys);
 
-                    // visibleStatusList
                     List<String> visibleStatus = new ArrayList<String>();
-                    for (String item : imageKeys) {
-                        visibleStatus.add(itemToShow.contains(item) ? "true" : null);
-                    }
-                    visibleStatusList.add(visibleStatus);
-                } else if (isPrinter(session)) {
-                    Object user = session.getAttribute(CC.currentUser);
-                    if (user != null) {
-                        UserAccount userAccount = (UserAccount) user;
+                    if (isPrinter(session)) {
+                        UserAccount userAccount = (UserAccount) session.getAttribute(CC.currentUser);
                         String nameStrInService = "," + TaoEncrypt.stripUserName(userAccount.getLoginname()) + ",";
 
-                        // imageKeyLists
-                        String ref = feature.getRefMenuIdx();
-                        refList.add(ref);
-                        List<String> imageKeys =
-                                MediaUpload.listAllMediaUploadsKeyByKeyAndPerson("service_" + ref, person);
-
-                        imageKeys = TaoImage.stripThumOrderAndValidate(imageKeys);
-
-                        imageKeyLists.add(imageKeys);
-                        // relevant descriptions
-                        fillInDescriptions(langPrf, person, descriptions, imageKeys);
-
-                        // visibleStatusList
-                        List<String> visibleStatus = new ArrayList<String>();
                         for (String item : imageKeys) {
                             if (item.startsWith("service_")) {
                                 item = item.substring(8);
@@ -360,8 +339,12 @@ public class TaoUtil {
                                 visibleStatus.add(null);
                             }
                         }
-                        visibleStatusList.add(visibleStatus);
+                    } else {
+                        for (String item : imageKeys) {
+                            visibleStatus.add(itemToShow.contains(item) ? "true" : null);
+                        }
                     }
+                    visibleStatusList.add(visibleStatus);
                 } else {
                     List<String> imageKeys = Arrays.asList(itemsStrs);
                     imageKeyLists.add(imageKeys);
@@ -391,6 +374,7 @@ public class TaoUtil {
 
             // available menu to remove.
             model.addAttribute("refForDelete", refList);
+            model.addAttribute("menus", menus);
         }
 
         if (isAboveManager(session)) {

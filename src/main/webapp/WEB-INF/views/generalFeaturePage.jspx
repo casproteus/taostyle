@@ -29,7 +29,7 @@
 	</c:if>
 	
   	<c:set var="isAboveEmployee"  value="false" />
-	<c:if test="${user_role == '[ROLE_ADMIN]'  or user_role == '[ROLE_MANAGER]' or user_role == '[ROLE_EMPLOYEE]'}">
+	<c:if test="${isAboveManager or user_role == '[ROLE_EMPLOYEE]'}">
 		<c:set var="isAboveEmployee"  value="true" />
 	</c:if>
 			
@@ -55,8 +55,6 @@
 			<c:set var="subLength" value="${fn:length(imageKeys[j])}"/>
 			<c:if test="${subLength > 0 }">
 			 
-			  <spring:url value="/updateFeatureForm" var="form_url" />
-			  <form action="${fn:escapeXml(form_url)}" method="POST">
 			 	<input type="hidden" name="featureId" value="${features[j].id}" />
 			 	<input type="hidden" name="refMenuIdx" value="${features[j].refMenuIdx}" />
 			 	<input type="hidden" name="length" value="${fn:length(imageKeys[j])}" />
@@ -100,7 +98,6 @@
 					    </c:if>
 					</div>
 				</c:forEach>
-			  </form>
 			</c:if>
 		</div>
 	  </div>
@@ -109,14 +106,22 @@
 	<util:addRemoveFeatureGroup allowedLevel="[ROLE_MANAGER]" />
 
 	<c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
+		<c:if test="${'true' == show_tagBar_feature}">
+			<c:forEach var="i" begin="0" end="${length-1}" step="1">
+				<div style="position: fixed; z-index: 3000; top: ${100 + i * 40}px; left: -5px; border-radius:5px; height:38px; background:#EDB26D; opacity:0.8;">
+					${menus[i]}
+			 	</div>
+	 		</c:forEach>
+	  	</c:if>
+	  	
 		<div id="bell">
-		  <div style="position: fixed; border-radius:5px; z-index: 3000; top: 340px; right: 5px; background:#EDB26D; opacity:0.9;">
-			Please click me to submit
+		  <div style="position: fixed; border-radius:5px; z-index: 3000; bottom: 120px; left: 5px; background:#EDB26D; opacity:0.9;">
+			Submit or
 			<br/>
-			the order or call a waiter.
+			call a waiter.
 		  </div>
-		  <div style="position: fixed; z-index: 3000; top: 380px; right: 5px; cursor:pointer">
-			<img alt="hide unchecked items" src="getImage/bell" title="Click here to submit or call a waiter."
+		  <div style="position: fixed; z-index: 3000; bottom: 40px; left: 5px; cursor:pointer">
+			<img alt="hide unchecked items" src="getImage/bell" title="Submit or call a waiter."
 				onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')"/>
 			<util:changeImg position="bell" />
 		  </div>
