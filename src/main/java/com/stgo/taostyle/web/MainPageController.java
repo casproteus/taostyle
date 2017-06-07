@@ -1566,36 +1566,6 @@ public class MainPageController extends BaseController {
         return buildPageForMenu(model, request, null);
     }
 
-    @RequestMapping(value = "/updateFeatureForm", method = RequestMethod.POST)
-    public String updateFeatureForm(
-            Model model,
-            HttpServletRequest request) {
-        String refMenuIdx = request.getParameter("refMenuIdx");
-        int[] menuIdxes = TaoUtil.splitMenuIdxToAry(refMenuIdx);
-        String menu =
-                TaoUtil.completeMenuIdx(menuIdxes[0], menuIdxes[1], menuIdxes[2],
-                        TaoUtil.getLangPrfWithDefault(request), TaoUtil.getCurPerson(request));
-        menu = "service_" + menu + "_";
-        List<String> selectedImageKeys = new ArrayList<String>();
-
-        int length = Integer.valueOf(request.getParameter("length"));
-        for (int i = 1; i <= length; i++) {
-            final String key = menu + i;
-            String status = request.getParameter(key);
-            if ("on".equals(status)) {
-                selectedImageKeys.add(key);
-            }
-        }
-        // update a freature
-        String itemsToShow = selectedImageKeys.toString();
-        itemsToShow = itemsToShow.substring(1, itemsToShow.length() - 1);
-        Feature feature = Feature.findFeature(Long.valueOf(request.getParameter("featureId")));
-        feature.setItemsToShow(itemsToShow);
-        feature.persist();
-
-        return buildPageForMenu(model, request, null);
-    }
-
     @RequestMapping(value = "updataFeature/{imageKey}", headers = "Accept=application/json",
             method = RequestMethod.POST)
     @ResponseBody
