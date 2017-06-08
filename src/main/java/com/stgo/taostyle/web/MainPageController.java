@@ -409,7 +409,7 @@ public class MainPageController extends BaseController {
             mainOrders = MainOrder.findMainOrdersByPerson(person, "desc");
         } else if (CC.ROLE_PRINTER.equalsIgnoreCase(securityLevel)) {
             request.setAttribute("show_footArea", "");
-            request.setAttribute("show_foot", "");
+            request.setAttribute("show_foot", "false");
             request.setAttribute("show_AboveMenu", "");
             request.setAttribute("show_Menu", "");
 

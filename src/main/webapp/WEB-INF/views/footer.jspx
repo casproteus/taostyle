@@ -44,7 +44,7 @@
 		</div>
 	</c:if>
 
-	<c:if test="${not empty show_foot}">
+	<c:if test="${'false' != show_foot}">
 		<div class="row" style="height:${footer_h}px; padding-top:${footer_padding_top}px; background-color: #${background_foot}" />
 		<span style="margin-left:30px;">${footer_copyright}</span>
 		<util:edit position="footer_copyright" content="${footer_copyright}" richText="true" />

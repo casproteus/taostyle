@@ -39,54 +39,37 @@
 	<c:if test="${user_role == '[ROLE_PRINTER]'}">
 		<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
 			<div id="plainTextForReceip" class="${span}" align="left" style="margin-left:${leftmargin}">
+				<p align="center"> ${targetTime}  ( ${sizeTable}${contactPhone} ) </p>
 				<c:forEach var="i" begin="1" end="${fn:length(materials)}" step="1">
-					<p>${i}) ${materials[i-1]['portionName']}</p>
-					<p align="right">${materials[i-1]['remark']}</p>
+					<div id="dish_${i}">
+						<p>${i}) ${materials[i-1]['portionName']}</p>
+						<p align="right">${materials[i-1]['remark']}</p>
+					</div>
 				</c:forEach>
-				<p align="center">	order id: ${mainOrderID} print style: ${printStyle}</p>
+				<input id="mainOrderID_" type="hidden" value="${mainOrderID}" /> 
+				<input id="printStyle" type="hidden" value="${printStyle}"/>
 			</div>
 		</c:if>
 		<script type="text/javascript">
 			<![CDATA[
 			    function processPrint(elementId){
 			    	var printStyle = document.getElementById("printStyle").value;
-			    	if(printStyle=='each'){	//@TODO:need to add for loop, to go throuth each
-					    var html = '<HTML>\n<HEAD>\n';
-					    if (document.getElementsByTagName("head") != null){
-						    var headTags = document.getElementsByTagName("head");
-						    if (headTags.length > 0)
-						    	html += headTags[0].innerHTML;
-					    }
-			
-					    html += '\n</HE' + 'AD>\n<BODY>\n';
-					    var printReadyElem = document.getElementById(elementId);
-				
-					    html += printReadyElem.innerHTML;
-			
-					    html += '\n</BO' + 'DY>\n</HT' + 'ML>';
-					    //alert("html:"+html);
-					    var printWin = window.open("","processPrint");
-					    printWin.document.open();
-					    printWin.document.write(html);
-					    printWin.document.close();
-				
-					    printWin.print();
-					    //alert("print end!");
+			    	alert("printStyle:" + printStyle);
+			    	if(printStyle=='each'){
 			    	}else {
-			    		//@TODO:need to change the content to make the content bigger.
 					    var printContents = document.getElementById(elementId).innerHTML;
 				     	document.body.innerHTML = printContents;
 				       	alert(document.body.outerHTML);
-				     	//window.print();
+				     	window.print();
 			    	}
 			    }
 			]]>
 		
 		    function printDiv() {
-		    	if(document.getElementById("printAreaForReceip")){
+		    	if(document.getElementById("plainTextForReceip")){
 			     	processPrint("plainTextForReceip");
 
-/**			     	var mainOrderID = document.getElementById("mainOrderID").value;
+			     	var mainOrderID = document.getElementById("mainOrderID").value;
 					//alert("mainOrderID:"+mainOrderID);
 					 $.ajax({
 					    	headers: "Accept=application/json",
@@ -102,7 +85,7 @@
 					        	}
 					        }
 					 });
-**/
+
 				 }
 
 			  	 //setTimeout('fetchPrintableOrder()', ${(20+refresh_time) * 1000});
