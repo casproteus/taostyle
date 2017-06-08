@@ -23,7 +23,7 @@
 			
 				<!-- Material list -->
 				<page:BigList id="pl_com_stgo_taostyle_domain_material" label="${targetTime} ( ${sizeTable}${contactPhone} )" items="${materials}"
-				 mainOrderID="${mainOrderID}" printStyle="${printStyle}" render="${fn:length(materials) gt 0}">
+				 mainOrderID="${mainOrderID}" render="${fn:length(materials) gt 0}">
 					<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
 					update="${isNotPrinter}"  delete="${isNotPrinter}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}">
 						<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="portionName"/>
@@ -40,30 +40,70 @@
 		<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
 			<div id="plainTextForReceip" class="${span}" align="left" style="margin-left:${leftmargin}">
 				<p align="center"> ${targetTime}  ( ${sizeTable}${contactPhone} ) </p>
-				<c:forEach var="i" begin="1" end="${fn:length(materials)}" step="1">
-					<div id="dish_${i}">
-						<p>${i}) ${materials[i-1]['portionName']}</p>
-						<p align="right">${materials[i-1]['remark']}</p>
-					</div>
-				</c:forEach>
-				<input id="mainOrderID_" type="hidden" value="${mainOrderID}" /> 
+				<div id="deshesArea">
+					<c:forEach var="i" begin="1" end="${fn:length(materials)}" step="1">
+						<div id="dish_${i}">
+							<p>${i}) ${materials[i-1]['portionName']}</p>
+							<p align="right">${materials[i-1]['remark']}</p>
+						</div>
+					</c:forEach>
+				</div>
+				<input id="mainOrderID" type="hidden" value="${mainOrderID}" /> 
 				<input id="printStyle" type="hidden" value="${printStyle}"/>
+		<!-- when debugging, modifiy the mainOrderID to mainOrderID_, to make the ajax call fail, so record will not be updated.  -->
+		<!-- The style of Print, it could be all(print all item) or each(print each item in one bill.  -->
 			</div>
 		</c:if>
 		<script type="text/javascript">
-			<![CDATA[
+			//<![CDATA[
+			    function printByEach(printContents, elementId, i){
+			    	document.body.innerHTML = printContents;
+			    	var item = document.getElementById("dish_"+i);
+		    		if(item == null){
+		    			return;
+		    		}
+		    		document.getElementById("deshesArea").innerHTML = item.innerHTML;
+			     	window.print();
+			     	
+			     	setTimeout("printByEach('" + printContents + "','" + elementId + "',"+ (i+1)+")", ${5 * 1000});
+			    }
 			    function processPrint(elementId){
 			    	var printStyle = document.getElementById("printStyle").value;
-			    	alert("printStyle:" + printStyle);
 			    	if(printStyle=='each'){
+
+					    var printContents = document.getElementById(elementId).outerHTML;
+				    	printByEach(printContents, elementId, 1);
+			    		
+/*					    var html = '<HTML>\n<HEAD>\n';
+					    if (document.getElementsByTagName("head") != null){
+						    var headTags = document.getElementsByTagName("head");
+						    if (headTags.length > 0)
+						    	html += headTags[0].innerHTML;
+					    }
+			
+					    html += '\n</HE' + 'AD>\n<BODY>\n';
+					    var printReadyElem = document.getElementById(elementId);
+				
+					    html += printReadyElem.innerHTML;
+			
+					    html += '\n</BO' + 'DY>\n</HT' + 'ML>';
+					    //alert("html:"+html);
+					    var printWin = window.open("","processPrint");
+					    printWin.document.open();
+					    printWin.document.write(html);
+					    printWin.document.close();
+				
+					    printWin.print();
+					    //alert("print end!");
+*/
 			    	}else {
 					    var printContents = document.getElementById(elementId).innerHTML;
 				     	document.body.innerHTML = printContents;
-				       	alert(document.body.outerHTML);
+				       	//alert(document.body.outerHTML);
 				     	window.print();
 			    	}
 			    }
-			]]>
+			//]]>
 		
 		    function printDiv() {
 		    	if(document.getElementById("plainTextForReceip")){
@@ -88,7 +128,7 @@
 
 				 }
 
-			  	 //setTimeout('fetchPrintableOrder()', ${(20+refresh_time) * 1000});
+			  	 setTimeout('fetchPrintableOrder()', ${(20+refresh_time) * 1000});
 		    }
 			
 		    function fetchPrintableOrder(){
