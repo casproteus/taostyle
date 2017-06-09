@@ -1004,4 +1004,15 @@ public class TaoUtil {
         SimpleDateFormat df5 = new SimpleDateFormat(format, Locale.getDefault());
         return df5.format(date);
     }
+
+    public static String cleanUpTel(
+            String tel) {
+        tel = StringUtils.remove(tel, " ");
+        tel = StringUtils.remove(tel, "(");
+        tel = StringUtils.remove(tel, ")");
+        tel = StringUtils.remove(tel, "-");
+        tel = StringUtils.remove(tel, ".");
+        tel = StringUtils.remove(tel, ",");
+        return tel;
+    }
 }

@@ -431,6 +431,8 @@ public class MainPageController extends BaseController {
             // if not return yet, means nothing to print for now.
             model.addAttribute("materials", null);
             return "printpreview";
+        } else if (CC.ROLE_CLIENT.equalsIgnoreCase(securityLevel)) {
+            mainOrders = MainOrder.findMainOrdersByClientAndPerson(userAccount, person, "desc");
         } else {
             mainOrders = MainOrder.findUnCompletedMainOrdersByPerson(person, "desc");
         }
@@ -1684,17 +1686,30 @@ public class MainPageController extends BaseController {
             return new ResponseEntity<String>(textContent.toJson(), HttpStatus.ALREADY_REPORTED);
         }
 
+        Person person = TaoUtil.getCurPerson(request);
+        Object curUser = request.getSession().getAttribute(CC.currentUser);
+
         String[] items = "emptyOrder".equals(orderedItems) ? new String[] {} : StringUtils.split(orderedItems, ",");
         String source = request.getParameter("source");
+        // format:var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
         String[] params = StringUtils.split(source, ",");
-        String sizeTable = "";
-        if (params.length > 0) {
-            sizeTable = params[0];
-        }
+
+        String sizeTable = params[0];
+        String tel = params[0];
+        String name = params[1];
 
         UserAccount client = null;
+        if (curUser != null) {
+            client = (UserAccount) curUser;
+        } else if (tel.length() > 6) {
+            client = UserAccount.findUserAccountsByNameAndTell(name, tel);
+        } else {
+            // means, user has logged in, so was not asked to input name, tel..while when he click send, it's already
+            // time out... throw new RuntimeException("time out!, please log in again.");
+            // now even logged in user should also input address and new tell, because might ordered for his mother.
+        }
+
         String delieverdate = null;
-        Person person = TaoUtil.getCurPerson(request);
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
         String moneyLetter = CC.money.valueOf(langPrf.substring(0, 2)).getValue();
 

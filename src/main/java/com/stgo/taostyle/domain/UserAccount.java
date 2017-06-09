@@ -11,7 +11,9 @@ import org.springframework.roo.addon.json.RooJson;
 import org.springframework.roo.addon.tostring.RooToString;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.stgo.taostyle.web.TaoDebug;
 import com.stgo.taostyle.web.TaoEmail;
+import com.stgo.taostyle.web.TaoUtil;
 
 @RooJavaBean
 @RooToString
@@ -111,6 +113,40 @@ public class UserAccount {
         return null;
     }
 
+    public static com.stgo.taostyle.domain.UserAccount findUserAccountsByNameAndTell(
+            String userName,
+            String tell) {
+        tell = TaoUtil.cleanUpTel(tell);
+
+        TypedQuery<UserAccount> tQuery =
+                entityManager()
+                        .createQuery(
+                                "SELECT o FROM UserAccount AS o WHERE UPPER(o.loginname) = UPPER(:username) and o.tel = :tel or o.cell = :cel",
+                                UserAccount.class);
+        tQuery = tQuery.setParameter("username", userName);
+        tQuery = tQuery.setParameter("tel", tell);
+        tQuery = tQuery.setParameter("cel", tell);
+        UserAccount userAccount = null;
+        try {
+            List<UserAccount> list = tQuery.getResultList();
+            userAccount = list.get(0);
+            if (list.size() > 1) {
+                UserAccount oldUser = null;
+                for (UserAccount user : list) {
+                    if (oldUser == null) {
+                        oldUser = user;
+                    } else if (!oldUser.equals(user)) {
+                        TaoDebug.error("found duplicated and not toltally same user in db", user.loginname);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // do nothing.
+        }
+
+        return userAccount;
+    }
+
     // override this method, so when the useraccount displayed in dropdown box, only the login name will be displayed
     // instead of all fields.
     @Override
@@ -180,5 +216,149 @@ public class UserAccount {
         TypedQuery<UserAccount> tQuery = entityManager().createQuery(jpaQuery, UserAccount.class);
         tQuery.setParameter("person", person);
         return tQuery.getResultList();
+    }
+
+    public String getLoginname() {
+        return this.loginname;
+    }
+
+    public void setLoginname(
+            String loginname) {
+        this.loginname = loginname;
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
+
+    public void setPassword(
+            String password) {
+        this.password = password;
+    }
+
+    public String getCel() {
+        return this.cel;
+    }
+
+    public void setCel(
+            String cel) {
+        this.cel = cel;
+    }
+
+    public String getTel() {
+        return this.tel;
+    }
+
+    public void setTel(
+            String tel) {
+        this.tel = TaoUtil.cleanUpTel(tel);
+    }
+
+    public String getFax() {
+        return this.fax;
+    }
+
+    public void setFax(
+            String fax) {
+        this.fax = fax;
+    }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public void setEmail(
+            String email) {
+        this.email = email;
+    }
+
+    public String getCompanyname() {
+        return this.companyname;
+    }
+
+    public void setCompanyname(
+            String companyname) {
+        this.companyname = companyname;
+    }
+
+    public String getAddress() {
+        return this.address;
+    }
+
+    public void setAddress(
+            String address) {
+        this.address = address;
+    }
+
+    public String getCity() {
+        return this.city;
+    }
+
+    public void setCity(
+            String city) {
+        this.city = city;
+    }
+
+    public String getPostcode() {
+        return this.postcode;
+    }
+
+    public void setPostcode(
+            String postcode) {
+        this.postcode = postcode;
+    }
+
+    public int getCredit() {
+        return this.credit;
+    }
+
+    public void setCredit(
+            int credit) {
+        this.credit = credit;
+    }
+
+    public int getBalance() {
+        return this.balance;
+    }
+
+    public void setBalance(
+            int balance) {
+        this.balance = balance;
+    }
+
+    public String getDescription() {
+        return this.description;
+    }
+
+    public void setDescription(
+            String description) {
+        this.description = description;
+    }
+
+    public String getSecuritylevel() {
+        return this.securitylevel;
+    }
+
+    public void setSecuritylevel(
+            String securitylevel) {
+        this.securitylevel = securitylevel;
+    }
+
+    public Person getPerson() {
+        return this.person;
+    }
+
+    public void setPerson(
+            Person person) {
+        this.person = person;
+    }
+
+    public int getRecordStatus() {
+        return this.recordStatus;
+    }
+
+    public void setRecordStatus(
+            int recordStatus) {
+        this.recordStatus = recordStatus;
     }
 }

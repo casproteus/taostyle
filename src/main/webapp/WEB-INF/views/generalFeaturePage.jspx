@@ -104,16 +104,22 @@
 	 </c:forEach>
 	</c:if>
 	<util:addRemoveFeatureGroup allowedLevel="[ROLE_MANAGER]" />
+	<input id="user_role" type="hidden" value="${user_role}" /> 
 
+	<!-- the floating buttons. -->
+	<c:if test="${'true' == show_tagBar_feature}">
+		<c:forEach var="i" begin="0" end="${length-1}" step="1">
+			<div id="categery${i}" style="position: fixed; z-index: 3000; top: ${100 + i * 40}px; left: -5px; border-radius:5px; height:38px; background:#EDB26D; opacity:0.8;">
+				${menus[i]}
+		 	</div>
+ 		</c:forEach>
+ 		<script type="text/javascript">
+
+			alert("has category?");
+	
+		</script>
+  	</c:if>
 	<c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
-		<c:if test="${'true' == show_tagBar_feature}">
-			<c:forEach var="i" begin="0" end="${length-1}" step="1">
-				<div style="position: fixed; z-index: 3000; top: ${100 + i * 40}px; left: -5px; border-radius:5px; height:38px; background:#EDB26D; opacity:0.8;">
-					${menus[i]}
-			 	</div>
-	 		</c:forEach>
-	  	</c:if>
-	  	
 		<div id="bell">
 		  <div style="position: fixed; border-radius:5px; z-index: 3000; bottom: 120px; left: 5px; background:#EDB26D; opacity:0.9;">
 			Submit or
@@ -126,139 +132,139 @@
 			<util:changeImg position="bell" />
 		  </div>
 	  	</div>
+	  	<script type="text/javascript">
+			//for location
+			var latitude;
+			var longitude;
+			if(user_role.value == '' || '[ROLE_CLIENT]' == user_role.value){
+				//init the location
+			    if (navigator.geolocation) {
+			        navigator.geolocation.watchPosition(showPosition);
+			    } else { 
+			        alert("Geolocation is not supported by this browser.");
+			    }
+			}
+			
+			function showPosition(position) {
+				latitude = position.coords.latitude;
+				longitude = position.coords.longitude;
+			}
+			
+			function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
+		
+				//build string of selected producs/services.
+				var orderedItems = "";
+				for (var j=100; j>=0; j--) {
+					var curGridView = document.getElementById(j + "-gridview");
+					if(curGridView != null){
+						for (var i=100; i>=0; i--) {
+							//if first time click in an area, then all uncheck element in above area should be dark up. 
+							var obj = document.getElementById("img-" + j + "-" + i);
+							var checkBox = document.getElementById("check-" + j + "-" + i);
+							if(obj != null){
+								if(checkBox.checked){   
+									var id = obj.href.substr(31);//javascript:showDetail('service_3_3_0_3')
+									id = id.substr(0, id.length-2);
+									orderedItems = orderedItems + "," + id;
+								}
+							}
+						}
+					}
+				}
+				//selected nothing? notice and return. while employee has reason to do it.
+				if((orderedItems.length &lt; 1) &amp; ((isAboveEmployee == 'false') || (tableID.length &lt; 1))){
+					alert("Please touch the buttons under the dishes you want first, then click me to order.");
+					return;
+				}
+				
+				//clean the screen first, left only selected ones.
+				for (var j=100; j>=0; j--) {
+					var curGridView = document.getElementById(j + "-gridview");
+					if(curGridView != null){
+						for (var i=100; i>=0; i--) {
+							//if first time click in an area, then all uncheck element in above area should be dark up. 
+							var obj = document.getElementById("check-" + j + "-" + i);
+							if(obj != null){
+								if( !obj.checked ){
+									obj.parentNode.removeChild(obj);
+						            var obj = document.getElementById("img-" + j + "-" + i);
+									obj.parentNode.removeChild(obj);
+						            obj = document.getElementById("des-" + j + "-" + i);
+						            obj.parentNode.removeChild(obj);
+								}
+							}
+						}
+					}
+				}
+		
+				//selected something, then if it's from outside, collect user information.
+				var name = "";
+				var phoneNumber = "n";
+				var address = "n";
+				var arrive = "n";
+				var location ="n";
+				var geoOutRange = false;
+				if(tableID == null || tableID.length == 0){
+					phoneNumber = prompt("Thank you for ordering, please leave your phone number:","");
+					address = prompt("Delever to address:","");			
+					arrive = prompt("Time you would like it to arrive:","");
+		
+					//TODO: send to back end to create a log
+					if(contact_phone == null){
+						alert("Sorry, The company haven't openned online ordering function.");
+						return;
+					}
+					//TODO: add geo checck, and if
+					if(geoOutRange){
+						alert("Sorry, The address is out of service area.");
+						return;
+					}
+				}
+		
+				name = prompt("Your name please:", "");
+				orderedItems = orderedItems.substr(1);
+				var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
+				
+				//no need to wait for 6 seconds, because I let the geo watch start as soon as page loaded.
+				//setTimeout("send('" + orderedItems + "','" + source + "',latitude,longitude,'" + map_x + "','" + map_y + "','" + limit_diff +"','" + contact_phone + "')",6000);
+				send(orderedItems,source,latitude,longitude,map_x ,map_y,limit_diff,contact_phone);
+				//hide bell
+				obj = document.getElementById("bell");
+		        obj.parentNode.removeChild(obj);
+			}
+		
+			function send(orderedItems, source, latitude, longitude, map_x, map_y, limit_diff, contact_phone){	
+				
+				var isFromOurside = (latitude - map_x) > limit_diff || (longitude - map_y) > limit_diff;
+				if(isFromOurside){
+					if(source.indexOf(",") > 0){//means the first element is empty, and the first element is for tableID.
+						alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");
+						return;
+					}
+				}
+				source = source + "," + latitude + "," + longitude;
+				if(orderedItems.length == 0){
+					orderedItems = "emptyOrder";
+				}
+				$.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "createAnOrder/"+orderedItems,
+			        data: "source=" + source,
+			        async:false,
+			        success:function(textContent){
+			        	if(textContent == null || textContent.length == 0){
+			        		alert( "Order submmited! (you can also call us-- " + contact_phone + "to comfirm.)");
+			        	}else{
+			        		alert( "Sorry, your order was rejected for some reason, we've logged your ip and machine. Please to call us "+ contact_phone + " for better service.");
+			        	}
+			        }
+			    });
+			}
+		</script>
 	</c:if>
 	
 	<script type="text/javascript">
-	//for location
-	var latitude;
-	var longitude;
-
-	if(!('[ROLE_ADMIN]' == user_role || user_role == '[ROLE_MANAGER]' || user_role == '[ROLE_EMPLOYEE]' || user_role == '[ROLE_PRINTER]')){
-		//init the location
-	    if (navigator.geolocation) {
-	        navigator.geolocation.watchPosition(showPosition);
-	    } else { 
-	        alert("Geolocation is not supported by this browser.");
-	    }
-	}
-	
-	function showPosition(position) {
-		latitude = position.coords.latitude;
-		longitude = position.coords.longitude;
-	}
-	
-	function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
-
-		//build string of selected producs/services.
-		var orderedItems = "";
-		for (var j=100; j>=0; j--) {
-			var curGridView = document.getElementById(j + "-gridview");
-			if(curGridView != null){
-				for (var i=100; i>=0; i--) {
-					//if first time click in an area, then all uncheck element in above area should be dark up. 
-					var obj = document.getElementById("img-" + j + "-" + i);
-					var checkBox = document.getElementById("check-" + j + "-" + i);
-					if(obj != null){
-						if(checkBox.checked){   
-							var id = obj.href.substr(31);//javascript:showDetail('service_3_3_0_3')
-							id = id.substr(0, id.length-2);
-							orderedItems = orderedItems + "," + id;
-						}
-					}
-				}
-			}
-		}
-		//selected nothing? notice and return. while employee has reason to do it.
-		if((orderedItems.length &lt; 1) &amp; ((isAboveEmployee == 'false') || (tableID.length &lt; 1))){
-			alert("Please touch the buttons under the dishes you want first, then click me to order.");
-			return;
-		}
-		
-		//clean the screen first, left only selected ones.
-		for (var j=100; j>=0; j--) {
-			var curGridView = document.getElementById(j + "-gridview");
-			if(curGridView != null){
-				for (var i=100; i>=0; i--) {
-					//if first time click in an area, then all uncheck element in above area should be dark up. 
-					var obj = document.getElementById("check-" + j + "-" + i);
-					if(obj != null){
-						if( !obj.checked ){
-							obj.parentNode.removeChild(obj);
-				            var obj = document.getElementById("img-" + j + "-" + i);
-							obj.parentNode.removeChild(obj);
-				            obj = document.getElementById("des-" + j + "-" + i);
-				            obj.parentNode.removeChild(obj);
-						}
-					}
-				}
-			}
-		}
-
-		//selected something, then if it's from outside, collect user information.
-		var name = "";
-		var phoneNumber = "";
-		var address = "";
-		var arrive = "";
-		var location ="";
-		var geoOutRange = false;
-		if(tableID == null || tableID.length == 0){
-			phoneNumber = prompt("Thank you for ordering, please leave your phone number:","");
-			address = prompt("Delever to address:","");			
-			arrive = prompt("Time you would like it to arrive:","");
-
-			//TODO: send to back end to create a log
-			if(contact_phone == null){
-				alert("Sorry, The company haven't openned online ordering function.");
-				return;
-			}
-			//TODO: add geo checck, and if
-			if(geoOutRange){
-				alert("Sorry, The address is out of service area.");
-				return;
-			}
-		}
-
-		name = prompt("Your name please:", "");
-		orderedItems = orderedItems.substr(1);
-		var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
-		
-		//no need to wait for 6 seconds, because I let the geo watch start as soon as page loaded.
-		//setTimeout("send('" + orderedItems + "','" + source + "',latitude,longitude,'" + map_x + "','" + map_y + "','" + limit_diff +"','" + contact_phone + "')",6000);
-		send(orderedItems,source,latitude,longitude,map_x ,map_y,limit_diff,contact_phone);
-		//hide bell
-		obj = document.getElementById("bell");
-        obj.parentNode.removeChild(obj);
-	}
-
-	function send(orderedItems, source, latitude, longitude, map_x, map_y, limit_diff, contact_phone){	
-		
-		var isFromOurside = (latitude - map_x) > limit_diff || (longitude - map_y) > limit_diff;
-		if(isFromOurside){
-			if(source.indexOf(",") > 0){//means the first element is empty, and the first element is for tableID.
-				alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");
-				return;
-			}
-		}
-		source = source + "," + latitude + "," + longitude;
-		if(orderedItems.length == 0){
-			orderedItems = "emptyOrder";
-		}
-		$.ajax({
-	    	headers: "Accept=application/json",
-	        type: "POST",
-	        url: "createAnOrder/"+orderedItems,
-	        data: "source=" + source,
-	        async:false,
-	        success:function(textContent){
-	        	if(textContent == null || textContent.length == 0){
-	        		alert( "Order submmited! (you can also call us-- " + contact_phone + "to comfirm.)");
-	        	}else{
-	        		alert( "Sorry, your order was rejected for some reason, we've logged your ip and machine. Please to call us "+ contact_phone + " for better service.");
-	        	}
-	        }
-	    });
-	}		
-	
 	function showDetail(value) {
 	    $.ajax({
 	    	headers: "Accept=application/json",

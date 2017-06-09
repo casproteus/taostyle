@@ -114,7 +114,7 @@
 							<spring:param name="form" />
 						</spring:url>
 					</c:when>
-					<c:when test="${app_ContentManager != null and (user_role eq '[ROLE_MANAGER]' or user_role eq '[ROLE_EMPLOYEE]' or user_role eq '[ROLE_PRINTER]')}">
+					<c:when test="${app_ContentManager != null and (user_role ne '[ROLE_ADMIN]')}">
 						<!-- if  -->
 						<spring:url value="/dashboard" var="myAccount_url" />
 					</c:when>

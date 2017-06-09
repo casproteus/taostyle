@@ -105,6 +105,35 @@ public class MainOrder {
     }
 
     @Transactional
+    public static List<MainOrder> findMainOrdersByClientAndPerson(
+            UserAccount client,
+            Person person,
+            String order) {
+        EntityManager tEntityManager = entityManager();
+        TypedQuery<MainOrder> tQuery =
+                tEntityManager.createQuery(
+                        "SELECT o FROM MainOrder AS o WHERE o.person = :person and o.client = :client ORDER BY o.id "
+                                + order, MainOrder.class);
+        tQuery = tQuery.setParameter("person", person);
+        tQuery = tQuery.setParameter("client", client);
+
+        // we display all uncompleated order, if want to get today's order, should open a new method.
+        // and o.delieverdate > :delieverdate
+        // Calendar calendar = Calendar.getInstance();
+        // calendar.set(Calendar.HOUR_OF_DAY, 1);
+        // tQuery = tQuery.setParameter("delieverdate", calendar.getTime());
+
+        List<MainOrder> mainOrders = null;
+        try {
+            mainOrders = tQuery.getResultList();
+        } catch (Exception e) {
+            return null;
+        }
+
+        return mainOrders;
+    }
+
+    @Transactional
     public static List<MainOrder> findUnCompletedMainOrdersByPerson(
             Person person,
             String order) {
