@@ -1775,6 +1775,7 @@ public class MainPageController extends BaseController {
                                                      // create a new one to merge.
             sourcdAndNewMainOrder.persist();
         } else {
+            total = (float) (Math.round(total * 100)) / 100;
             sourcdAndNewMainOrder.setPayCondition(moneyLetter + String.valueOf(total)); // actual deal price.
             if ("true".equals(request.getSession().getAttribute("auto_merge_rec"))) {
                 MainOrder existingSameSourceMainOrder = searchSameSourceMainOrder(sourcdAndNewMainOrder, person);

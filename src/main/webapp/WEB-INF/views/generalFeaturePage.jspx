@@ -115,18 +115,20 @@
  		</c:forEach>
  		<script type="text/javascript">
 
-			alert("has category?");
+			//alert("has category?");
 	
 		</script>
   	</c:if>
+  	
 	<c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
 		<div id="bell">
-		  <div style="position: fixed; border-radius:5px; z-index: 3000; bottom: 120px; left: 5px; background:#EDB26D; opacity:0.9;">
-			Submit or
+		  <div style="position: fixed; border-radius:5px; z-index: 3000; bottom: 120px; right: 5px; background:#EDB26D; opacity:0.9;">
+			Click me to submit!
 			<br/>
-			call a waiter.
+			<input id="selectedItem" value="0" style="width: 15px; border-style:none; background:none"/>Items
+			|Total: $<input id="totalPrice" value="0.00" style="width: 40px; border-style:none; background:none" />
 		  </div>
-		  <div style="position: fixed; z-index: 3000; bottom: 40px; left: 5px; cursor:pointer">
+		  <div style="position: fixed; z-index: 3000; bottom: 40px; right: 5px; cursor:pointer">
 			<img alt="hide unchecked items" src="getImage/bell" title="Submit or call a waiter."
 				onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')"/>
 			<util:changeImg position="bell" />
@@ -328,8 +330,7 @@
 		        }
 		    });
 		}else{
-			//if it's check and before is unchecked, then ligtht it.
-			//if it's uncheck, then unlight it.
+			//if it's check and before is unchecked, then ligtht it. if it's uncheck, then unlight it.
 			var curObj = document.getElementById("check-" + featureIdx + "-" + imageKey);
 			if(curObj != null){
 	            var opacity = curObj.checked ? 1: 0.1;
@@ -339,6 +340,18 @@
 
 	            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
 	            obj.style.cssText = "opacity: " + opacity; 
+	            
+	            var currentItem = Number(selectedItem.value);
+	            var curentPrice = Number(totalPrice.value);
+	            var text = obj.innerText;
+	            var i = text.indexOf('$');
+	            if(!(i >= 0)){
+	            	i = text.indexOf('￥');
+	            }
+	            text = text.substring(i+1);
+	            var selectedPrice = Number(text);
+	            selectedItem.value = curObj.checked ? currentItem + 1 : currentItem - 1;
+	            totalPrice.value = curObj.checked ? (curentPrice + selectedPrice).toFixed(2) : (curentPrice - selectedPrice).toFixed(2);
 			}
 			
 			featureIdx = featureIdx - 1;
