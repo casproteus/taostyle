@@ -115,6 +115,12 @@ public class MaterialController {
             mainOrder.remove();
             return "redirect:/dashboard";
         } else {
+            float totalPrice = 0;
+            for (Material dish : materials) {
+                totalPrice += Float.valueOf(dish.getDencity().substring(1));
+            }
+            mainOrder.setPayCondition(mainOrder.getPayCondition().substring(0, 1) + totalPrice);
+            mainOrder.persist();
             uiModel.asMap().clear();
             return strFR;
         }
