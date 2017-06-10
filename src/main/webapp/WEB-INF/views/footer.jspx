@@ -12,7 +12,7 @@
 	<jsp:directive.page contentType="text/html;charset=UTF-8" />
 	<jsp:output omit-xml-declaration="yes" />
 	<!-- foot -->
-	<c:if test="${not empty show_footArea and show_footArea == 'true'}">
+	<c:if test="${show_footArea == 'true'}">
 		<c:set var="footer_padding_top" value="0"/>
 		<div class="row" style="background-color:#${background_footArea}; color:#${foreground_footArea}; margin-top:${show_footArea}px">
 			<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">

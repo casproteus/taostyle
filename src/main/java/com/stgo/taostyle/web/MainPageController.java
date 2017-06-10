@@ -1573,13 +1573,27 @@ public class MainPageController extends BaseController {
         return buildPageForMenu(model, request, null);
     }
 
+    @RequestMapping(value = "/{client}/updateFeature/{imageKey}", headers = "Accept=application/json")
+    @ResponseBody
+    public ResponseEntity<String> updateFeature(
+            @PathVariable(CC.CLIENT)
+            String client,
+            @PathVariable("imageKey")
+            String imageKey,
+            HttpServletRequest request) {
+
+        if (hasNotLoggedIn(request)) {
+            dirtFlagCommonText = TaoUtil.switchClient(request, client);
+        }
+        return updateFeature(imageKey, request);
+    }
+
     @RequestMapping(value = "updataFeature/{imageKey}", headers = "Accept=application/json",
             method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> updateFeature(
             @PathVariable("imageKey")
             String imageKey,
-            Model model,
             HttpServletRequest request) {
         Person person = TaoUtil.getCurPerson(request);
         String featureId = request.getParameter("featureId");
@@ -1613,13 +1627,27 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "updataPrinter/{imageKey}", headers = "Accept=application/json",
+    @RequestMapping(value = "/{client}/updatePrinter/{imageKey}", headers = "Accept=application/json")
+    @ResponseBody
+    public ResponseEntity<String> updatePrinter(
+            @PathVariable(CC.CLIENT)
+            String client,
+            @PathVariable("imageKey")
+            String imageKey,
+            HttpServletRequest request) {
+
+        if (hasNotLoggedIn(request)) {
+            dirtFlagCommonText = TaoUtil.switchClient(request, client);
+        }
+        return updatePrinter(imageKey, request);
+    }
+
+    @RequestMapping(value = "updatePrinter/{imageKey}", headers = "Accept=application/json",
             method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> updatePrinter(
             @PathVariable("imageKey")
             String imageKey,
-            Model model,
             HttpServletRequest request) {
         Person person = TaoUtil.getCurPerson(request);
         // String featureId = request.getParameter("featureId");
@@ -1650,6 +1678,44 @@ public class MainPageController extends BaseController {
         }
         service.setC3(printersStr);
         service.persist();
+        return new ResponseEntity<String>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{client}/updateSelection/{imageKey}", headers = "Accept=application/json")
+    @ResponseBody
+    public ResponseEntity<String> updateSelection(
+            @PathVariable(CC.CLIENT)
+            String client,
+            @PathVariable("imageKey")
+            String imageKey,
+            HttpServletRequest request) {
+
+        if (hasNotLoggedIn(request)) {
+            dirtFlagCommonText = TaoUtil.switchClient(request, client);
+        }
+        return updateSelection(imageKey, request);
+    }
+
+    @RequestMapping(value = "updateSelection/{imageKey}", headers = "Accept=application/json",
+            method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> updateSelection(
+            @PathVariable("imageKey")
+            String imageKey,
+            HttpServletRequest request) {
+        String newItemStr = "," + imageKey + ",";
+        String selectedItems = (String) request.getSession().getAttribute(CC.selectedItems);
+        if (selectedItems == null) {
+            selectedItems = newItemStr;
+        } else {
+            int p = selectedItems.indexOf(newItemStr);
+            if (p < 0) {
+                selectedItems = selectedItems + imageKey + ",";
+            } else {
+                selectedItems = selectedItems.substring(0, p) + selectedItems.substring(p + imageKey.length() + 1);
+            }
+        }
+        request.getSession().setAttribute(CC.selectedItems, selectedItems);
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 

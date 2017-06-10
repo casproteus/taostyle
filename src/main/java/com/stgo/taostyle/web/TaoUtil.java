@@ -308,6 +308,7 @@ public class TaoUtil {
             List<String> refList = new ArrayList<String>();
             List<String> menus = new ArrayList<String>();
             String menuPRF = langPrf + "menu_";
+            String selectedItems = (String) session.getAttribute(CC.selectedItems);
             for (Feature feature : features) {
                 // get all visible images.
                 String itemToShow = feature.getItemsToShow();
@@ -317,13 +318,13 @@ public class TaoUtil {
                 String menuKey = menuPRF + ref;
                 TextContent textContent = TextContent.findContentsByKeyAndPerson(menuKey, person);
                 menus.add(textContent.getContent());
+                List<String> visibleStatus = new ArrayList<String>();
                 if (isAboveManager(session) || isPrinter(session)) {
                     List<String> imageKeys = MediaUpload.listAllMediaUploadsKeyByKeyAndPerson("service_" + ref, person);
                     imageKeys = TaoImage.stripThumOrderAndValidate(imageKeys);
                     imageKeyLists.add(imageKeys);
                     fillInDescriptions(langPrf, person, descriptions, imageKeys);
 
-                    List<String> visibleStatus = new ArrayList<String>();
                     if (isPrinter(session)) {
                         UserAccount userAccount = (UserAccount) session.getAttribute(CC.currentUser);
                         String nameStrInService = "," + TaoEncrypt.stripUserName(userAccount.getLoginname()) + ",";
@@ -349,6 +350,13 @@ public class TaoUtil {
                     List<String> imageKeys = Arrays.asList(itemsStrs);
                     imageKeyLists.add(imageKeys);
                     fillInDescriptions(langPrf, person, descriptions, imageKeys);
+
+                    if (selectedItems != null) {
+                        for (String item : imageKeys) {
+                            visibleStatus.add(selectedItems.contains("," + item + ",") ? "true" : null);
+                        }
+                        visibleStatusList.add(visibleStatus);
+                    }
                 }
             }
 

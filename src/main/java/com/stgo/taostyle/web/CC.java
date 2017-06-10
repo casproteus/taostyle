@@ -26,6 +26,7 @@ public interface CC {
     String debugFlag = "debugFlag";
     String debugInfo = "debugInfo";
     String currentUser = "currentUser";
+    String selectedItems = "selectedItems";
 
     String app_name = "app_name";
     String app_ContentManager = "app_ContentManager";
