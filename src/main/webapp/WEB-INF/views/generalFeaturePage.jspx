@@ -120,8 +120,8 @@
 		  <div style="position: fixed; border-radius:5px; z-index: 3000; bottom: 120px; right: 5px; background:#EDB26D; opacity:0.9;">
 			Click me to submit!
 			<br/>
-			<input id="selectedItem" value="0" style="width: 15px; border-style:none; background:none"/>Items
-			|Total: $<input id="totalPrice" value="0.00" style="width: 40px; border-style:none; background:none" />
+			<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none"/>Items
+			|Total: $<input id="totalPrice" value="${totalPrice}" style="width: 40px; border-style:none; background:none" />
 		  </div>
 		  <div style="position: fixed; z-index: 3000; bottom: 40px; right: 5px; cursor:pointer">
 			<img alt="hide unchecked items" src="getImage/bell" title="Submit or call a waiter."

@@ -1703,19 +1703,46 @@ public class MainPageController extends BaseController {
             @PathVariable("imageKey")
             String imageKey,
             HttpServletRequest request) {
+        Person person = TaoUtil.getCurPerson(request);
         String newItemStr = "," + imageKey + ",";
         String selectedItems = (String) request.getSession().getAttribute(CC.selectedItems);
+        Service service = Service.findServiceByCatalogAndPerson(imageKey.substring(8), person);
         if (selectedItems == null) {
             selectedItems = newItemStr;
+            try {
+                request.getSession().setAttribute(CC.itemNumber, 1);
+                request.getSession().setAttribute(CC.totalPrice, Float.valueOf(service.getDescription()));
+            } catch (Exception e) {
+                TaoDebug.info(request, "service dosen't have price yet!", imageKey);
+            }
         } else {
+            String total = service.getDescription();
             int p = selectedItems.indexOf(newItemStr);
             if (p < 0) {
+                try {
+                    request.getSession().setAttribute(CC.itemNumber,
+                            (Integer) request.getSession().getAttribute(CC.itemNumber) + 1);
+                    request.getSession().setAttribute(CC.totalPrice,
+                            (Float) request.getSession().getAttribute(CC.totalPrice) + Float.valueOf(total));
+                } catch (Exception e) {
+                    TaoDebug.info(request, "service dosen't have price yet!", imageKey);
+                }
                 selectedItems = selectedItems + imageKey + ",";
+
             } else {
+                try {
+                    request.getSession().setAttribute(CC.itemNumber,
+                            (Integer) request.getSession().getAttribute(CC.itemNumber) - 1);
+                    request.getSession().setAttribute(CC.totalPrice,
+                            (Float) request.getSession().getAttribute(CC.totalPrice) - Float.valueOf(total));
+                } catch (Exception e) {
+                    TaoDebug.info(request, "service dosen't have price yet!", imageKey);
+                }
                 selectedItems = selectedItems.substring(0, p) + selectedItems.substring(p + imageKey.length() + 1);
             }
         }
         request.getSession().setAttribute(CC.selectedItems, selectedItems);
+
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 

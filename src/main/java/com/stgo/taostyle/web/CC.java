@@ -27,6 +27,8 @@ public interface CC {
     String debugInfo = "debugInfo";
     String currentUser = "currentUser";
     String selectedItems = "selectedItems";
+    String itemNumber = "itemNumber";
+    String totalPrice = "totalPrice";
 
     String app_name = "app_name";
     String app_ContentManager = "app_ContentManager";
