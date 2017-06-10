@@ -15,19 +15,18 @@
 
 	<!-- don't display by default -->
 	<c:set value=" col-xs-12 col-sm-12 col-md-12 col-lg-12" var="span" />
+	
 	<c:set value="0px" var="leftmargin" />
 	
-	<!-- if have menu, then display -->
-	<c:if
-		test="${not empty subMenu}">
-		<c:set value=" col-xs-11 col-sm-8 col-md-9 col-lg-9" var="span" />
+	<!-- if have menu, then display-->
+	<c:if test="${not empty subMenu and 'true' eq fixed_leftbar}">
+		<c:set value=" col-xs-11 col-sm-8 col-md-9 col-lg-9 col-md-offset-2" var="span" />
 		<c:set value="20px" var="leftmargin" />
 	</c:if>
 
 	<!-- Main Content -->
-	
-	<div id="gridview" class="gallery ${span}" align="center"
-		style="margin-left:${leftmargin}; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity};">
+	<div id="gridview" class="${span}" align="center"
+		style="margin-top: 10px; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity}; border-radius: 8px;">
 		
 		<div style="margin-bottom: ${show_1_TextObject}px;" align="center">${subpageContent}</div>
 		<util:edit position="service_${menuIdx}_title" content="${subpageContent}" richText="true" />

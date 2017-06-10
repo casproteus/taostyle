@@ -26,9 +26,9 @@
 	<tiles:insertAttribute name="header" ignore="true" />
 	<!--<table class="bkcontainer" align="center" background="getImage/bg_2"><tbody><tr><td>
 		 <div class="subPagebkcontainer" style="background-image:url(getImage/bg_2)"> -->
+	<tiles:insertAttribute name="leftbar" />
 	<div class="container">
 		<div id="main" class="row">
-			<tiles:insertAttribute name="leftbar" />
 			<tiles:insertAttribute name="body" />
 		</div>
 	</div>

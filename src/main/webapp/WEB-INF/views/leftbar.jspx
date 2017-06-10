@@ -7,12 +7,15 @@
 	<jsp:output omit-xml-declaration="yes" />
 	<!-- LeftMenuBar --><!-- change to use a subMenu[], we display subMenu array only one bigger than used. -->
 	<c:if test="${not empty subMenu}">
-		<div class="leftbar col-xs-12 col-sm-3 col-md-2 col-lg-2"
-			style="margin-right: 20px; background:#${background_leftbar}; opacity:${leftbar_opacity};">
-			<div class="accordion" id="accordionLeftBar">
+		<!-- when screen is not too small, occupy 2 cols -->
+		<c:set value="col-sm-3 col-md-2 col-lg-2" var="span" />
+		<c:set value="20px" var="leftmargin" />
+		<div class="leftbar ${span}" id="barDiv" onmouseout="javascript:hideLeftBarDiv()" onmouseover="javascript:showLeftBarDivUp()" 
+			style="background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:1000;">
+			<div class="accordion" id="accordionLeftBar"  >
 			  <c:forEach var="i" begin="0" end="${fn:length(subMenu)}" step="1">
 				<c:if test="${subMenu[i][0] != null and subMenu[i][0] != '' or user_role == '[ROLE_ADMIN]'}">
-					<div class="accordion-group">
+					<div class="accordion-group" >
 						<div class="accordion-heading">
 							<c:choose>
 								<c:when test="${fn:length(subMenu[i]) > 1 or user_role == '[ROLE_ADMIN]'}">
@@ -47,7 +50,7 @@
 
 		<!-- make the selected menu highlighted. -->
 		<script type='text/javascript'>
-		window.onload=function (){
+		document.addEventListener("DOMContentLoaded", function(event) {
 			var nav = document.getElementById("accordionLeftBar");
 			var lilen = nav.getElementsByTagName("a");
 			var currenturl = document.location.href;
@@ -65,6 +68,34 @@
 			
 			var elementid = "${currentSubMenu}";
 			document.getElementById(elementid).className += " in";
+			
+			//hidden the left bar a little.
+    		hideLeftBarDiv();
+		});
+		
+		function showLeftBarDivUp(){
+			var barDiv = document.getElementById("barDiv");
+			barDiv.style.left='0px';
+		}
+		
+		function hideLeftBarDiv(){
+			if(document.body.clientWidth &lt; 550){
+				var barDiv = document.getElementById("barDiv");
+				
+				if (window.getComputedStyle) {
+				    style = window.getComputedStyle(barDiv, null);    // 非IE
+				} else { 
+				    style = barDiv.currentStyle;  // IE
+				}
+				
+				var widthStr = style.width;
+				var xpos = Number(widthStr.substring(0, widthStr.length - 2));
+				xpos = 0 - xpos + 26;
+				barDiv.style.left= xpos+"px";
+				
+				var gridview  = document.getElementById('gridview');
+				gridview.style.right = '-30px';
+			}
 		}
 	</script>
 	</c:if>

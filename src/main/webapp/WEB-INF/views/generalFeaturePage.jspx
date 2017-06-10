@@ -100,20 +100,6 @@
 	</c:if>
 	<util:addRemoveFeatureGroup allowedLevel="[ROLE_MANAGER]" />
 	<input id="user_role" type="hidden" value="${user_role}" /> 
-
-	<!-- the floating buttons. -->
-	<c:if test="${'true' == show_tagBar_feature}">
-		<c:forEach var="i" begin="0" end="${length-1}" step="1">
-			<div id="categery${i}" style="position: fixed; z-index: 3000; top: ${100 + i * 40}px; left: -5px; border-radius:5px; height:38px; background:#EDB26D; opacity:0.8;">
-				${menus[i]}
-		 	</div>
- 		</c:forEach>
- 		<script type="text/javascript">
-
-			//alert("has category?");
-	
-		</script>
-  	</c:if>
   	
 	<c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
 		<div id="bell">
