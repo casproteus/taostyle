@@ -30,7 +30,6 @@ public class KeepCurrentUserInSessionLogoutSuccessHandler extends SimpleUrlLogou
                 UserAccount userAccount = UserAccount.findUserAccountByName(authentication.getName());
                 person = userAccount.getPerson();
             }
-            person.setPassword("");
             request.getSession().setAttribute(CC.CLIENT, person);
             TaoUtil.reInitSession(request.getSession(), person);
         }

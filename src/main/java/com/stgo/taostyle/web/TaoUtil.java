@@ -83,7 +83,6 @@ public class TaoUtil {
         } else {
             currentPerson = Person.findPersonByName(clientName);
             if (currentPerson != null) {
-                currentPerson.setPassword("");
                 request.getSession().setAttribute(CC.CLIENT, currentPerson);
                 TaoUtil.reInitSession(request.getSession(), currentPerson);
                 return true;
@@ -778,7 +777,6 @@ public class TaoUtil {
                 session.setAttribute(customize.getCusKey(), customize.getCusValue());
             }
         }
-        person.setPassword("");
         session.setAttribute(CC.CLIENT, person);
         TaoDebug.setDebugFlag((String) session.getAttribute(CC.debugFlag), person);
         if (TaoDebug.getDebugFlag()) {
@@ -978,7 +976,6 @@ public class TaoUtil {
             if (person == null) {
                 person = TaoUtil.getAdvPerson();
             }
-            person.setPassword("");
             request.getSession().setAttribute(CC.CLIENT, person);
         }
         return person;

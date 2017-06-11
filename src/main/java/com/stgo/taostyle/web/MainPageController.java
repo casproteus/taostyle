@@ -710,7 +710,6 @@ public class MainPageController extends BaseController {
         // TODO:may be can remove now, we use taoutil.getCurPerson now.
         if (request.getSession().getAttribute(CC.CLIENT) == null) {
             Person person = Person.findPersonByName(client);
-            person.setPassword("");
             request.getSession().setAttribute(CC.CLIENT, person);
         }
         requestForImage(id, request, response);

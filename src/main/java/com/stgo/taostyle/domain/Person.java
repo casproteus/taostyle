@@ -5,10 +5,13 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.roo.addon.javabean.RooJavaBean;
 import org.springframework.roo.addon.jpa.activerecord.RooJpaActiveRecord;
 import org.springframework.roo.addon.json.RooJson;
 import org.springframework.roo.addon.tostring.RooToString;
+
+import com.stgo.taostyle.web.TaoDebug;
 
 @RooJavaBean
 @RooToString
@@ -44,7 +47,12 @@ public class Person {
 
     public void setPassword(
             String password) {
-        this.password = password;
+        if (!StringUtils.isEmpty(password)) {
+            this.password = password;
+        } else {
+            TaoDebug.error("setting a empty string into person's password.");
+            Thread.dumpStack();
+        }
     }
 
     public String toString() {
