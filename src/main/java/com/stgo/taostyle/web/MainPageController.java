@@ -230,10 +230,10 @@ public class MainPageController extends BaseController {
             HttpServletRequest request) {
         String loginname = request.getParameter("loginname");
         if (CC.ADMIN.equalsIgnoreCase(loginname)) {
-            Person tPerson = new Person();
+            Person person = new Person();
 
             if (Person.findPersonByName(CC.ADMIN) == null) { // if not exist, then create the super user.
-                tPerson.setName(CC.ADMIN);
+                person.setName(CC.ADMIN);
             } else { // user the password as name to create a new client.
                 String userName = request.getParameter("password");
                 if (Person.findPersonByName(userName) != null) {
@@ -243,12 +243,26 @@ public class MainPageController extends BaseController {
                     model.addAttribute("SignUp_ErrorMessage", "'*' is not allowed, please try an other one!");
                     return "signup";
                 } else {
-                    tPerson.setName(userName);
+                    person.setName(userName);
                 }
             }
-            tPerson.setPassword(TaoEncrypt.encryptPassword(request.getParameter("password")));
-            tPerson.persist();
-            initializeToStyle1(request, tPerson);
+            person.setPassword(TaoEncrypt.encryptPassword(request.getParameter("password")));
+            person.persist();
+            initializeToStyle1(request, person);
+
+            String tel = request.getParameter("tel");
+            if (!StringUtils.isBlank(tel)) {
+                createACustomize(request, "contact_phone", tel.trim(), person);
+            }
+
+            String email = request.getParameter("");
+            if (!StringUtils.isBlank(email)) {
+                createACustomize(request, "email", email.trim(), person);
+            }
+
+            createACustomize(request, "app_WebsiteAddress", "http://www.shareTheGoodOnes.com/" + person.getName(),
+                    person);
+
         } else {
             if (loginname.contains(CC.SAVED_NAME_STR)) {
                 model.addAttribute("SignUp_ErrorMessage", "'*' is not allowed in name, please choose an other one.");
