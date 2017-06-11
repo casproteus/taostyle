@@ -24,6 +24,11 @@
 		<c:set value="20px" var="leftmargin" />
 	</c:if>
 
+	<c:set var="isAboveManager"  value="false" />
+	<c:if test="${user_role == '[ROLE_ADMIN]'  or user_role == '[ROLE_MANAGER]'}">
+		<c:set var="isAboveManager"  value="true" />
+	</c:if>
+	
 	<!-- Main Content -->
 	<div id="gridview" class="${span}" align="center"
 		style="margin-top: 10px; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity}; border-radius: 8px;">
@@ -36,23 +41,182 @@
 			<c:forEach var="i" begin="1" end="${serviceAmount}" step="1">
 				<div class="col-xs-${service_number_xs} col-sm-${service_number_sm} col-md-${service_number_md} col-lg-${service_number_lg}" style="text-align: center;">
 					<c:if test="${not empty descriptions[i-1] and not empty showDescriptionsOnTop}" >
-			          	<div align="left">${descriptions[i-1]}</div> 
+			          	<div id="des-${menuIdx}_${i}" align="left">${descriptions[i-1]}</div> 
 			          	<util:edit position="service_${menuIdx}_${i}_description" content="${descriptions[i]}" richText="true"/>
 			        </c:if>
-			        <a href="javascript:showDetail('service_${menuIdx}_${i}')" title="Click to check detailed information"> 
+			        <a id="img-${menuIdx}_${i}" href="javascript:showDetail('service_${menuIdx}_${i}')" title="Click to check detailed information"> 
 						<img src="getImage/service_${menuIdx}_${i}_thum" alt="image" />
 					</a>
 					<c:if test="${not empty descriptions[i-1] and empty showDescriptionsOnTop or user_role == '[ROLE_ADMIN]'}" >
-			          	<div align="left">${descriptions[i-1]}</div> 
+			          	<div id="des-${menuIdx}_${i}" align="left">${descriptions[i-1]}</div> 
 			          	<util:edit position="service_${menuIdx}_${i}_description" content="${descriptions[i]}" richText="true"/>
 			        </c:if>
+			        
+			        <!-- Check Box (manager and above always show, they use it to select product for feature.) -->
+			        <c:if test="${not empty show_service_cBox and isAboveManager ne 'true'}">
+			          <c:choose>
+						<c:when test="${not empty visibleStatusList and visibleStatusList[i-1] eq 'true'}">
+							<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
+							 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}')" />
+			        	</c:when>
+				        <c:otherwise>
+							<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
+							 onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}')" />
+				        </c:otherwise>
+				      </c:choose>
+				      
+  					  <script type="text/javascript">
+						function updateStatus(imageKey,user_role) {
+							//ligtht up it if it's a check action (before is unchecked), unlight it if it's uncheck.
+							var curObj = document.getElementById("check-" + imageKey);
+							if(curObj != null){
+					            var opacity = curObj.checked ? 1: 0.1;
+
+					            var obj = document.getElementById("img-" + imageKey);
+					            obj.style.cssText = "opacity: " + opacity; 
+				
+					            obj = document.getElementById("des-" + imageKey);
+					            obj.style.cssText = "opacity: " + opacity; 
+					            
+					            var currentItem = Number(selectedItem.value);
+					            var curentPrice = Number(totalPrice.value);
+					            var text = obj.innerText;
+					            var i = text.indexOf('$');
+					            if(!(i >= 0)){
+					            	i = text.indexOf('￥');
+					            }
+					            text = text.substring(i+1);
+					            var selectedPrice = Number(text);
+					            selectedItem.value = curObj.checked ? currentItem + 1 : currentItem - 1;
+					            totalPrice.value = curObj.checked ? (curentPrice + selectedPrice).toFixed(2) : (curentPrice - selectedPrice).toFixed(2);
+							}
+							
+							//save a copy into the session. the selectedItems in session is not only helped to displaying page with an "already selected" status, 
+							//but also used to calculate toltal price. when user swith between other web site in sharethegoodones.com, the selectedItem be clean up.
+							$.ajax({
+						    	headers: "Accept=application/json",
+						        type: "GET",
+						        url: "updateSelection/service_"+imageKey,
+						        async:true,
+						        success:function(textContent){
+						        	//do nothing.
+						        }
+						    });
+						}
+				      </script>
+				    </c:if>
 				</div>
 			</c:forEach>	
 			<util:adjustImages position="service_${menuIdx}" allowedLevel="[ROLE_MANAGER]"/>
 		</div>
 	</div>
 
-	
+	<c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
+		<div id="bell">
+		  <div style="position: fixed; border-radius:5px; z-index: 3000; bottom: 120px; right: 5px; background:#EDB26D; opacity:0.9;">
+			Click me to submit!
+			<br/>
+			<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none"/>Items
+			|Total: $<input id="totalPrice" value="${totalPrice}" style="width: 40px; border-style:none; background:none" />
+		  </div>
+		  <div style="position: fixed; z-index: 3000; bottom: 40px; right: 5px; cursor:pointer">
+			<img alt="hide unchecked items" src="getImage/bell" title="Submit or call a waiter."
+				onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')"/>
+			<util:changeImg position="bell" />
+		  </div>
+	  	</div>
+	  	
+	  	<script type="text/javascript">
+			//for location
+			var latitude;
+			var longitude;
+			if(user_role.value == '' || '[ROLE_CLIENT]' == user_role.value){
+				//init the location
+			    if (navigator.geolocation) {
+			        navigator.geolocation.watchPosition(showPosition);
+			    } else { 
+			        alert("Geolocation is not supported by this browser.");
+			    }
+			}
+			
+			function showPosition(position) {
+				latitude = position.coords.latitude;
+				longitude = position.coords.longitude;
+			}
+
+			function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
+				//build string of selected producs/services.
+				var orderedItems = "";
+						
+				//if it's from outside, collect user information.
+				var name = "";
+				var phoneNumber = "n";
+				var address = "n";
+				var arrive = "n";
+				var location ="n";
+				var geoOutRange = false;
+				if(tableID == null || tableID.length == 0){
+					phoneNumber = prompt("Thank you for ordering, please leave your phone number:","");
+					address = prompt("Delever to address:","");			
+					arrive = prompt("Time you would like it to arrive:","");
+		
+					//TODO: send to back end to create a log
+					if(contact_phone == null){
+						alert("Sorry, The company haven't openned online ordering function.");
+						return;
+					}
+					//TODO: add geo checck, and if
+					if(geoOutRange){
+						alert("Sorry, The address is out of service area.");
+						return;
+					}
+				}
+		
+				name = prompt("Your name please:", "");
+				orderedItems = orderedItems.substr(1);
+				var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
+				
+				//no need to wait for 6 seconds, because I let the geo watch start as soon as page loaded.
+				//setTimeout("send('" + orderedItems + "','" + source + "',latitude,longitude,'" + map_x + "','" + map_y + "','" + limit_diff +"','" + contact_phone + "')",6000);
+				send(orderedItems,source,latitude,longitude,map_x ,map_y,limit_diff,contact_phone);
+				//hide bell
+				(isAboveEmployee == 'false'){ 
+					obj = document.getElementById("bell");
+			        obj.parentNode.removeChild(obj);
+		        }
+			}
+		
+			function send(orderedItems, source, latitude, longitude, map_x, map_y, limit_diff, contact_phone){	
+				
+				var isFromOurside = (latitude - map_x) > limit_diff || (longitude - map_y) > limit_diff;
+				if(isFromOurside){
+					if(source.indexOf(",") > 0){//means the first element is empty, and the first element is for tableID.
+						alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");
+						return;
+					}
+				}
+				source = source + "," + latitude + "," + longitude;
+				if(orderedItems.length == 0){
+					orderedItems = "emptyOrder";
+				}
+				$.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "createAnOrder/"+orderedItems,
+			        data: "source=" + source,
+			        async:false,
+			        success:function(textContent){
+			        	if(textContent == null || textContent.length == 0){
+			        		alert( "Order submmited! (you can also call us-- " + contact_phone + " to comfirm.)");
+			        	}else{
+			        		alert( "Sorry, your order was rejected for some reason, we've logged your ip and machine. Please to call us "+ contact_phone + " for better service.");
+			        	}
+			        	window.location = "../signup";
+			        }
+			    });
+			}
+		</script>
+	</c:if>
 	
 	<script type="text/javascript">
 	function showDetail(value) {

@@ -53,7 +53,7 @@
 				</c:choose>
 			</div>
 			
-			<c:if test="${user_role != '[ROLE_PRINTER]'}">
+			<c:if test="${user_role == '[ROLE_EMPLOYEE]' || user_role == '[ROLE_MANAGER]'}">
 				<spring:url value="/resources/images/back.png" var="back_img_url" />
 				<img alt="Back" src="${back_img_url}" title="Back to main order page." onclick="javascript:backToMainOrder()" style="cursor:pointer"/>
 				 | 

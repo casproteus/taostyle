@@ -70,7 +70,7 @@ public class MainOrder {
      */
     private int recordStatus;
 
-    public static MainOrder findMainOrderByCON(
+    public static List<MainOrder> findMainOrderByCON(
             String pClientSideOrderNumber) {
         TypedQuery<MainOrder> tQuery =
                 entityManager().createQuery(
@@ -78,10 +78,7 @@ public class MainOrder {
                         MainOrder.class);
         tQuery = tQuery.setParameter("tCON", pClientSideOrderNumber);
         List<MainOrder> tList = tQuery.getResultList();
-        if (tList != null && tList.size() == 1)
-            return (MainOrder) tList.get(0);
-        else
-            return null;
+        return tList;
     }
 
     public static List<MainOrder> finMainOrdersBySizeTableAndPerson(

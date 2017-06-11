@@ -17,15 +17,16 @@
 	<c:set value="0px" var="leftmargin" />
 
 	<c:set value="${user_role != '[ROLE_PRINTER]'}" var="isNotPrinter" />
+	<c:set value="${user_role == '[ROLE_EMPLOYEE]' || user_role == '[ROLE_MANAGER]'}" var="isEmployee" />
 	<c:if test="${isNotPrinter}">
-		<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
+		<c:if test="${not empty materials}">
 			<div id="printPreview" class="${span}" align="center" style="margin-left:${leftmargin}">
 			
 				<!-- Material list -->
 				<page:BigList id="pl_com_stgo_taostyle_domain_material" label="${targetTime} ( ${sizeTable}${contactPhone} )" items="${materials}"
 				 mainOrderID="${mainOrderID}" render="${fn:length(materials) gt 0}">
 					<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
-					update="${isNotPrinter}"  delete="${isNotPrinter}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}">
+					update="${isEmployee}"  delete="${isEmployee}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}">
 						<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="portionName"/>
 						<c:if test="${isNotPrinter}">
 							<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>

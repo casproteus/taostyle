@@ -82,7 +82,7 @@
 				        <c:if test="${not empty show_service_cBox or isAboveManager eq 'true'}">
 				          <c:choose>
 							<c:when test="${not empty visibleStatusList and visibleStatusList[j][i] eq 'true'}">
-								<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${imageKeys[j][i]}"
+								<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${imageKeys[j][i]}" style="width:80px; height:20px"
 								 checked="checked" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}')" />
 				        	</c:when>
 					        <c:otherwise>
@@ -90,6 +90,105 @@
 								 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}')" />
 					        </c:otherwise>
 					      </c:choose>
+					      
+	  					  <script type="text/javascript">
+					      	//the featureIdx could be feature.id or the index of the feature.
+							function updateStatus(imageKey,featureIdx,user_role) {
+								if('[ROLE_ADMIN]' == user_role || user_role == '[ROLE_MANAGER]'){
+									//if logged in as Manager or admin, then ajax to back end.
+								    $.ajax({
+								    	headers: "Accept=application/json",
+								        type: "POST",
+								        url: "updateFeature/"+imageKey,
+								        data: "featureId=" + featureIdx,
+								        async:false,
+								        success:function(textContent){
+								            var obj = document.getElementById("check-" + featureIdx + "-" + imageKey);
+								            var opacity = obj.checked ? 1: 0.1;
+							
+								            var obj = document.getElementById("img-" + featureIdx + "-" + imageKey);
+								            obj.style.cssText = "opacity: " + opacity; 
+							
+								            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
+								            obj.style.cssText = "opacity: " + opacity; 
+								        }
+								    });
+								}else if('[ROLE_PRINTER]' == user_role){
+									//if logged in as printer, then ajax to back end.
+								    $.ajax({
+								    	headers: "Accept=application/json",
+								        type: "POST",
+								        url: "updatePrinter/"+imageKey,
+								        data: "featureId=" + featureIdx,
+								        async:false,
+								        success:function(textContent){
+								            var obj = document.getElementById("check-" + featureIdx + "-" + imageKey);
+								            var opacity = obj.checked ? 1: 0.1;
+							
+								            var obj = document.getElementById("img-" + featureIdx + "-" + imageKey);
+								            obj.style.cssText = "opacity: " + opacity; 
+							
+								            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
+								            obj.style.cssText = "opacity: " + opacity; 
+								        }
+								    });
+								}else{
+									//ligtht up it if it's a check action (before is unchecked), unlight it if it's uncheck.
+									var curObj = document.getElementById("check-" + featureIdx + "-" + imageKey);
+									if(curObj != null){
+							            var opacity = curObj.checked ? 1: 0.1;
+						
+							            var obj = document.getElementById("img-" + featureIdx + "-" + imageKey);
+							            obj.style.cssText = "opacity: " + opacity; 
+						
+							            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
+							            obj.style.cssText = "opacity: " + opacity; 
+							            
+							            var currentItem = Number(selectedItem.value);
+							            var curentPrice = Number(totalPrice.value);
+							            var text = obj.innerText;
+							            var i = text.indexOf('$');
+							            if(!(i >= 0)){
+							            	i = text.indexOf('￥');
+							            }
+							            text = text.substring(i+1);
+							            var selectedPrice = Number(text);
+							            selectedItem.value = curObj.checked ? currentItem + 1 : currentItem - 1;
+							            totalPrice.value = curObj.checked ? (curentPrice + selectedPrice).toFixed(2) : (curentPrice - selectedPrice).toFixed(2);
+									}
+									
+									/**dark all unselected of previous categery. @NOTE: beacause we need to save user selection in session, so the featureIdx is not number anymore, 
+									var curGridView = document.getElementById((featureIdx - 1) + "-gridview");
+									if(curGridView != null){
+										for (var i=100; i>=0; i--) {
+											//if first time click in an area, then all uncheck element in above area should be dark up. 
+											var obj = document.getElementById("check-" + (featureIdx - 1) + "-" + i);
+											if(obj != null){
+									            var opacity = obj.checked ? 1: 0.1;
+							
+									            var obj = document.getElementById("img-" + (featureIdx - 1) + "-" + i);
+									            obj.style.cssText = "opacity: " + opacity; 
+							
+									            obj = document.getElementById("des-" + (featureIdx - 1) + "-" + i);
+									            obj.style.cssText = "opacity: " + opacity; 
+											}
+										}
+									}**/
+									
+									//save a copy into the session. the selectedItems in session is not only helped to displaying page with an "already selected" status, 
+									//but also used to calculate toltal price. when user swith between other web site in sharethegoodones.com, the selectedItem be clean up.
+									$.ajax({
+								    	headers: "Accept=application/json",
+								        type: "GET",
+								        url: "updateSelection/"+imageKey,
+								        async:true,
+								        success:function(textContent){
+								        	//do nothing.
+								        }
+								    });
+								}
+							}
+					      </script>
 					    </c:if>
 					</div>
 				</c:forEach>
@@ -134,9 +233,8 @@
 			}
 			
 			function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
-		
-				//build string of selected producs/services.
 				var orderedItems = "";
+				/** markup because now we allow cross page selection. //build string of selected producs/services.
 				for (var j=100; j>=0; j--) {
 					var curGridView = document.getElementById(j + "-gridview");
 					if(curGridView != null){
@@ -156,7 +254,7 @@
 				}
 				//selected nothing? notice and return. while employee has reason to do it.
 				if((orderedItems.length &lt; 1) &amp; ((isAboveEmployee == 'false') || (tableID.length &lt; 1))){
-					alert("Please touch the buttons under the dishes you want first, then click me to order.");
+					alert("Nothing selected, please touch the button under the image, then click me to order.");
 					return;
 				}
 				
@@ -178,9 +276,9 @@
 							}
 						}
 					}
-				}
+				}*/
 		
-				//selected something, then if it's from outside, collect user information.
+				//we supporse user selected something, then if it's from outside, collect user information.
 				var name = "";
 				var phoneNumber = "n";
 				var address = "n";
@@ -212,8 +310,10 @@
 				//setTimeout("send('" + orderedItems + "','" + source + "',latitude,longitude,'" + map_x + "','" + map_y + "','" + limit_diff +"','" + contact_phone + "')",6000);
 				send(orderedItems,source,latitude,longitude,map_x ,map_y,limit_diff,contact_phone);
 				//hide bell
-				obj = document.getElementById("bell");
-		        obj.parentNode.removeChild(obj);
+				if(isAboveEmployee == 'false'){ 
+					obj = document.getElementById("bell");
+			        obj.parentNode.removeChild(obj);
+		        }
 			}
 		
 			function send(orderedItems, source, latitude, longitude, map_x, map_y, limit_diff, contact_phone){	
@@ -237,10 +337,11 @@
 			        async:false,
 			        success:function(textContent){
 			        	if(textContent == null || textContent.length == 0){
-			        		alert( "Order submmited! (you can also call us-- " + contact_phone + "to comfirm.)");
+			        		alert( "Order submmited! (you can also call us-- " + contact_phone + " to comfirm.)");
 			        	}else{
 			        		alert( "Sorry, your order was rejected for some reason, we've logged your ip and machine. Please to call us "+ contact_phone + " for better service.");
 			        	}
+			        	window.location = "../signup";
 			        }
 			    });
 			}
@@ -268,103 +369,6 @@
 	    		$("#luanchDetailDlg").click();
 	        }
 	    });
-	}
-	
-	//the featureIdx could be feature.id or the index of the feature.
-	function updateStatus(imageKey,featureIdx,user_role) {
-		if('[ROLE_ADMIN]' == user_role || user_role == '[ROLE_MANAGER]'){
-			//if logged in as Manager or admin, then ajax to back end.
-		    $.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateFeature/"+imageKey,
-		        data: "featureId=" + featureIdx,
-		        async:false,
-		        success:function(textContent){
-		            var obj = document.getElementById("check-" + featureIdx + "-" + imageKey);
-		            var opacity = obj.checked ? 1: 0.1;
-	
-		            var obj = document.getElementById("img-" + featureIdx + "-" + imageKey);
-		            obj.style.cssText = "opacity: " + opacity; 
-	
-		            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
-		            obj.style.cssText = "opacity: " + opacity; 
-		        }
-		    });
-		}else if('[ROLE_PRINTER]' == user_role){
-			//if logged in as printer, then ajax to back end.
-		    $.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updatePrinter/"+imageKey,
-		        data: "featureId=" + featureIdx,
-		        async:false,
-		        success:function(textContent){
-		            var obj = document.getElementById("check-" + featureIdx + "-" + imageKey);
-		            var opacity = obj.checked ? 1: 0.1;
-	
-		            var obj = document.getElementById("img-" + featureIdx + "-" + imageKey);
-		            obj.style.cssText = "opacity: " + opacity; 
-	
-		            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
-		            obj.style.cssText = "opacity: " + opacity; 
-		        }
-		    });
-		}else{
-			//ligtht up it if it's a check action (before is unchecked), unlight it if it's uncheck.
-			var curObj = document.getElementById("check-" + featureIdx + "-" + imageKey);
-			if(curObj != null){
-	            var opacity = curObj.checked ? 1: 0.1;
-
-	            var obj = document.getElementById("img-" + featureIdx + "-" + imageKey);
-	            obj.style.cssText = "opacity: " + opacity; 
-
-	            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
-	            obj.style.cssText = "opacity: " + opacity; 
-	            
-	            var currentItem = Number(selectedItem.value);
-	            var curentPrice = Number(totalPrice.value);
-	            var text = obj.innerText;
-	            var i = text.indexOf('$');
-	            if(!(i >= 0)){
-	            	i = text.indexOf('￥');
-	            }
-	            text = text.substring(i+1);
-	            var selectedPrice = Number(text);
-	            selectedItem.value = curObj.checked ? currentItem + 1 : currentItem - 1;
-	            totalPrice.value = curObj.checked ? (curentPrice + selectedPrice).toFixed(2) : (curentPrice - selectedPrice).toFixed(2);
-			}
-			
-			/**dark all unselected of previous categery. @NOTE: beacause we need to save user selection in session, so the featureIdx is not number anymore, 
-			var curGridView = document.getElementById((featureIdx - 1) + "-gridview");
-			if(curGridView != null){
-				for (var i=100; i>=0; i--) {
-					//if first time click in an area, then all uncheck element in above area should be dark up. 
-					var obj = document.getElementById("check-" + (featureIdx - 1) + "-" + i);
-					if(obj != null){
-			            var opacity = obj.checked ? 1: 0.1;
-	
-			            var obj = document.getElementById("img-" + (featureIdx - 1) + "-" + i);
-			            obj.style.cssText = "opacity: " + opacity; 
-	
-			            obj = document.getElementById("des-" + (featureIdx - 1) + "-" + i);
-			            obj.style.cssText = "opacity: " + opacity; 
-					}
-				}
-			}**/
-			
-			//save a copy into the session. the selectedItems in session is not only helped to displaying page with an "already selected" status, 
-			//but also used to calculate toltal price. when user swith between other web site in sharethegoodones.com, the selectedItem be clean up.
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "GET",
-		        url: "updateSelection/"+imageKey,
-		        async:true,
-		        success:function(textContent){
-		        	//do nothing.
-		        }
-		    });
-		}
 	}
 	</script>
 

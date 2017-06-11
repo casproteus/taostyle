@@ -247,7 +247,7 @@ public class TaoUtil {
             case CC.SERVICE:
                 TaoDebug.info("start to initServiceSubPage for: submenu_{}, for client: {}", subIdx, request
                         .getSession().getAttribute(CC.CLIENT));
-                menuIdx = initServiceSubPage(model, langPrf, idx, subIdx, subSubIdx, person);
+                menuIdx = initServiceSubPage(request, model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/generalServicePage";
                 break;
             case CC.LOCATION:
@@ -609,6 +609,7 @@ public class TaoUtil {
 
     // initialise the left bar menu and main content.
     private static String initServiceSubPage(
+            HttpServletRequest request,
             Model model,
             String langPrf,
             int pMenuIdx,
@@ -626,6 +627,19 @@ public class TaoUtil {
 
         model.addAttribute("descriptions", prepareDescriptions(langPrf + key, serviceAmount, person));
 
+        // the selection status
+        HttpSession session = request.getSession();
+        if (!isAboveManager(session)) {
+            String selectedItems = (String) session.getAttribute(CC.selectedItems);
+            if (selectedItems != null) {
+                List<String> visibleStatusList = new ArrayList<String>();
+                for (int i = 1; i <= serviceAmount; i++) {
+                    String item = key + "_" + i;
+                    visibleStatusList.add(selectedItems.contains("," + item + ",") ? "true" : null);
+                }
+                model.addAttribute("visibleStatusList", visibleStatusList);
+            }
+        }
         TaoDebug.info("completed initServiceSubPage, menukey is {}, serviceAmount is {}", key, serviceAmount);
         return menuIdx;
     }

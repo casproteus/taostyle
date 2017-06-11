@@ -215,6 +215,15 @@ public class MainPageController extends BaseController {
     }
 
     // ================================user management==================================
+    @RequestMapping(value = "/signup", method = RequestMethod.GET)
+    public String signupForm(
+            Model model,
+            HttpServletRequest request) {
+        List<MainOrder> mainOrders = MainOrder.findMainOrderByCON(request.getSession().getId());
+        model.addAttribute("mainOrderList", mainOrders);
+        return "signup";
+    }
+
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public String signup(
             Model model,
@@ -464,9 +473,10 @@ public class MainPageController extends BaseController {
             HttpServletRequest request) {
         if (mainOrder != null) {
             UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);
-            String curPrinterName = "," + TaoEncrypt.stripUserName(currentUser.getLoginname()) + ",";
+
             List<Material> materials = null;
-            if (CC.ROLE_PRINTER.equals(currentUser.getSecuritylevel())) {
+            if (currentUser != null && CC.ROLE_PRINTER.equals(currentUser.getSecuritylevel())) {
+                String curPrinterName = "," + TaoEncrypt.stripUserName(currentUser.getLoginname()) + ",";
                 String processedPrinters = mainOrder.getColorCard();
                 boolean processed = processedPrinters != null && processedPrinters.contains(curPrinterName);
                 materials = Material.findAllMaterialsByMainOrder(mainOrder);
@@ -497,10 +507,12 @@ public class MainPageController extends BaseController {
 
             model.addAttribute("sizeTable", mainOrder.getSizeTable());
             model.addAttribute("mainOrderID", mainOrder.getId());
-            model.addAttribute("printStyle", currentUser.getFax());
             model.addAttribute("targetTime", TaoUtil.formateDate(request, mainOrder.getDelieverdate()));
             model.addAttribute("contactPhone", mainOrder.getClient());// actually client's cellphone
             model.addAttribute("total", mainOrder.getPayCondition());
+            if (currentUser != null) {
+                model.addAttribute("printStyle", currentUser.getFax());
+            }
         } else {
             model.addAttribute("materials", null);
         }
@@ -1707,23 +1719,24 @@ public class MainPageController extends BaseController {
         String newItemStr = "," + imageKey + ",";
         String selectedItems = (String) request.getSession().getAttribute(CC.selectedItems);
         Service service = Service.findServiceByCatalogAndPerson(imageKey.substring(8), person);
+        float total = Float.valueOf(service.getDescription());
         if (selectedItems == null) {
             selectedItems = newItemStr;
             try {
                 request.getSession().setAttribute(CC.itemNumber, 1);
-                request.getSession().setAttribute(CC.totalPrice, Float.valueOf(service.getDescription()));
+                request.getSession().setAttribute(CC.totalPrice, (float) (Math.round(total * 100)) / 100);
             } catch (Exception e) {
                 TaoDebug.info(request, "service dosen't have price yet!", imageKey);
             }
         } else {
-            String total = service.getDescription();
+            float currentPrice = (Float) request.getSession().getAttribute(CC.totalPrice);
             int p = selectedItems.indexOf(newItemStr);
             if (p < 0) {
                 try {
                     request.getSession().setAttribute(CC.itemNumber,
                             (Integer) request.getSession().getAttribute(CC.itemNumber) + 1);
                     request.getSession().setAttribute(CC.totalPrice,
-                            (Float) request.getSession().getAttribute(CC.totalPrice) + Float.valueOf(total));
+                            (float) (Math.round((currentPrice + total) * 100)) / 100);
                 } catch (Exception e) {
                     TaoDebug.info(request, "service dosen't have price yet!", imageKey);
                 }
@@ -1734,7 +1747,7 @@ public class MainPageController extends BaseController {
                     request.getSession().setAttribute(CC.itemNumber,
                             (Integer) request.getSession().getAttribute(CC.itemNumber) - 1);
                     request.getSession().setAttribute(CC.totalPrice,
-                            (Float) request.getSession().getAttribute(CC.totalPrice) - Float.valueOf(total));
+                            (float) (Math.round((currentPrice - total) * 100)) / 100);
                 } catch (Exception e) {
                     TaoDebug.info(request, "service dosen't have price yet!", imageKey);
                 }
@@ -1772,17 +1785,26 @@ public class MainPageController extends BaseController {
             String orderedItems,
             Model model,
             HttpServletRequest request) {
-
+        HttpSession session = request.getSession();
         if (TaoSecurity.isHecker(request)) {
+            session.setAttribute(CC.totalPrice, 0.00);
+            session.setAttribute(CC.itemNumber, 0);
+            session.setAttribute(CC.selectedItems, null);
             TextContent textContent = new TextContent();
             textContent.setContent("Reported!");
             return new ResponseEntity<String>(textContent.toJson(), HttpStatus.ALREADY_REPORTED);
         }
-
         Person person = TaoUtil.getCurPerson(request);
-        Object curUser = request.getSession().getAttribute(CC.currentUser);
-
-        String[] items = "emptyOrder".equals(orderedItems) ? new String[] {} : StringUtils.split(orderedItems, ",");
+        UserAccount curUser = (UserAccount) session.getAttribute(CC.currentUser);
+        orderedItems = (String) session.getAttribute(CC.selectedItems);
+        String[] items = StringUtils.split(orderedItems, ",");
+        if (items.length == 0) {
+            if (curUser == null || !CC.ROLE_EMPLOYEE.equals(curUser.getSecuritylevel())) {
+                TextContent textContent = new TextContent();
+                textContent.setContent("Nothing selected yet!");
+                return new ResponseEntity<String>(textContent.toJson(), HttpStatus.BAD_REQUEST);
+            }
+        }
         String source = request.getParameter("source");
         // format:var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
         String[] params = StringUtils.split(source, ",");
@@ -1808,6 +1830,7 @@ public class MainPageController extends BaseController {
 
         MainOrder sourcdAndNewMainOrder = new MainOrder();
         sourcdAndNewMainOrder.setPerson(person);
+        sourcdAndNewMainOrder.setClientSideOrderNumber(session.getId());
         sourcdAndNewMainOrder.setContactPerson(null);// it will be set value when a employee processed.
         sourcdAndNewMainOrder.setClient(client);// it will be null if a non registered user put an order.
         sourcdAndNewMainOrder.setSizeTable(sizeTable);
@@ -1830,7 +1853,7 @@ public class MainPageController extends BaseController {
         float total = 0;
         List<Material> materials = new ArrayList<Material>();
         for (String item : items) {
-            String key = langPrf + "service_" + item + "_description";
+            String key = langPrf + item + "_description";
 
             // todo: should get the infomation from Service table.
             TextContent textContent = TextContent.findContentsByKeyAndPerson(key, person);
@@ -1840,7 +1863,7 @@ public class MainPageController extends BaseController {
             total += Float.valueOf(payCondition);
 
             String menfu = "";
-            Service service = Service.findServiceByCatalogAndPerson(item, person);
+            Service service = Service.findServiceByCatalogAndPerson(item.substring(8), person);
             if (service != null && service.getC3() != null) {
                 menfu = service.getC3().trim();
             }
@@ -1852,7 +1875,7 @@ public class MainPageController extends BaseController {
             }
 
             Material material = new Material();
-            material.setLocation(item);
+            material.setLocation(item.substring(8));
             material.setMainOrder(sourcdAndNewMainOrder);
             material.setPortionName(productName);
             // this one could be added by employee....material.setRemark(remark);
@@ -1863,7 +1886,7 @@ public class MainPageController extends BaseController {
         }
 
         // ----------------re-update the mainOrder-----------------------
-        if (total == 0) {//
+        if (total < 1) {//
             sourcdAndNewMainOrder.setRecordStatus(5);// means this is actually a customer changed place and employee
                                                      // create a new one to merge.
             sourcdAndNewMainOrder.persist();
@@ -1904,6 +1927,10 @@ public class MainPageController extends BaseController {
         }
         taxonomyMaterial.persist();
 
+        // resection selection status.
+        session.setAttribute(CC.totalPrice, 0.00);
+        session.setAttribute(CC.itemNumber, 0);
+        session.setAttribute(CC.selectedItems, null);
         // ----------------return-----------------------
         return new ResponseEntity<String>(HttpStatus.OK);
     }

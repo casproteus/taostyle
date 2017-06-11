@@ -1,6 +1,7 @@
 package com.stgo.taostyle.web;
 
 public interface CC {
+    String MaxInactiveInterval = "MaxInactiveInterval";
     String ADV_USER = "for_demo";
     String TextContentKey = "posInPage";
     String MediaUploadKey = "filepath";
