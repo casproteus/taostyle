@@ -234,7 +234,7 @@ public class TaxonomyMaterialOrderController {
         } else {
             uiModel.asMap().clear();
             String mainOrderStr = request.getParameter("mainOrder");
-            taxonomyMaterialOrder.setMainOrder(MainOrder.findMainOrderByCON(mainOrderStr));
+            taxonomyMaterialOrder.setMainOrder(MainOrder.findMainOrderByCON(mainOrderStr).get(0));
 
             String client = request.getParameter("factory");
             if (client.length() > 0) {

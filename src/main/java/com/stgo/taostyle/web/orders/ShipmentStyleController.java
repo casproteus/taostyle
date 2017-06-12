@@ -4,12 +4,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
-import com.stgo.taostyle.domain.UserAccount;
-import com.stgo.taostyle.domain.orders.MainOrder;
-import com.stgo.taostyle.domain.orders.ShipmentStyle;
 
 import org.springframework.roo.addon.web.mvc.controller.scaffold.RooWebScaffold;
 import org.springframework.stereotype.Controller;
@@ -19,6 +16,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.stgo.taostyle.domain.orders.MainOrder;
+import com.stgo.taostyle.domain.orders.ShipmentStyle;
 
 @RequestMapping("/shipmentstyles")
 @Controller
@@ -238,7 +238,7 @@ public class ShipmentStyleController {
         } else {
             uiModel.asMap().clear();
             String clientSideOrderNumber = httpServletRequest.getParameter("mainOrderStr");
-            shipmentStyle.setMainOrder(MainOrder.findMainOrderByCON(clientSideOrderNumber));
+            shipmentStyle.setMainOrder(MainOrder.findMainOrderByCON(clientSideOrderNumber).get(0));
 
             String outdoorDate = httpServletRequest.getParameter("outdoorDate");
             String[] tAry = outdoorDate.split("/");

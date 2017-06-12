@@ -17,6 +17,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.hsqldb.lib.HashMap;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -1776,6 +1777,95 @@ public class MainPageController extends BaseController {
     }
 
     // ===================Operations for dashboard==========================================================
+
+    @RequestMapping(value = "/showSelection")
+    public String showSelection(
+            Model model,
+            HttpServletRequest request) {
+        Person person = TaoUtil.getCurPerson(request);
+        String langPrf = TaoUtil.getLangPrfWithDefault(request);
+        String menuPRF = langPrf + "menu_";
+        TaoDebug.info("start to initFeatureSubPage for showSelection, for client: {}", person.getName());
+
+        HttpSession session = request.getSession();
+        String selectedItems = (String) session.getAttribute(CC.selectedItems);
+        String[] imageKeyStrs = StringUtils.split(selectedItems, ',');
+        if (imageKeyStrs == null) {
+            return "/generalFeaturePage";
+        }
+
+        List<Feature> features = new ArrayList<Feature>();
+        List<List<String>> imageKeyLists = new ArrayList<List<String>>();
+        List<List<String>> descriptions = new ArrayList<List<String>>();
+        List<List<String>> visibleStatusList = new ArrayList<List<String>>();
+        List<String> groupTitles = new ArrayList<String>();
+
+        HashMap map = new HashMap();
+        for (String imageKeyStr : imageKeyStrs) {
+            int p = imageKeyStr.lastIndexOf('_');
+            String menuIdx = imageKeyStr.substring(8, p);
+            if (menuIdx.endsWith("_0")) {
+                menuIdx = menuIdx.substring(0, menuIdx.length() - 2);
+                if (menuIdx.endsWith("_0")) {
+                    menuIdx = menuIdx.substring(0, menuIdx.length() - 2);
+                }
+            }
+            List<String> list = (List<String>) map.get(menuIdx);
+            if (list == null) {
+                list = new ArrayList<String>();
+                map.put(menuIdx, list);
+            }
+            list.add(imageKeyStr);
+        }
+        // to make it in order.
+        List<String> menusForRef = TaoUtil.fetchAllMenuByType(CC.SERVICE, request, langPrf, person);
+        long i = 0;
+        for (String menuSring : menusForRef) {
+            List<String> keys = (List<String>) map.get(menuSring);
+            if (keys != null) {
+                // imageKeyLists
+                imageKeyLists.add(keys);
+
+                // descriptions
+                TaoUtil.fillInDescriptions(langPrf, person, descriptions, keys);
+
+                // visibleStatusList
+                List<String> visibleStatus = new ArrayList<String>();
+                for (String item : keys) {
+                    visibleStatus.add("true");
+                }
+                visibleStatusList.add(visibleStatus);
+
+                // features
+                Feature feature = new Feature();
+                feature.setId(i);
+                feature.setMenuIdx(menuSring);
+                features.add(feature);
+                i++;
+
+                // groupTitles
+                TextContent textContent = TextContent.findContentsByKeyAndPerson(menuPRF + menuSring, person);
+                groupTitles.add(textContent.getContent());
+            }
+        }
+
+        model.addAttribute("features", features);
+        model.addAttribute("imageKeys", imageKeyLists);
+        model.addAttribute("descriptions", descriptions);
+        model.addAttribute("visibleStatusList", visibleStatusList);
+        model.addAttribute("groupTitles", groupTitles);
+
+        // left menu bar
+        String pKey = (String) session.getAttribute(CC.default_feature_menu);
+        int p = pKey.indexOf('_', 5);
+        if (p > 0) {
+            pKey = pKey.substring(0, p);
+        }
+        List<List<String>> subMenu = TaoUtil.prepareMenuContent(pKey, langPrf, person);
+        model.addAttribute("subMenu", subMenu);
+        return "/generalFeaturePage";
+    }
+
     @RequestMapping(value = "/{client}/createAnOrder/{orderedItems}", headers = "Accept=application/json",
             method = RequestMethod.POST)
     @ResponseBody
@@ -2190,7 +2280,7 @@ public class MainPageController extends BaseController {
         Person person = TaoUtil.getCurPerson(request);
 
         HttpSession session = request.getSession();
-        String menuIdx = (String) session.getAttribute("default_feature_menu");
+        String menuIdx = (String) session.getAttribute(CC.default_feature_menu);
 
         // start
         String table = (String) session.getAttribute("start_table");

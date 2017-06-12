@@ -45,6 +45,15 @@
 				</c:if>
               </c:forEach>
 			</div>
+			<c:if test="${'true' eq show_service_cBox}">
+				<div>
+					<spring:url value="/showSelection" var="showSelection" /> 
+					<a href="${showSelection}"> 
+						<spring:url value="/resources/images/selections.png" var="selections_img_url" /> 
+						<img alt="Selections" src="${selections_img_url}" title="Click here to show selections" />
+					</a>
+				</div>
+			</c:if>
 		</div>
 		<!-- LeftMenuBar -->
 

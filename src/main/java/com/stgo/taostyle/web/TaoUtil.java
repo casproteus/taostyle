@@ -374,10 +374,6 @@ public class TaoUtil {
                 }
             }
             model.addAttribute("groupTitles", groupTitles);
-            TextContent comfirmMessage = TextContent.findContentsByKeyAndPerson(featurePrf + "confirm", person);
-            if (comfirmMessage != null) {
-                model.addAttribute("comfirmMessage", comfirmMessage.getContent());
-            }
 
             // available menu to remove.
             model.addAttribute("refForDelete", refList);
@@ -386,24 +382,33 @@ public class TaoUtil {
 
         if (isAboveManager(session)) {
             // available menu to ref.
-            String menuKey = langPrf + "menu_";
-            int posOfIdxStart = menuKey.length();
-            List<String> menusForRef = TextContent.findAllMatchedContent(menuKey, CC.TextContentKey, person);
-            for (int i = menusForRef.size() - 1; i >= 0; i--) {
-                String menuStr = menusForRef.get(i).substring(posOfIdxStart);
-
-                int[] menuIdxes = TaoUtil.splitMenuIdxToAry(menuStr);
-
-                String contentTyep = TaoUtil.getContentType(request, menuIdxes[0], menuIdxes[1], menuIdxes[2]);
-                if (!CC.SERVICE.equals(contentTyep)) {
-                    menusForRef.remove(i);
-                } else {
-                    menusForRef.set(i, menuStr);
-                }
-            }
+            List<String> menusForRef = fetchAllMenuByType(CC.SERVICE, request, langPrf, person);
             model.addAttribute("menusForRef", menusForRef);
         }
         return menuIdx;
+    }
+
+    public static List<String> fetchAllMenuByType(
+            String menuType,
+            HttpServletRequest request,
+            String langPrf,
+            Person person) {
+        String menuKey = langPrf + "menu_";
+        int posOfIdxStart = menuKey.length();
+        List<String> menusForRef = TextContent.findAllMatchedContent(menuKey, CC.TextContentKey, person);
+        for (int i = menusForRef.size() - 1; i >= 0; i--) {
+            String menuStr = menusForRef.get(i).substring(posOfIdxStart);
+
+            int[] menuIdxes = TaoUtil.splitMenuIdxToAry(menuStr);
+
+            String contentTyep = TaoUtil.getContentType(request, menuIdxes[0], menuIdxes[1], menuIdxes[2]);
+            if (!menuType.equals(contentTyep)) {
+                menusForRef.remove(i);
+            } else {
+                menusForRef.set(i, menuStr);
+            }
+        }
+        return menusForRef;
     }
 
     private static boolean isAboveManager(
@@ -428,7 +433,7 @@ public class TaoUtil {
         }
     }
 
-    private static void fillInDescriptions(
+    public static void fillInDescriptions(
             String langPrf,
             Person person,
             List<List<String>> descriptions,
@@ -829,14 +834,16 @@ public class TaoUtil {
     }
 
     public static List<List<String>> prepareMenuContent(
-            String pKey,
+            String keyPrf,
             String langPrf,
             Person person) {
         List<List<String>> listForReturn = new ArrayList<List<String>>();
         for (int i = 1; i <= defaultNumOfMenu; i++) {
             List<String> subMenus = new ArrayList<String>();
-
-            String tKey = pKey + i;
+            if (!keyPrf.endsWith("_")) {
+                keyPrf = keyPrf + "_";
+            }
+            String tKey = keyPrf + i;
             TextContent tContent = TextContent.findContentsByKeyAndPerson(langPrf + tKey, person);
             if (tContent != null && !"".equals(tContent.getContent())) {
                 subMenus.add(tContent.getContent());

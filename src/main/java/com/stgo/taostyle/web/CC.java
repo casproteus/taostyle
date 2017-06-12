@@ -36,6 +36,7 @@ public interface CC {
     String app_ManagerEmail = "app_ManagerEmail";
     String app_WebsiteAddress = "app_WebsiteAddress";
     String DEFAULT_LANG = "DEFAULT_LANG";
+    String default_feature_menu = "default_feature_menu";
     String flash_1_URL = "flash_1_URL";
     String LANG = "lang";
     String menuIdx = "menuIdx";
