@@ -1032,6 +1032,13 @@ public class TaoUtil {
         tel = StringUtils.remove(tel, "-");
         tel = StringUtils.remove(tel, ".");
         tel = StringUtils.remove(tel, ",");
+
+        tel = StringUtils.remove(tel, " ");
+        tel = StringUtils.remove(tel, "（");
+        tel = StringUtils.remove(tel, "）");
+        tel = StringUtils.remove(tel, "—");
+        tel = StringUtils.remove(tel, "。");
+        tel = StringUtils.remove(tel, ",");
         return tel;
     }
 }

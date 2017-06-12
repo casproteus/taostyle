@@ -95,7 +95,7 @@
 							//but also used to calculate toltal price. when user swith between other web site in sharethegoodones.com, the selectedItem be clean up.
 							$.ajax({
 						    	headers: "Accept=application/json",
-						        type: "GET",
+						        type: "POST",
 						        url: "updateSelection/service_"+imageKey,
 						        async:true,
 						        success:function(textContent){
@@ -211,7 +211,12 @@
 			        	}else{
 			        		alert( "Sorry, your order was rejected for some reason, we've logged your ip and machine. Please to call us "+ contact_phone + " for better service.");
 			        	}
-			        	window.location = "../signup";
+
+			        	if(user_role.value == ''){
+			        		window.location = "../signup";
+			        	}else{
+			        		window.location = "../dashboard";
+			        	}
 			        }
 			    });
 			}

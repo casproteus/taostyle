@@ -80,6 +80,7 @@
 		
 		function hideLeftBarDiv(){
 			if(document.body.clientWidth &lt; 550){
+				
 				var barDiv = document.getElementById("barDiv");
 				
 				if (window.getComputedStyle) {
@@ -90,7 +91,7 @@
 				
 				var widthStr = style.width;
 				var xpos = Number(widthStr.substring(0, widthStr.length - 2));
-				xpos = 0 - xpos + 26;
+				xpos = -8;//0 - xpos + 26;
 				barDiv.style.left= xpos+"px";
 				
 				var gridview  = document.getElementById('gridview');

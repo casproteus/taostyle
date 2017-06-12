@@ -1598,7 +1598,8 @@ public class MainPageController extends BaseController {
         return buildPageForMenu(model, request, null);
     }
 
-    @RequestMapping(value = "/{client}/updateFeature/{imageKey}", headers = "Accept=application/json")
+    @RequestMapping(value = "/{client}/updateFeature/{imageKey}", headers = "Accept=application/json",
+            method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> updateFeature(
             @PathVariable(CC.CLIENT)
@@ -1613,7 +1614,7 @@ public class MainPageController extends BaseController {
         return updateFeature(imageKey, request);
     }
 
-    @RequestMapping(value = "updataFeature/{imageKey}", headers = "Accept=application/json",
+    @RequestMapping(value = "updateFeature/{imageKey}", headers = "Accept=application/json",
             method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> updateFeature(
@@ -1652,7 +1653,8 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{client}/updatePrinter/{imageKey}", headers = "Accept=application/json")
+    @RequestMapping(value = "/{client}/updatePrinter/{imageKey}", headers = "Accept=application/json",
+            method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> updatePrinter(
             @PathVariable(CC.CLIENT)
@@ -1706,7 +1708,8 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/{client}/updateSelection/{imageKey}", headers = "Accept=application/json")
+    @RequestMapping(value = "/{client}/updateSelection/{imageKey}", headers = "Accept=application/json",
+            method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<String> updateSelection(
             @PathVariable(CC.CLIENT)
