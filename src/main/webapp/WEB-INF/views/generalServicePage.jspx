@@ -20,7 +20,7 @@
 	
 	<!-- if have menu, then display-->
 	<c:if test="${not empty subMenu and 'true' eq fixed_leftbar}">
-		<c:set value=" col-xs-11 col-sm-8 col-md-9 col-lg-9 col-md-offset-2" var="span" />
+		<c:set value=" col-xs-11 col-sm-11 col-md-10 col-lg-11 col-xs-offset-1 col-sm-offset-1 col-md-offset-2 col-lg-offset-1" var="span" />
 		<c:set value="20px" var="leftmargin" />
 	</c:if>
 
@@ -110,121 +110,11 @@
 			<util:adjustImages position="service_${menuIdx}" allowedLevel="[ROLE_MANAGER]"/>
 		</div>
 	</div>
-
-	<c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
-		<div id="bell">
-		  <div style="position: fixed; border-radius:5px; z-index: 3000; bottom: 120px; right: 5px; background:#EDB26D; opacity:0.9;">
-			Click me to submit!
-			<br/>
-			<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none"/>Items
-			|Total: $<input id="totalPrice" value="${totalPrice}" style="width: 40px; border-style:none; background:none" />
-		  </div>
-		  <div style="position: fixed; z-index: 3000; bottom: 40px; right: 5px; cursor:pointer">
-			<img alt="hide unchecked items" src="getImage/bell" title="Submit or call a waiter."
-				onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')"/>
-			<util:changeImg position="bell" />
-		  </div>
-	  	</div>
-	  	
-	  	<script type="text/javascript">
-			//for location
-			var latitude;
-			var longitude;
-			if(user_role.value == '' || '[ROLE_CLIENT]' == user_role.value){
-				//init the location
-			    if (navigator.geolocation) {
-			        navigator.geolocation.watchPosition(showPosition);
-			    } else { 
-			        alert("Geolocation is not supported by this browser.");
-			    }
-			}
-			
-			function showPosition(position) {
-				latitude = position.coords.latitude;
-				longitude = position.coords.longitude;
-			}
-
-			function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
-				//build string of selected producs/services.
-				var orderedItems = "";
-						
-				//if it's from outside, collect user information.
-				var name = "";
-				var phoneNumber = "n";
-				var address = "n";
-				var arrive = "n";
-				var location ="n";
-				var geoOutRange = false;
-				if(tableID == null || tableID.length == 0){
-					phoneNumber = prompt("Thank you for ordering, please leave your phone number:","");
-					address = prompt("Delever to address:","");			
-					arrive = prompt("Time you would like it to arrive:","");
-		
-					//TODO: send to back end to create a log
-					if(contact_phone == null){
-						alert("Sorry, The company haven't openned online ordering function.");
-						return;
-					}
-					//TODO: add geo checck, and if
-					if(geoOutRange){
-						alert("Sorry, The address is out of service area.");
-						return;
-					}
-				}
-		
-				name = prompt("Your name please:", "");
-				orderedItems = orderedItems.substr(1);
-				var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
-				
-				//no need to wait for 6 seconds, because I let the geo watch start as soon as page loaded.
-				//setTimeout("send('" + orderedItems + "','" + source + "',latitude,longitude,'" + map_x + "','" + map_y + "','" + limit_diff +"','" + contact_phone + "')",6000);
-				send(orderedItems,source,latitude,longitude,map_x ,map_y,limit_diff,contact_phone);
-				//hide bell
-				(isAboveEmployee == 'false'){ 
-					obj = document.getElementById("bell");
-			        obj.parentNode.removeChild(obj);
-		        }
-			}
-		
-			function send(orderedItems, source, latitude, longitude, map_x, map_y, limit_diff, contact_phone){	
-				
-				var isFromOurside = (latitude - map_x) > limit_diff || (longitude - map_y) > limit_diff;
-				if(isFromOurside){
-					if(source.indexOf(",") > 0){//means the first element is empty, and the first element is for tableID.
-						alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");
-						return;
-					}
-				}
-				source = source + "," + latitude + "," + longitude;
-				if(orderedItems.length == 0){
-					orderedItems = "emptyOrder";
-				}
-				$.ajax({
-			    	headers: "Accept=application/json",
-			        type: "POST",
-			        url: "createAnOrder/"+orderedItems,
-			        data: "source=" + source,
-			        async:false,
-			        success:function(textContent){
-			        	if(textContent == null || textContent.length == 0){
-			        		alert( "Order submmited! (you can also call us-- " + contact_phone + " to comfirm.)");
-			        	}else{
-			        		alert( "Sorry, your order was rejected for some reason, we've logged your ip and machine. Please to call us "+ contact_phone + " for better service.");
-			        	}
-
-			        	if(user_role.value == ''){
-			        		window.location = "../signup";
-			        	}else{
-			        		window.location = "../dashboard";
-			        	}
-			        }
-			    });
-			}
-		</script>
-	</c:if>
+	
+	<util:checkOut />
 	
 	<script type="text/javascript">
-	function showDetail(value) {
+	  function showDetail(value) {
 		
 	    var response;
 	    $.ajax({
@@ -246,7 +136,7 @@
 	    		$("#luanchDetailDlg").click();
 	        }
 	    });
-	}
+	  }
 	</script>
 
 	<a id="luanchDetailDlg" class="hide" href="#windowTitleDialog" data-toggle="modal" />

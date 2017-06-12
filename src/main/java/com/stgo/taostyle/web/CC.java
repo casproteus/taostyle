@@ -30,6 +30,8 @@ public interface CC {
     String selectedItems = "selectedItems";
     String itemNumber = "itemNumber";
     String totalPrice = "totalPrice";
+    String latitude = "latitude";
+    String longitude = "longitude";
 
     String app_name = "app_name";
     String app_ContentManager = "app_ContentManager";

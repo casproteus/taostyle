@@ -1776,6 +1776,34 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/{client}/updateGeo/{latitude}", headers = "Accept=application/json",
+            method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> updateGeo(
+            @PathVariable(CC.CLIENT)
+            String client,
+            @PathVariable(CC.latitude)
+            String latitude,
+            HttpServletRequest request) {
+
+        if (hasNotLoggedIn(request)) {
+            dirtFlagCommonText = TaoUtil.switchClient(request, client);
+        }
+        return updateGeo(latitude, request);
+    }
+
+    @RequestMapping(value = "updateGeo/{latitude}", headers = "Accept=application/json", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<String> updateGeo(
+            @PathVariable(CC.latitude)
+            String latitude,
+            HttpServletRequest request) {
+        request.getSession().setAttribute(CC.latitude, latitude);
+        request.getSession().setAttribute(CC.longitude, request.getParameter(CC.longitude));
+
+        return new ResponseEntity<String>(HttpStatus.OK);
+    }
+
     // ===================Operations for dashboard==========================================================
 
     @RequestMapping(value = "/showSelection")
@@ -1858,8 +1886,8 @@ public class MainPageController extends BaseController {
         // left menu bar
         String pKey = (String) session.getAttribute(CC.default_feature_menu);
         int p = pKey.indexOf('_', 5);
-        if (p > 0) {
-            pKey = pKey.substring(0, p);
+        if (p > 5) {
+            pKey = pKey.substring(0, p + 1);
         }
         List<List<String>> subMenu = TaoUtil.prepareMenuContent(pKey, langPrf, person);
         model.addAttribute("subMenu", subMenu);
@@ -2025,8 +2053,8 @@ public class MainPageController extends BaseController {
         // the last two string are location. while sometime the content before meight be null. so the ary could be
         // shorter.
         if (params.length > 5) {
-            taxonomyMaterial.setSpecification(params[4]);
-            taxonomyMaterial.setQuality(params[5]);
+            taxonomyMaterial.setSpecification((String) session.getAttribute(CC.latitude));
+            taxonomyMaterial.setQuality((String) session.getAttribute(CC.longitude));
         } else if (params.length > 2) {
             taxonomyMaterial.setSpecification(params[1]);
             taxonomyMaterial.setQuality(params[2]);
@@ -2037,6 +2065,9 @@ public class MainPageController extends BaseController {
         session.setAttribute(CC.totalPrice, 0.00);
         session.setAttribute(CC.itemNumber, 0);
         session.setAttribute(CC.selectedItems, null);
+        session.setAttribute(CC.latitude, null);
+        session.setAttribute(CC.longitude, null);
+
         // ----------------return-----------------------
         return new ResponseEntity<String>(HttpStatus.OK);
     }
