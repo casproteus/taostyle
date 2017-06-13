@@ -9,9 +9,16 @@
 	<c:if test="${not empty subMenu}">
 		<!-- when screen is not too small, occupy 2 cols -->
 		<c:set value="col-sm-2 col-md-2 col-lg-2" var="span" />
-		<c:set value="20px" var="leftmargin" />
-		<div class="leftbar" id="barDiv" onmouseout="javascript:hideLeftBarDiv()" onmouseover="javascript:showLeftBarDivUp()" 
-			style="background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:1000;">
+		<c:set value="20px" var="leftmargin" />		
+		<c:set var="hander_padding" value="25" />
+		<c:if test="${not empty show_big_hander}">
+			<c:set var="hander_padding" value="${show_big_hander}" />
+		</c:if>
+		<c:if test="${'true' == show_big_hander}">
+			<c:set var="hander_padding" value="${fn:length(subMenu) *(11 + leftbar_item_padding)}" />
+		</c:if>
+		<div class="leftbar" id="barDiv" style="left:10px; background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:2000;"
+		onmouseout="javascript:hideLeftBarDiv()">
 			<div class="accordion" id="accordionLeftBar"  >
 			  <c:forEach var="i" begin="0" end="${fn:length(subMenu)}" step="1">
 				<c:if test="${subMenu[i][0] != null and subMenu[i][0] != '' or user_role == '[ROLE_ADMIN]'}">
@@ -47,7 +54,9 @@
 			</div>
 			<c:if test="${'true' eq show_service_cBox}">
 				<hr/>
+				<c:set var="hander_padding" value="${hander_padding + 35}" />
 				<c:if test="${show_num_total}">
+					<c:set var="hander_padding" value="${hander_padding + 30}" />
 					<div>
 						Total: $<input id="totalPrice" value="${totalPrice}" style="width: 40px; border-style:none; background:none" />
 						<br/>
@@ -66,62 +75,74 @@
 			
 		</div>
 		<!-- LeftMenuBar -->
-
+		
+		<div id="hander" class="leftbar" onmouseover="javascript:showLeftBarDivUp()" onmousedown="javascript:showLeftBarDivUp()"
+			style="padding-bottom:${hander_padding}px; padding-top:${hander_padding}px; visibility:hidden; left:-10px;
+			background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:1000;">
+			>>
+		</div>
 		<!-- make the selected menu highlighted. -->
 		<script type='text/javascript'>
-		document.addEventListener("DOMContentLoaded", function(event) {
-			var nav = document.getElementById("accordionLeftBar");
-			var lilen = nav.getElementsByTagName("a");
-			var currenturl = document.location.href;
-			var last = 0;
-			for (var i=0; ; i++){
-				var linkurl = lilen[i].getAttribute("href");
-				if(currenturl.indexOf(linkurl)!=-1){
-					last = i;
-					lilen[last].className += " current";
+			document.addEventListener("DOMContentLoaded", function(event) {
+				var nav = document.getElementById("accordionLeftBar");
+				var lilen = nav.getElementsByTagName("a");
+				var currenturl = document.location.href;
+				var last = 0;
+				for (var i=0; ; i++){
+					var linkurl = lilen[i].getAttribute("href");
+					if(currenturl.indexOf(linkurl)!=-1){
+						last = i;
+						lilen[last].className += " current";
+					}
+					
+					if(i + 1 == lilen.length)
+						break;
 				}
 				
-				if(i + 1 == lilen.length)
-					break;
+				var elementid = "${currentSubMenu}";
+				document.getElementById(elementid).className += " in";
+				
+				//hidden the left bar. because by default, menu show, hander hide.
+				if(document.body.clientWidth &lt; 550){
+					hideLeftBarDiv();
+				}
+			});
+			
+			function showLeftBarDivUp(){
+				document.getElementById("hander").style.visibility='hidden';
+				document.getElementById("barDiv").style.visibility='visible';
 			}
 			
-			var elementid = "${currentSubMenu}";
-			document.getElementById(elementid).className += " in";
-			
-			//hidden the left bar a little.
-    		hideLeftBarDiv();
-		});
-		
-		function showLeftBarDivUp(){
-			var barDiv = document.getElementById("barDiv");
-
-			if(document.body.clientWidth &lt; 550){
-				barDiv.style.left='5px';
-			}else if(document.body.clientWidth > 1200){
-				barDiv.style.left='5px';
+			function hideLeftBarDiv(){
+				if(document.body.clientWidth &lt; 550){
+					document.getElementById("barDiv").style.visibility='hidden';
+					document.getElementById("hander").style.visibility='visible';
+				}
 			}
-		}
-
-		function hideLeftBarDiv(){
-			var barDiv = document.getElementById("barDiv");
-			
-			if (window.getComputedStyle) {
-			    style = window.getComputedStyle(barDiv, null);    // 非IE
-			} else { 
-			    style = barDiv.currentStyle;  // IE
+			/**
+			function showElement(elementId, pos){
+				var element = document.getElementById(elementId);
+				if(document.body.clientWidth &lt; 550){
+					element.style.left=pos +'px';
+				}
 			}
-			
-			var widthStr = style.width;
-			var xpos = Number(widthStr.substring(0, widthStr.length - 2));
-			xpos = 0 - xpos + 26;
-			
-			if(document.body.clientWidth &lt; 550){
-				barDiv.style.left= xpos+"px";
-			}else if(document.body.clientWidth > 1200){
-				barDiv.style.left= xpos+"px";
-			}
-		}
-		
-	</script>
+	
+			function hideElement(elementId){
+				var element = document.getElementById(elementId);
+				
+				if (window.getComputedStyle) {
+				    style = window.getComputedStyle(element, null);    // 非IE
+				} else { 
+				    style = element.currentStyle;  // IE
+				}
+				var widthStr = style.width;
+				var xpos = Number(widthStr.substring(0, widthStr.length - 2));
+				xpos = 0 - xpos;
+				
+				if(document.body.clientWidth &lt; 550){
+					element.style.left= xpos+"px";
+				}
+			}*/
+	  	</script>
 	</c:if>
 </div>
