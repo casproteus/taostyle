@@ -2050,15 +2050,8 @@ public class MainPageController extends BaseController {
         taxonomyMaterial.setRemark(request.getRequestURI());// what ordered e.g.
                                                             // /taostyle/thai/createAnOrder/3_2_0_3,3_2_0_1,3_1_0_1
         taxonomyMaterial.setLogtime(new Date());
-        // the last two string are location. while sometime the content before meight be null. so the ary could be
-        // shorter.
-        if (params.length > 5) {
-            taxonomyMaterial.setSpecification((String) session.getAttribute(CC.latitude));
-            taxonomyMaterial.setQuality((String) session.getAttribute(CC.longitude));
-        } else if (params.length > 2) {
-            taxonomyMaterial.setSpecification(params[1]);
-            taxonomyMaterial.setQuality(params[2]);
-        }
+        taxonomyMaterial.setSpecification((String) session.getAttribute(CC.latitude));
+        taxonomyMaterial.setQuality((String) session.getAttribute(CC.longitude));
         taxonomyMaterial.persist();
 
         // resection selection status.
@@ -2654,9 +2647,11 @@ public class MainPageController extends BaseController {
         createACustomize(request, "img_service_w", "960", person);
         createACustomize(request, "img_service_thum_h", "230", person);
         createACustomize(request, "img_service_thum_w", "270", person);
-        createACustomize(request, "service_number_sm", "12", person);
+        createACustomize(request, "service_number_lg", "4", person);
+        createACustomize(request, "service_number_md", "6", person);
+        createACustomize(request, "service_number_sm", "6", person);
         createACustomize(request, "service_number_xs", "12", person);
-        createACustomize(request, "show_service_bell", "true", person);
+        // createACustomize(request, "show_service_bell", "false", person);
         createACustomize(request, "show_service_cBox", "true", person);
         createACustomize(request, "need_calculate_price", "true", person);
         createACustomize(request, "app_ContentManager", "true", person);// when someone is promoted to be a manager,

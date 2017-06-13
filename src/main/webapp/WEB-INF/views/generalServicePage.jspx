@@ -19,7 +19,7 @@
 	<c:set value="0px" var="leftmargin" />
 	
 	<!-- if have menu, then display-->
-	<c:if test="${not empty subMenu and 'true' eq fixed_leftbar}">
+	<c:if test="${not empty subMenu and 'true' eq leftbar_fixed}">
 		<c:set value=" col-xs-11 col-sm-11 col-md-10 col-lg-11 col-xs-offset-1 col-sm-offset-1 col-md-offset-2 col-lg-offset-1" var="span" />
 		<c:set value="20px" var="leftmargin" />
 	</c:if>

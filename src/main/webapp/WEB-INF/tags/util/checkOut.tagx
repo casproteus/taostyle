@@ -15,11 +15,7 @@
 		required="false" rtexprvalue="true"
 		description="if not null then the role will also be allowed to modify." />
 
-	<c:if test="${empty render or render}">
-	  <input id="user_role" type="hidden" value="${user_role}" /> 
-	  <input id="latitude" type="hidden" value="${latitude}" /> 
-	  <input id="longitude" type="hidden" value="${longitude}" /> 
-  	
+	<c:if test="${empty render or render}">  	
 	  <c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
 		<div id="bell">
 		  <div style="position: fixed; border-radius:5px; z-index: 3000; bottom: 120px; right: 5px; color:#${foreground_leftbar}; background:#${background_leftbar}; opacity:${leftbar_opacity};">
@@ -34,13 +30,17 @@
 			<util:changeImg position="bell" />
 		  </div>
 	  	</div>
+	  	
+	  	<input id="user_role" type="hidden" value="${user_role}" /> 
+	  	<input id="latitude" type="hidden" value="${latitude}" /> 
+	  	<input id="longitude" type="hidden" value="${longitude}" /> 
 	  	<script type="text/javascript">
 			//for location
 			if((latitude.value == '' || longitude.value == '') &amp; (user_role.value == '' || '[ROLE_CLIENT]' == user_role.value)){
 				//init the location
 			    if (navigator.geolocation) {
 	               // timeout at 60000 milliseconds (60 seconds)
-	               var options = {timeout:5000};
+	               var options = {timeout:15000};
 	               geoLoc = navigator.geolocation;
 	               watchID = geoLoc.watchPosition(showPosition, errorHandler, options);
 			    } else { 
@@ -49,27 +49,32 @@
 			}
 			
 			function showPosition(position) {
-				latitude.value = position.coords.latitude;
-				longitude.value = position.coords.longitude;
-				$.ajax({
-			    	headers: "Accept=application/json",
-			        type: "POST",
-			        url: "updateGeo/"+latitude.value,
-			        data: "longitude=" + longitude.value,
-			        async:false,
-			        success:function(textContent){alert("...!");
-			        	geoLoc.clearWatch(watchID);
-			        }
-			    });
+				
+	        	if(latitude.value == '' || longitude.value == ''){
+	        		var urlStr = "updateGeo/" +position.coords.latitude;
+					$.ajax({
+				    	headers: "Accept=application/json",
+				        type: "POST",
+				        url: urlStr,
+				        data: "longitude=" + position.coords.longitude,
+				        async:true,
+				        success:function(textContent){
+				        }
+				    });
+	
+					latitude.value = position.coords.latitude;
+					longitude.value = position.coords.longitude;
+	        	}
+	        	geoLoc.clearWatch(watchID);
 			}
 			
 	        function errorHandler(err) {
 	            if(err.code == 1) {
-	               alert("Error: Access is denied!");
+	               //alert("Error: Access is denied!");
 	            }
 	            
 	            else if( err.code == 2) {
-	               alert("Error: Position is unavailable!");
+	               //alert("Error: Position is unavailable!");
 	            }
 	        }
 	         

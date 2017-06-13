@@ -16,11 +16,11 @@
 			  <c:forEach var="i" begin="0" end="${fn:length(subMenu)}" step="1">
 				<c:if test="${subMenu[i][0] != null and subMenu[i][0] != '' or user_role == '[ROLE_ADMIN]'}">
 					<div class="accordion-group" >
-						<div class="accordion-heading">
+						<div class="accordion-heading" style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
 							<c:choose>
 								<c:when test="${fn:length(subMenu[i]) > 1 or user_role == '[ROLE_ADMIN]'}">
-									<a href="#accordion-element-${i+1}" onclick="javascript:checkMenu('${topIdx}${i+1}')" class="accordion-toggle" data-toggle="collapse"
-										                       data-parent="#accordionLeftBar">${subMenu[i][0]}</a>
+									<a href="#accordion-element-${i+1}" onclick="javascript:checkMenu('${topIdx}${i+1}')" class="accordion-toggle" 
+									 data-toggle="collapse" data-parent="#accordionLeftBar">${subMenu[i][0]}</a>
 								</c:when>
 								<c:otherwise>
 									<a href="${topIdx}${i+1}" class="accordion-toggle">${subMenu[i][0]}</a>
@@ -46,6 +46,15 @@
               </c:forEach>
 			</div>
 			<c:if test="${'true' eq show_service_cBox}">
+				<hr/>
+				<c:if test="${show_num_total}">
+					<div>
+						Total: $<input id="totalPrice" value="${totalPrice}" style="width: 40px; border-style:none; background:none" />
+						<br/>
+						Items:<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none"/>
+					</div>
+				</c:if>
+				
 				<div>
 					<spring:url value="/showSelection" var="showSelection" /> 
 					<a href="${showSelection}"> 
@@ -60,7 +69,7 @@
 
 		<!-- make the selected menu highlighted. -->
 		<script type='text/javascript'>
-		document.addEventListener("DOMContentLoaded", function(event) {alert("loacded");
+		document.addEventListener("DOMContentLoaded", function(event) {
 			var nav = document.getElementById("accordionLeftBar");
 			var lilen = nav.getElementsByTagName("a");
 			var currenturl = document.location.href;
@@ -88,8 +97,8 @@
 
 			if(document.body.clientWidth &lt; 550){
 				barDiv.style.left='5px';
-			}else if(){
-				barDiv.style.left='25px';
+			}else if(document.body.clientWidth > 1200){
+				barDiv.style.left='5px';
 			}
 		}
 
@@ -104,12 +113,12 @@
 			
 			var widthStr = style.width;
 			var xpos = Number(widthStr.substring(0, widthStr.length - 2));
-			xpos = 0 - xpos;
+			xpos = 0 - xpos + 26;
 			
-			if(document.body.clientWidth &lt; 550){alert("...");
+			if(document.body.clientWidth &lt; 550){
 				barDiv.style.left= xpos+"px";
-			}else if(document.body.clientWidth > 1200){alert("+++"+xpos);
-				barDiv.style.left= xpos;
+			}else if(document.body.clientWidth > 1200){
+				barDiv.style.left= xpos+"px";
 			}
 		}
 		

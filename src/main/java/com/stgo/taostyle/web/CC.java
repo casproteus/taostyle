@@ -143,7 +143,7 @@ public interface CC {
         service_number_sm("6"),
         service_number_xs("6"),
         show_QRCode("true"),
-        show_service_bell("true"),
+        //show_service_bell("true"),
         app_WebsiteAddress("http://www.shareTheGoodOnes.com"),
         app_name("ShareTheGoodOnes"),
         CONTENTTYPE_1("MAINPAGE"),
