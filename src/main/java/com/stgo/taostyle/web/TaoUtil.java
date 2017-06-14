@@ -1025,6 +1025,9 @@ public class TaoUtil {
     public static String fetchProductName(
             String description,
             String moneyLetter) {
+        if (StringUtils.isBlank(description)) {
+            return "";
+        }
         String html = description.substring(0, description.indexOf(moneyLetter));
         return trimContentFromHTML(html).trim();
     }
@@ -1032,6 +1035,9 @@ public class TaoUtil {
     public static String fetchProductPrice(
             String description,
             String moneyLetter) {
+        if (StringUtils.isBlank(description)) {
+            return "";
+        }
         String html = description.substring(description.lastIndexOf(moneyLetter) + 1);
         return trimContentFromHTML(html).trim();
     }

@@ -1987,7 +1987,7 @@ public class MainPageController extends BaseController {
         float total = 0;
         List<Material> materials = new ArrayList<Material>();
         for (String item : items) {
-            String key = langPrf + item + "_description";
+            String key = langPrf + "service_" + item + "_description";
 
             // todo: should get the infomation from Service table.
             TextContent textContent = TextContent.findContentsByKeyAndPerson(key, person);
@@ -1997,7 +1997,7 @@ public class MainPageController extends BaseController {
             total += Float.valueOf(payCondition);
 
             String menfu = "";
-            Service service = Service.findServiceByCatalogAndPerson(item.substring(8), person);
+            Service service = Service.findServiceByCatalogAndPerson(item, person);
             if (service != null && service.getC3() != null) {
                 menfu = service.getC3().trim();
             }
@@ -2009,7 +2009,7 @@ public class MainPageController extends BaseController {
             }
 
             Material material = new Material();
-            material.setLocation(item.substring(8));
+            material.setLocation(item);
             material.setMainOrder(sourcdAndNewMainOrder);
             material.setPortionName(productName);
             // this one could be added by employee....material.setRemark(remark);
@@ -2020,12 +2020,11 @@ public class MainPageController extends BaseController {
         }
 
         // ----------------re-update the mainOrder-----------------------
-        if (total < 1) {//
+        total = (float) (Math.round(total * 100)) / 100;
+        if (total == 0) {//
             sourcdAndNewMainOrder.setRecordStatus(5);// means this is actually a customer changed place and employee
-                                                     // create a new one to merge.
-            sourcdAndNewMainOrder.persist();
+            sourcdAndNewMainOrder.persist(); // create a new one to merge.
         } else {
-            total = (float) (Math.round(total * 100)) / 100;
             sourcdAndNewMainOrder.setPayCondition(moneyLetter + String.valueOf(total)); // actual deal price.
             if ("true".equals(request.getSession().getAttribute("auto_merge_rec"))) {
                 MainOrder existingSameSourceMainOrder = searchSameSourceMainOrder(sourcdAndNewMainOrder, person);
