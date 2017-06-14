@@ -1682,12 +1682,11 @@ public class MainPageController extends BaseController {
         // Feature feature = Feature.findFeature(Long.valueOf(featureId));
         // String itemsToShow = feature.getItemsToShow();
 
-        String keyIdx = imageKey.substring(8);
-        Service service = Service.findServiceByCatalogAndPerson(keyIdx, person);
+        Service service = Service.findServiceByCatalogAndPerson(imageKey, person);
         if (service == null) {
             service = new Service();
             service.setPerson(person);
-            service.setC1(keyIdx);
+            service.setC1(imageKey);
             service.setC3(",");
         }
         String curPrinterName = TaoEncrypt.stripUserName(userContextService.getCurrentUserName());
@@ -1735,7 +1734,8 @@ public class MainPageController extends BaseController {
         Person person = TaoUtil.getCurPerson(request);
         String newItemStr = "," + imageKey + ",";
         String selectedItems = (String) request.getSession().getAttribute(CC.selectedItems);
-        Service service = Service.findServiceByCatalogAndPerson(imageKey.substring(8), person);
+
+        Service service = Service.findServiceByCatalogAndPerson(imageKey, person);
         float total = Float.valueOf(service.getDescription());
         if (selectedItems == null) {
             selectedItems = newItemStr;
@@ -2651,7 +2651,7 @@ public class MainPageController extends BaseController {
         createACustomize(request, "service_number_md", "6", person);
         createACustomize(request, "service_number_sm", "6", person);
         createACustomize(request, "service_number_xs", "12", person);
-        // createACustomize(request, "show_service_bell", "false", person);
+        createACustomize(request, "show_service_bell", "true", person);
         createACustomize(request, "show_service_cBox", "true", person);
         createACustomize(request, "need_calculate_price", "true", person);
         createACustomize(request, "app_ContentManager", "true", person);// when someone is promoted to be a manager,

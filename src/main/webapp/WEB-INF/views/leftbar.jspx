@@ -17,8 +17,7 @@
 		<c:if test="${'true' == show_big_hander}">
 			<c:set var="hander_padding" value="${fn:length(subMenu) *(11 + leftbar_item_padding)}" />
 		</c:if>
-		<div class="leftbar" id="barDiv" style="left:10px; background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:2000;"
-		onmouseout="javascript:hideLeftBarDiv()">
+		<div class="leftbar" id="barDiv" style="left:10px; background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:2000;">
 			<div class="accordion" id="accordionLeftBar"  >
 			  <c:forEach var="i" begin="0" end="${fn:length(subMenu)}" step="1">
 				<c:if test="${subMenu[i][0] != null and subMenu[i][0] != '' or user_role == '[ROLE_ADMIN]'}">
@@ -52,7 +51,7 @@
 				</c:if>
               </c:forEach>
 			</div>
-			<c:if test="${'true' eq show_service_cBox}">
+			<c:if test="${'true' eq show_checkout_in_leftbar}">
 				<hr/>
 				<c:set var="hander_padding" value="${hander_padding + 35}" />
 				<c:if test="${show_num_total}">
@@ -76,11 +75,12 @@
 		</div>
 		<!-- LeftMenuBar -->
 		
-		<div id="hander" class="leftbar" onmouseover="javascript:showLeftBarDivUp()" onmousedown="javascript:showLeftBarDivUp()"
+		<div id="hander" class="leftbar" ontouchend="javascript:switchHanderToBarDiv()"
 			style="padding-bottom:${hander_padding}px; padding-top:${hander_padding}px; visibility:hidden; left:-10px;
 			background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:1000;">
 			>>
 		</div>
+		<input id="threshold_hiding_leftbar" name="threshold_hiding_leftbar" type="hidden" value="${threshold_hiding_leftbar}"/>
 		<!-- make the selected menu highlighted. -->
 		<script type='text/javascript'>
 			document.addEventListener("DOMContentLoaded", function(event) {
@@ -103,31 +103,36 @@
 				document.getElementById(elementid).className += " in";
 				
 				//hidden the left bar. because by default, menu show, hander hide.
-				if(document.body.clientWidth &lt; 550){
-					hideLeftBarDiv();
+				if(document.body.clientWidth &lt; threshold_hiding_leftbar.value){
+					switchBarDivToHander();//hide bar, 
+					
+					var noticeArea = document.getElementById("noticeArea");
+					if(noticeArea){
+						noticeArea.style.left="0px";
+					}
 				}
 			});
 			
-			function showLeftBarDivUp(){
-				document.getElementById("hander").style.visibility='hidden';
-				document.getElementById("barDiv").style.visibility='visible';
-			}
-			
-			function hideLeftBarDiv(){
-				if(document.body.clientWidth &lt; 550){
+			function switchBarDivToHander(){
+				if(document.body.clientWidth &lt; threshold_hiding_leftbar.value){
 					document.getElementById("barDiv").style.visibility='hidden';
 					document.getElementById("hander").style.visibility='visible';
 				}
 			}
-			/**
-			function showElement(elementId, pos){
-				var element = document.getElementById(elementId);
-				if(document.body.clientWidth &lt; 550){
-					element.style.left=pos +'px';
-				}
+			
+			function switchHanderToBarDiv(){
+				document.getElementById("hander").style.visibility='hidden';
+				setTimeout("showBarDiv()", 500);
 			}
-	
-			function hideElement(elementId){
+			
+			function showBarDiv(){
+				var barDiv = document.getElementById("barDiv");
+				barDiv.style.visibility='visible';
+				barDiv.style.left = '-10px';
+			}
+			
+			/**
+			function moveElement(elementId,padding){
 				var element = document.getElementById(elementId);
 				
 				if (window.getComputedStyle) {
@@ -138,11 +143,9 @@
 				var widthStr = style.width;
 				var xpos = Number(widthStr.substring(0, widthStr.length - 2));
 				xpos = 0 - xpos;
-				
-				if(document.body.clientWidth &lt; 550){
-					element.style.left= xpos+"px";
-				}
-			}*/
+				element.style.right= "-10px";
+			}**/
+			
 	  	</script>
 	</c:if>
 </div>

@@ -324,6 +324,7 @@ public class TaoUtil {
                     imageKeyLists.add(imageKeys);
                     fillInDescriptions(langPrf, person, descriptions, imageKeys);
 
+                    boolean isEmpty = true;
                     if (isPrinter(session)) {
                         UserAccount userAccount = (UserAccount) session.getAttribute(CC.currentUser);
                         String nameStrInService = "," + TaoEncrypt.stripUserName(userAccount.getLoginname()) + ",";
@@ -334,27 +335,45 @@ public class TaoUtil {
                             }
                             Service service = Service.findServiceByCatalogAndPerson(item, person);
                             if (service != null && service.getC3() != null) {
-                                visibleStatus.add(service.getC3().contains(nameStrInService) ? "true" : null);
+                                if (service.getC3().contains(nameStrInService)) {
+                                    isEmpty = false;
+                                    visibleStatus.add("true");
+                                } else {
+                                    visibleStatus.add(null);
+                                }
                             } else {
                                 visibleStatus.add(null);
                             }
                         }
                     } else {
                         for (String item : imageKeys) {
-                            visibleStatus.add(itemToShow.contains(item) ? "true" : null);
+                            if (itemToShow.contains(item)) {
+                                isEmpty = false;
+                                visibleStatus.add("true");
+                            } else {
+                                visibleStatus.add(null);
+                            }
                         }
                     }
-                    visibleStatusList.add(visibleStatus);
+                    visibleStatusList.add(isEmpty ? null : visibleStatus);
                 } else {
                     List<String> imageKeys = Arrays.asList(itemsStrs);
                     imageKeyLists.add(imageKeys);
                     fillInDescriptions(langPrf, person, descriptions, imageKeys);
-
+                    boolean isEmpty = true;
                     if (selectedItems != null) {
                         for (String item : imageKeys) {
-                            visibleStatus.add(selectedItems.contains("," + item + ",") ? "true" : null);
+                            item = strip(item);
+                            if (selectedItems.contains("," + item + ",")) {
+                                isEmpty = false;
+                                visibleStatus.add("true");
+                            } else {
+                                visibleStatus.add(null);
+                            }
                         }
-                        visibleStatusList.add(visibleStatus);
+                        visibleStatusList.add(isEmpty ? null : visibleStatus);
+                    } else {
+                        visibleStatusList.add(null);
                     }
                 }
             }
@@ -386,6 +405,15 @@ public class TaoUtil {
             model.addAttribute("menusForRef", menusForRef);
         }
         return menuIdx;
+    }
+
+    private static String strip(
+            String key) {
+        int i = key.indexOf('_');
+        if (i > 3) {
+            key = key.substring(i + 1);
+        }
+        return key;
     }
 
     public static List<String> fetchAllMenuByType(
@@ -637,11 +665,17 @@ public class TaoUtil {
             String selectedItems = (String) session.getAttribute(CC.selectedItems);
             if (selectedItems != null) {
                 List<String> visibleStatusList = new ArrayList<String>();
+                boolean isEmpty = true;
                 for (int i = 1; i <= serviceAmount; i++) {
-                    String item = key + "_" + i;
-                    visibleStatusList.add(selectedItems.contains("," + item + ",") ? "true" : null);
+                    String item = menuIdx + "_" + i;
+                    if (selectedItems.contains("," + item + ",")) {
+                        isEmpty = false;
+                        visibleStatusList.add("true");
+                    } else {
+                        visibleStatusList.add(null);
+                    }
                 }
-                model.addAttribute("visibleStatusList", visibleStatusList);
+                model.addAttribute("visibleStatusList", isEmpty ? null : visibleStatusList);
             }
         }
         TaoDebug.info("completed initServiceSubPage, menukey is {}, serviceAmount is {}", key, serviceAmount);

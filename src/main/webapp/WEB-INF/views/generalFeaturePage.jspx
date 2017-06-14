@@ -57,17 +57,17 @@
 			 	<input type="hidden" name="length" value="${fn:length(imageKeys[j])}" />
 			 	
 			  	<c:forEach var="i" begin="0" end="${subLength-1}" step="1">
-			  	
-			  		<c:set var="opacity" value="1"/>
-			        <c:if test="${not empty visibleStatusList and visibleStatusList[j][i] ne 'true' }" >
-			  			<c:set var="opacity" value="0.1"/>
-			        </c:if>
 			        
 			 	    <c:set var="imageIdx"  value="${imageKeys[j][i]}" />
 			  		
 					<div class="col-xs-${service_number_xs} col-sm-${service_number_sm} col-md-${service_number_md} col-lg-${service_number_lg}"
 					 style="text-align: center">
 					 
+				  		<c:set var="opacity" value="1"/>--${visibleStatusList[j][i]}==
+				        <c:if test="${not empty visibleStatusList[j] and visibleStatusList[j][i] ne 'true' }" >
+				  			<c:set var="opacity" value="0.1"/>
+				        </c:if>
+			        
 						<c:if test="${not empty descriptions[j][i] and not empty showDescriptionsOnTop}" >
 				          	<div id="des-${featureIdx}-${imageIdx}" align="left" style="opacity:${opacity}">${descriptions[j][i]}</div> 
 				        </c:if>
@@ -80,13 +80,13 @@
 				        
 				        <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 					    	<c:choose>
-								<c:when test="${not empty visibleStatusList and visibleStatusList[i-1] eq 'true'}">
-									<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-									 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}')" />
+								<c:when test="${not empty visibleStatusList and visibleStatusList[j][i] eq 'true'}">
+									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
+									 checked="checked" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}')" />
 						       	</c:when>
 						        <c:otherwise>
-									<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-									 onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}')" />
+									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
+									 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}')" />
 						        </c:otherwise>
 					  		</c:choose>
 					    </c:if>
@@ -152,7 +152,7 @@
 			    $.ajax({
 			    	headers: "Accept=application/json",
 			        type: "POST",
-			        url: "updatePrinter/"+imageKey,
+			        url: "updatePrinter/"+imageKey.substring(8),
 			        data: "featureId=" + featureIdx,
 			        async:false,
 			        success:function(textContent){
@@ -214,7 +214,7 @@
 				$.ajax({
 			    	headers: "Accept=application/json",
 			        type: "POST",
-			        url: "updateSelection/"+imageKey,
+			        url: "updateSelection/"+imageKey.substring(8),
 			        async:true,
 			        success:function(textContent){
 			        	//do nothing.
