@@ -78,7 +78,7 @@
 				          	<div id="des-${featureIdx}-${imageIdx}" align="left" style="opacity:${opacity}">${descriptions[j][i]}</div> 
 				        </c:if>
 				        
-				        <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
+				        <c:if test="${'true' eq show_service_cBox or isAboveManager eq 'true'}">
 					    	<c:choose>
 								<c:when test="${not empty visibleStatusList and visibleStatusList[j][i] eq 'true'}">
 									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
