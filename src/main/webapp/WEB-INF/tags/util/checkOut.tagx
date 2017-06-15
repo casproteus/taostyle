@@ -16,20 +16,37 @@
 		description="if not null then the role will also be allowed to modify." />
 
 	<c:if test="${empty render or render}">
-	  <c:if test="${not empty show_service_bell and user_role != '[ROLE_PRINTER]'}">
+	  <c:if test="${user_role != '[ROLE_PRINTER]'}">
 		<div id="bellArea">
-		  <div id="noticeArea" align="center" style="position: fixed; padding-right:${width_bell_img}px; border-radius:0px; z-index: 3000;
+		  <div id="noticeArea" align="right" style="position: fixed; padding-right:${width_bell_img}px; border-radius:0px; z-index: 3000;
 		   bottom: 0px; right: 0px; color:#${foreground_leftbar}; background:#${background_leftbar}; opacity:${leftbar_opacity};">
-			<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none; font-size: 12px"/>Items
-			|Total: $<input id="totalPrice" value="${totalPrice}" style="width: 40px; border-style:none; background:none; font-size: 12px" />
-			<br/>
-			Click icon to check selection or <a style="font-weight: bold" onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')">Submit Now!</a>
+			<c:if test="${'true' == show_status_total}">
+				<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none; font-size: 12px"/>Items
+				|Total: $<input id="totalPrice" value="${totalPrice}" style="width: 40px; border-style:none; background:none; font-size: 12px" />
+				<c:if test="${'true' == show_status_break}" >
+					<br/>
+				</c:if>
+			</c:if>
+			${show_status_message}
+	  		<c:if test="${'true' == show_status_submit}">
+			 	<div style="position: fixed; z-index: 3000; bottom: 0px; right: 5px; cursor:pointer">
+					<a style="font-weight: bold" onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')">
+						<img alt="hide unchecked items" src="getImage/Submit" title="Submit."/>
+					</a>
+					<util:changeImg position="Submit" />
+			  	</div>
+			</c:if>
 		  </div>
-		  <div style="position: fixed; z-index: 3000; bottom: 0px; right: 5px; cursor:pointer">
-			<img alt="hide unchecked items" src="getImage/bell" title="Submit or call a waiter."
-				onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')"/>
-			<util:changeImg position="bell" />
-		  </div>
+
+		  <c:if test="${not empty show_status_bell}">
+			  <div style="position: fixed; z-index: 3000; bottom: 0px; right: 5px; cursor:pointer">
+			  		<spring:url value="/showSelection" var="showSelection" /> 
+					<a href="${showSelection}"> 							
+						<img alt="hide unchecked items" src="getImage/bell" title="Show selections and submit."/>
+					</a>
+					<util:changeImg position="bell" />
+			  </div>
+		  </c:if>
 	  	</div>
 	  	
 	  	<input id="user_role" type="hidden" value="${user_role}" /> 

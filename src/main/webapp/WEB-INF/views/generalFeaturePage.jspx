@@ -177,18 +177,21 @@
 	
 		            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
 		            obj.style.cssText = "opacity: " + opacity; 
-		            
-		            var currentItem = Number(selectedItem.value);
-		            var curentPrice = Number(totalPrice.value);
-		            var text = obj.innerText;
-		            var i = text.indexOf('$');
-		            if(!(i >= 0)){
-		            	i = text.indexOf('￥');
+		            if(document.getElementById("selectedItem")){
+		            	var currentItem = Number(selectedItem.value);
+			            selectedItem.value = curObj.checked ? currentItem + 1 : currentItem - 1;
 		            }
-		            text = text.substring(i+1);
-		            var selectedPrice = Number(text);
-		            selectedItem.value = curObj.checked ? currentItem + 1 : currentItem - 1;
-		            totalPrice.value = curObj.checked ? (curentPrice + selectedPrice).toFixed(2) : (curentPrice - selectedPrice).toFixed(2);
+		            if(document.getElementById("totalPrice")){
+			            var curentPrice = Number(totalPrice.value);
+			            var text = obj.innerText;
+			            var i = text.indexOf('$');
+			            if(!(i >= 0)){
+			            	i = text.indexOf('￥');
+			            }
+			            text = text.substring(i+1);
+			            var selectedPrice = Number(text);
+			            totalPrice.value = curObj.checked ? (curentPrice + selectedPrice).toFixed(2) : (curentPrice - selectedPrice).toFixed(2);
+		            }
 				}
 				
 				/**dark all unselected of previous categery. @NOTE: beacause we need to save user selection in session, so the featureIdx is not number anymore, 

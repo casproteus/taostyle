@@ -397,6 +397,7 @@ public class TaoUtil {
             // available menu to remove.
             model.addAttribute("refForDelete", refList);
             model.addAttribute("menus", menus);
+            model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message1));
         }
 
         if (isAboveManager(session)) {
@@ -678,6 +679,8 @@ public class TaoUtil {
                 model.addAttribute("visibleStatusList", isEmpty ? null : visibleStatusList);
             }
         }
+
+        model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message1));
         TaoDebug.info("completed initServiceSubPage, menukey is {}, serviceAmount is {}", key, serviceAmount);
         return menuIdx;
     }

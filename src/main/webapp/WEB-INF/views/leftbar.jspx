@@ -87,20 +87,23 @@
 				var nav = document.getElementById("accordionLeftBar");
 				var lilen = nav.getElementsByTagName("a");
 				var currenturl = document.location.href;
-				var last = 0;
-				for (var i=0; ; i++){
-					var linkurl = lilen[i].getAttribute("href");
-					if(currenturl.indexOf(linkurl)!=-1){
-						last = i;
-						lilen[last].className += " current";
-					}
-					
-					if(i + 1 == lilen.length)
-						break;
-				}
 				
-				var elementid = "${currentSubMenu}";
-				document.getElementById(elementid).className += " in";
+				if(currenturl.indexOf("menu_") == 0){
+					var last = 0;
+					for (var i=0; ; i++){
+						var linkurl = lilen[i].getAttribute("href");
+						if(currenturl.indexOf(linkurl)!=-1){
+							last = i;
+							lilen[last].className += " current";
+						}
+						
+						if(i + 1 == lilen.length)
+							break;
+					}
+
+					var elementid = "${currentSubMenu}";
+					document.getElementById(elementid).className += " in";
+				}
 				
 				//hidden the left bar. because by default, menu show, hander hide.
 				if(document.body.clientWidth &lt; threshold_hiding_leftbar.value){

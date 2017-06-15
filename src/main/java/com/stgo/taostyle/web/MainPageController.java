@@ -1831,7 +1831,7 @@ public class MainPageController extends BaseController {
         HashMap map = new HashMap();
         for (String imageKeyStr : imageKeyStrs) {
             int p = imageKeyStr.lastIndexOf('_');
-            String menuIdx = imageKeyStr.substring(8, p);
+            String menuIdx = imageKeyStr.substring(0, p);
             if (menuIdx.endsWith("_0")) {
                 menuIdx = menuIdx.substring(0, menuIdx.length() - 2);
                 if (menuIdx.endsWith("_0")) {
@@ -1843,7 +1843,7 @@ public class MainPageController extends BaseController {
                 list = new ArrayList<String>();
                 map.put(menuIdx, list);
             }
-            list.add(imageKeyStr);
+            list.add("service_" + imageKeyStr);
         }
         // to make it in order.
         List<String> menusForRef = TaoUtil.fetchAllMenuByType(CC.SERVICE, request, langPrf, person);
@@ -1882,6 +1882,12 @@ public class MainPageController extends BaseController {
         model.addAttribute("descriptions", descriptions);
         model.addAttribute("visibleStatusList", visibleStatusList);
         model.addAttribute("groupTitles", groupTitles);
+        // adjust status area
+        model.addAttribute("show_status_bell", "");
+        model.addAttribute("show_status_submit", "true");
+        model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message2));
+        model.addAttribute("show_status_total", "true");
+        model.addAttribute("show_status_break", "true");
 
         // left menu bar
         String pKey = (String) session.getAttribute(CC.default_feature_menu);
@@ -1889,8 +1895,14 @@ public class MainPageController extends BaseController {
         if (p > 5) {
             pKey = pKey.substring(0, p + 1);
         }
+
+        TaoDebug.info("start to initLeftMenuBar, pKey is: {}, pLang is {}", pKey, langPrf);
         List<List<String>> subMenu = TaoUtil.prepareMenuContent(pKey, langPrf, person);
         model.addAttribute("subMenu", subMenu);
+        model.addAttribute("topIdx", subMenu);
+        int indexOfSecondDash = pKey.indexOf('_', 5);
+        model.addAttribute("topIdx", pKey.substring(0, indexOfSecondDash + 1));
+
         return "/generalFeaturePage";
     }
 
@@ -2650,12 +2662,19 @@ public class MainPageController extends BaseController {
         createACustomize(request, "service_number_md", "6", person);
         createACustomize(request, "service_number_sm", "6", person);
         createACustomize(request, "service_number_xs", "12", person);
-        createACustomize(request, "show_service_bell", "true", person);
+
+        createACustomize(request, "show_Status_bell", "true", person);
         createACustomize(request, "show_service_cBox", "true", person);
         createACustomize(request, "need_calculate_price", "true", person);
         createACustomize(request, "app_ContentManager", "true", person);// when someone is promoted to be a manager,
                                                                         // shall we set his name here?
-
+        createACustomize(request, "show_status_total", "true", person);
+        createACustomize(request, "show_status_break", "true", person);
+        String langPrf = TaoUtil.getLangPrfWithDefault(request);
+        createACustomize(request, langPrf + CC.show_status_message1, "Click to check current selections -->", person);
+        createACustomize(request, langPrf + CC.show_status_message2, "Click to submit the order -->", person);
+        createACustomize(request, "show_status_message",
+                (String) request.getSession().getAttribute(langPrf + CC.show_status_message1), person);
     }
 
     private void createACustomize(
