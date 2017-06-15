@@ -60,13 +60,13 @@
 			        
 			        <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 				    	<c:choose>
-							<c:when test="${not empty visibleStatusList and visibleStatusList[i-1] eq 'true'}">
+							<c:when test="${not empty visibleStatusList and not empty visibleStatusList[i-1]}">
 								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-								 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}')" />
+								 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','true')" />
 					       	</c:when>
 					        <c:otherwise>
 								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-								 onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}')" />
+								 onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','true')" />
 					        </c:otherwise>
 				  		</c:choose>
 				    </c:if>
@@ -80,7 +80,7 @@
 	
     <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 	<script type="text/javascript">
-		function updateStatus(imageKey,user_role) {
+		function updateStatus(imageKey,user_role,isIncrease) {
 			//ligtht up it if it's a check action (before is unchecked), unlight it if it's uncheck.
 			var curObj = document.getElementById("check-" + imageKey);
 			if(curObj != null){

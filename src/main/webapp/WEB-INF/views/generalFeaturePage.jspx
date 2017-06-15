@@ -80,13 +80,13 @@
 				        
 				        <c:if test="${'true' eq show_service_cBox or isAboveManager eq 'true'}">
 					    	<c:choose>
-								<c:when test="${not empty visibleStatusList and visibleStatusList[j][i] eq 'true'}">
+								<c:when test="${not empty visibleStatusList and not empty visibleStatusList[j][i]}">
 									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-									 checked="checked" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}')" />
+									 checked="checked" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','true')" />
 						       	</c:when>
 						        <c:otherwise>
 									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-									 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}')" />
+									 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','true')" />
 						        </c:otherwise>
 					  		</c:choose>
 					    </c:if>
@@ -127,7 +127,7 @@
      <c:if test="${not empty show_service_cBox or isAboveManager eq 'true'}">
 	<script type="text/javascript">
       	//the featureIdx could be feature.id or the index of the feature.
-		function updateStatus(imageKey,featureIdx,user_role) {
+		function updateStatus(imageKey,featureIdx,user_role,isIncrease) {
 			if('[ROLE_ADMIN]' == user_role || user_role == '[ROLE_MANAGER]'){
 				//if logged in as Manager or admin, then ajax to back end.
 			    $.ajax({
