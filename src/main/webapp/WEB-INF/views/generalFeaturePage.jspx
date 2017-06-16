@@ -64,10 +64,10 @@
 					 style="text-align: center">
 					 
 				  		<c:set var="opacity" value="1"/>
-				        <c:if test="${not empty visibleStatusList[j] and visibleStatusList[j][i] ne 'true' }" >
+				        <c:if test="${not empty visibleStatusList[j] and visibleStatusList[j][i] eq ''}" >
 				  			<c:set var="opacity" value="0.1"/>
 				        </c:if>
-			        
+
 						<c:if test="${not empty descriptions[j][i] and not empty showDescriptionsOnTop}" >
 				          	<div id="des-${featureIdx}-${imageIdx}" align="left" style="opacity:${opacity}">${descriptions[j][i]}</div> 
 				        </c:if>
@@ -79,16 +79,31 @@
 				        </c:if>
 				        
 				        <c:if test="${'true' eq show_service_cBox or isAboveManager eq 'true'}">
+					    	<c:set var="visibility" value="${(empty visibleStatusList[j][i] or visibleStatusList[j][i] eq '1') ? 'visible' : 'hidden'}" />
 					    	<c:choose>
 								<c:when test="${not empty visibleStatusList and not empty visibleStatusList[j][i]}">
-									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-									 checked="checked" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','true')" />
+									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility};"
+									 checked="checked" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','check')" />
 						       	</c:when>
 						        <c:otherwise>
-									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-									 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','true')" />
+									<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility};"
+									 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','check')" />
 						        </c:otherwise>
 					  		</c:choose>
+				  		
+					  		<c:if test="${support_times}">
+					  			<span style="width: 25px; border-style:none; font-size: 24px;">
+						  			<c:set var="aboveTwo" value="${not empty visibleStatusList and not empty visibleStatusList[j][i] and visibleStatusList[j][i] != '1'}" />
+						  			
+									<a id="decreaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','down1')" style="visibility:${aboveTwo?'visible':'hidden'};"> - </a>
+						     		
+						     		<input id="txt-${featureIdx}-${imageIdx}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[j][i]}" 
+									style="text-align:center; width:20px; border-style:none; background:none; font-size: 16px; visibility:${aboveTwo?'visible':'hidden'}"/>
+								 	
+								 	<a id="increaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','up1')"
+								 	 style="visibility:${user_role != '[ROLE_ADMIN]'  and user_role != '[ROLE_MANAGER]' and user_role != '[ROLE_PRINTER]' and not empty visibleStatusList[j][i]? 'visible':'hidden'}"> + </a>
+							 	</span>
+					    	</c:if>
 					    </c:if>
 					</div>
 				</c:forEach>
@@ -123,11 +138,12 @@
 	    });
 	}
 	</script>
-<!-- Check Box (manager and above always show, they use it to select product for feature.) -->
-     <c:if test="${not empty show_service_cBox or isAboveManager eq 'true'}">
+
+	<!-- Check Box (manager and above always show, they use it to select product for feature.) -->
+    <c:if test="${not empty show_service_cBox or isAboveManager eq 'true'}">
 	<script type="text/javascript">
       	//the featureIdx could be feature.id or the index of the feature.
-		function updateStatus(imageKey,featureIdx,user_role,isIncrease) {
+		function updateStatus(imageKey,featureIdx,user_role,change) {
 			if('[ROLE_ADMIN]' == user_role || user_role == '[ROLE_MANAGER]'){
 				//if logged in as Manager or admin, then ajax to back end.
 			    $.ajax({
@@ -167,33 +183,55 @@
 			        }
 			    });
 			}else{
-				//ligtht up it if it's a check action (before is unchecked), unlight it if it's uncheck.
-				var curObj = document.getElementById("check-" + featureIdx + "-" + imageKey);
-				if(curObj != null){
-		            var opacity = curObj.checked ? 1: 0.1;
-	
-		            var obj = document.getElementById("img-" + featureIdx + "-" + imageKey);
-		            obj.style.cssText = "opacity: " + opacity; 
-	
-		            obj = document.getElementById("des-" + featureIdx + "-" + imageKey);
-		            obj.style.cssText = "opacity: " + opacity; 
-		            if(document.getElementById("selectedItem")){
-		            	var currentItem = Number(selectedItem.value);
-			            selectedItem.value = curObj.checked ? currentItem + 1 : currentItem - 1;
-		            }
-		            if(document.getElementById("totalPrice")){
-			            var curentPrice = Number(totalPrice.value);
-			            var text = obj.innerText;
-			            var i = text.indexOf('$');
-			            if(!(i >= 0)){
-			            	i = text.indexOf('￥');
-			            }
-			            text = text.substring(i+1);
-			            var selectedPrice = Number(text);
-			            totalPrice.value = curObj.checked ? (curentPrice + selectedPrice).toFixed(2) : (curentPrice - selectedPrice).toFixed(2);
-		            }
+				//selected bheckbox
+           		var curObj = document.getElementById("check-" + featureIdx + "-" + imageKey);
+	            //input field
+	            var textField = document.getElementById("txt-" + featureIdx + "-" + imageKey);
+				var selected = textField ? Number(textField.value) : (curObj.checked ? 1 : 0);
+	            //current num and total
+	           	var itemNum = Number(selectedItem.value);
+	            var total = Number(totalPrice.value); 
+				//selected price
+	            var description = document.getElementById("des-" + featureIdx + "-" + imageKey);
+	            var text = description.innerText;
+	            var i = text.lastIndexOf('$');
+	            text = text.substring(i+1);
+	            var selectedPrice = Number(text);
+	            //new num and total
+	           	if(change.indexOf('down') == 0){
+	           		selected = selected - Number(change.substring(4));
+	           		textField.value = selected;
+	           		selectedItem.value = itemNum - Number(change.substring(4));
+	           		totalPrice.value = (total - selectedPrice).toFixed(2);
+	           	}else if(change.indexOf('up') == 0){
+	           		selected = selected + Number(change.substring(2));
+	           		textField.value = selected;
+	           		selectedItem.value = itemNum + Number(change.substring(2));
+	           		totalPrice.value = (total + selectedPrice).toFixed(2);
+	           	}else if(change == "check"){
+	           		selected = 1 - selected;
+	           		textField.value = selected;
+	           		selectedItem.value = itemNum +(curObj.checked ? 1 : -1);
+	               	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);
+	           	}
+	            
+	          	//description
+	            description.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1; 
+	            //image
+	            var image = document.getElementById("img-" + featureIdx + "-" + imageKey);
+	            image.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1;
+	            
+	          	//check box
+				var checkBox = document.getElementById("check-" + featureIdx + "-" + imageKey);
+				checkBox.style.visibility = selected > 1 ? 'hidden' : 'visible';
+				//increaser,decreaser
+	            var textField = document.getElementById("txt-" + featureIdx + "-" + imageKey);
+				if(textField){
+	           		textField.style.visibility = selected > 1 ? 'visible' : 'hidden'; 
+	           		document.getElementById("decreaser-" + featureIdx + "-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
+	           		document.getElementById("increaser-" + featureIdx + "-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
 				}
-				
+
 				/**dark all unselected of previous categery. @NOTE: beacause we need to save user selection in session, so the featureIdx is not number anymore, 
 				var curGridView = document.getElementById((featureIdx - 1) + "-gridview");
 				if(curGridView != null){
@@ -218,6 +256,7 @@
 			    	headers: "Accept=application/json",
 			        type: "POST",
 			        url: "updateSelection/"+imageKey.substring(8),
+			        data:"change=" + change,
 			        async:true,
 			        success:function(textContent){
 			        	//do nothing.

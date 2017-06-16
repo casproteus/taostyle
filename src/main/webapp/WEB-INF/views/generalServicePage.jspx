@@ -60,13 +60,13 @@
 			        </c:if>
 			        
 			        <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
+					    <c:set var="visibility" value="${empty visibleStatusList[i-1] or visibleStatusList[i-1] eq 1 ? 'visible' : 'hidden'}" />
 				    	<c:choose>
-							<c:when test="${not empty visibleStatusList and visibleStatusList[i-1] == '1'}">
-								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px;"
+							<c:when test="${not empty visibleStatusList and not empty visibleStatusList[i-1]}">
+								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility};"
 								 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','check')" />
 					       	</c:when>
 					        <c:otherwise>
-					        	<c:set var="visibility" value="${empty visibleStatusList[i-1] ? 'visible' : 'hidden'}" />
 								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility}; "
 								 onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','check')" />
 					        </c:otherwise>
@@ -96,16 +96,18 @@
     <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 	<script type="text/javascript">
 		function updateStatus(imageKey,user_role,change) {
+			//selected checkbox
+           	var curObj = document.getElementById("check-" + imageKey);
             //input field
             var textField = document.getElementById("txt-" + imageKey);
-			var selected = Number(textField.value);
+			var selected = textField ? Number(textField.value) : (curObj.checked ? 1 : 0);
             //current num and total
            	var itemNum = Number(selectedItem.value);
             var total = Number(totalPrice.value); 
 			//selected price
             var description = document.getElementById("des-" + imageKey);
             var text = description.innerText;
-            var i = text.indexOf('$');
+            var i = text.lastIndexOf('$');
             text = text.substring(i+1);
             var selectedPrice = Number(text);
             //new num and total
@@ -120,8 +122,7 @@
            		selectedItem.value = itemNum + Number(change.substring(2));
            		totalPrice.value = (total + selectedPrice).toFixed(2);
            	}else if(change == "check"){
-           		var curObj = document.getElementById("check-" + imageKey);
-       			selected = selected + (curObj.checked ? 1 : -1);
+           		selected = 1 - selected;
            		textField.value = selected;
            		selectedItem.value = itemNum +(curObj.checked ? 1 : -1);
                	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);

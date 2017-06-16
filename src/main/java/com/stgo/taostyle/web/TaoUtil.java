@@ -337,7 +337,7 @@ public class TaoUtil {
                             if (service != null && service.getC3() != null) {
                                 if (service.getC3().contains(nameStrInService)) {
                                     isEmpty = false;
-                                    visibleStatus.add("true");
+                                    visibleStatus.add("1");
                                 } else {
                                     visibleStatus.add(null);
                                 }
@@ -349,7 +349,7 @@ public class TaoUtil {
                         for (String item : imageKeys) {
                             if (itemToShow.contains(item)) {
                                 isEmpty = false;
-                                visibleStatus.add("true");
+                                visibleStatus.add("1");
                             } else {
                                 visibleStatus.add(null);
                             }
@@ -363,10 +363,11 @@ public class TaoUtil {
                     boolean isEmpty = true;
                     if (selectedItems != null) {
                         for (String item : imageKeys) {
-                            item = strip(item);
-                            if (selectedItems.contains("," + item + ",")) {
+                            item = "," + strip(item) + ",";
+                            int number = countStr(item, selectedItems);
+                            if (number > 0) {
                                 isEmpty = false;
-                                visibleStatus.add("true");
+                                visibleStatus.add(String.valueOf(number));
                             } else {
                                 visibleStatus.add(null);
                             }

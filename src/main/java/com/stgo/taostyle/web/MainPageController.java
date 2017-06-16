@@ -1768,12 +1768,11 @@ public class MainPageController extends BaseController {
                 change = change.substring(4);
                 times = Integer.valueOf(change);
             } else {
-                int diff = Integer.valueOf(change) - currentItemNumber;
-                isAdd = diff > 0;
-                times = Math.abs(diff);
+                isAdd = !selectedItems.contains("," + newItemStr);
+                times = 1;
             }
         } catch (Exception e) {
-            // do nothing.(isAdd == true, and times = 0
+            TaoDebug.warn("non-number parameter 'change':{}", change);
         }
         if (isAdd) {
             for (int i = 0; i < times; i++) {
