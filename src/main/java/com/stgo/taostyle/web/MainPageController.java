@@ -1890,7 +1890,7 @@ public class MainPageController extends BaseController {
                 // visibleStatusList
                 List<String> visibleStatus = new ArrayList<String>();
                 for (String item : keys) {
-                    visibleStatus.add("true");
+                    visibleStatus.add("1");
                 }
                 visibleStatusList.add(visibleStatus);
 
