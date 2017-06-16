@@ -668,10 +668,11 @@ public class TaoUtil {
                 List<String> visibleStatusList = new ArrayList<String>();
                 boolean isEmpty = true;
                 for (int i = 1; i <= serviceAmount; i++) {
-                    String item = menuIdx + "_" + i;
-                    if (selectedItems.contains("," + item + ",")) {
+                    String item = "," + menuIdx + "_" + i + ",";
+                    int number = countStr(item, selectedItems);
+                    if (number > 0) {
                         isEmpty = false;
-                        visibleStatusList.add("true");
+                        visibleStatusList.add(String.valueOf(number));
                     } else {
                         visibleStatusList.add(null);
                     }
@@ -683,6 +684,19 @@ public class TaoUtil {
         model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message1));
         TaoDebug.info("completed initServiceSubPage, menukey is {}, serviceAmount is {}", key, serviceAmount);
         return menuIdx;
+    }
+
+    private static int countStr(
+            String item,
+            String selectedItems) {
+        int i = 0;
+        int p = selectedItems.indexOf(item);
+        while (p > -1) {
+            i++;
+            selectedItems = selectedItems.substring(p + item.length() - 1);
+            p = selectedItems.indexOf(item);
+        }
+        return i;
     }
 
     // to decide which part in name and description should be displayed according to the given language.

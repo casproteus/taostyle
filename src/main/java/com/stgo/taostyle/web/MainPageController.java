@@ -1732,45 +1732,76 @@ public class MainPageController extends BaseController {
             String imageKey,
             HttpServletRequest request) {
         Person person = TaoUtil.getCurPerson(request);
-        String newItemStr = "," + imageKey + ",";
         String selectedItems = (String) request.getSession().getAttribute(CC.selectedItems);
-
-        Service service = Service.findServiceByCatalogAndPerson(imageKey, person);
-        float total = Float.valueOf(service.getDescription());
+        String change = request.getParameter("change");
         if (selectedItems == null) {
-            selectedItems = newItemStr;
-            try {
-                request.getSession().setAttribute(CC.itemNumber, 1);
-                request.getSession().setAttribute(CC.totalPrice, (float) (Math.round(total * 100)) / 100);
-            } catch (Exception e) {
-                TaoDebug.info(request, "service dosen't have price yet!", imageKey);
-            }
-        } else {
-            float currentPrice = (Float) request.getSession().getAttribute(CC.totalPrice);
-            int p = selectedItems.indexOf(newItemStr);
-            if (p < 0) {
-                try {
-                    request.getSession().setAttribute(CC.itemNumber,
-                            (Integer) request.getSession().getAttribute(CC.itemNumber) + 1);
-                    request.getSession().setAttribute(CC.totalPrice,
-                            (float) (Math.round((currentPrice + total) * 100)) / 100);
-                } catch (Exception e) {
-                    TaoDebug.info(request, "service dosen't have price yet!", imageKey);
-                }
-                selectedItems = selectedItems + imageKey + ",";
-
+            if (change.startsWith("down")) {
+                TaoDebug.error(
+                        "selection status error, selectedItems is null, while stile got a change started with '-'!",
+                        request);
+                return null;
             } else {
-                try {
-                    request.getSession().setAttribute(CC.itemNumber,
-                            (Integer) request.getSession().getAttribute(CC.itemNumber) - 1);
-                    request.getSession().setAttribute(CC.totalPrice,
-                            (float) (Math.round((currentPrice - total) * 100)) / 100);
-                } catch (Exception e) {
-                    TaoDebug.info(request, "service dosen't have price yet!", imageKey);
-                }
-                selectedItems = selectedItems.substring(0, p) + selectedItems.substring(p + imageKey.length() + 1);
+                selectedItems = ",";
             }
         }
+
+        Float currentPrice = (Float) request.getSession().getAttribute(CC.totalPrice);
+        currentPrice = currentPrice == null ? new Float(0) : currentPrice;
+
+        Integer currentItemNumber = (Integer) request.getSession().getAttribute(CC.itemNumber);
+        currentItemNumber = currentItemNumber == null ? new Integer(0) : currentItemNumber;
+        String newItemStr = imageKey + ",";
+
+        Service service = Service.findServiceByCatalogAndPerson(imageKey, person);
+        float price = (float) (Math.round(Float.valueOf(service.getDescription()) * 100) / 100);
+
+        // prepare the times and isAdd flag.
+        int times = 0;
+        boolean isAdd = true;
+        try {
+            if (change.startsWith("up")) {
+                isAdd = true;
+                change = change.substring(2);
+                times = Integer.valueOf(change);
+            } else if (change.startsWith("down")) {
+                isAdd = false;
+                change = change.substring(4);
+                times = Integer.valueOf(change);
+            } else {
+                int diff = Integer.valueOf(change) - currentItemNumber;
+                isAdd = diff > 0;
+                times = Math.abs(diff);
+            }
+        } catch (Exception e) {
+            // do nothing.(isAdd == true, and times = 0
+        }
+        if (isAdd) {
+            for (int i = 0; i < times; i++) {
+                selectedItems = selectedItems + newItemStr;
+                currentPrice += price;
+                currentItemNumber++;
+            }
+        } else {
+            for (int i = 0; i < times; i++) {
+                int p = selectedItems.indexOf(newItemStr);
+                if (p > -1) {
+                    selectedItems = selectedItems.substring(0, p) + selectedItems.substring(p + imageKey.length() + 1);
+                    currentPrice -= price;
+                    currentItemNumber--;
+                } else {
+                    TaoDebug.error("selection status error, selectedItems do not have enough elements to be removed!",
+                            request);
+                }
+            }
+        }
+
+        try {
+            request.getSession().setAttribute(CC.itemNumber, currentItemNumber);
+            request.getSession().setAttribute(CC.totalPrice, (float) (Math.round(currentPrice * 100)) / 100);
+        } catch (Exception e) {
+            TaoDebug.info(request, "service dosen't have price yet!", imageKey);
+        }
+
         request.getSession().setAttribute(CC.selectedItems, selectedItems);
 
         return new ResponseEntity<String>(HttpStatus.OK);

@@ -20,33 +20,34 @@
 		<div id="bellArea">
 		  <div id="noticeArea" align="right" style="position: fixed; padding-right:${width_bell_img}px; border-radius:0px; z-index: 3000;
 		   bottom: 0px; right: 0px; color:#${foreground_leftbar}; background:#${background_leftbar}; opacity:${leftbar_opacity};">
-			<c:if test="${'true' == show_status_total}">
-				<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none; font-size: 12px"/>Items
-				|Total: $<input id="totalPrice" value="${totalPrice}" style="width: 40px; border-style:none; background:none; font-size: 12px" />
+				<c:set var="visibility" value="${'true' == show_status_total ? 'visible' : 'hidden'}" />
+				<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none; font-size: 12px; visibility:${visibility}"/>
+				<span style="visibility:${visibility}">Items | Total:$</span>
+				<input id="totalPrice"  value="${totalPrice}" style="width: 40px; border-style:none; background:none; font-size: 12px; visibility:${visibility}" />
 				<c:if test="${'true' == show_status_break}" >
 					<br/>
 				</c:if>
-			</c:if>
-			${show_status_message}
-	  		<c:if test="${'true' == show_status_submit}">
-			 	<div style="position: fixed; z-index: 3000; bottom: 0px; right: 5px; cursor:pointer">
-					<a style="font-weight: bold" onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')">
-						<img alt="hide unchecked items" src="getImage/Submit" title="Submit."/>
-					</a>
-					<util:changeImg position="Submit" />
-			  	</div>
-			</c:if>
-		  </div>
 
-		  <c:if test="${not empty show_status_bell}">
-			  <div style="position: fixed; z-index: 3000; bottom: 0px; right: 5px; cursor:pointer">
+				${show_status_message}
+		  		<c:if test="${'true' == show_status_submit}">
+				 	<div style="position: fixed; z-index: 3000; bottom: 0px; right: 5px; cursor:pointer">
+						<a style="font-weight: bold" onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')">
+							<img alt="hide unchecked items" src="getImage/Submit" title="Submit."/>
+						</a>
+						<util:changeImg position="Submit" />
+				  	</div>
+				</c:if>
+			</div>
+
+		  	<c:if test="${not empty show_status_bell}">
+			  	<div style="position: fixed; z-index: 3000; bottom: 0px; right: 5px; cursor:pointer">
 			  		<spring:url value="/showSelection" var="showSelection" /> 
 					<a href="${showSelection}"> 							
 						<img alt="hide unchecked items" src="getImage/bell" title="Show selections and submit."/>
 					</a>
 					<util:changeImg position="bell" />
-			  </div>
-		  </c:if>
+			  	</div>
+		  	</c:if>
 	  	</div>
 	  	
 	  	<input id="user_role" type="hidden" value="${user_role}" /> 

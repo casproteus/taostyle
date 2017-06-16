@@ -105,7 +105,7 @@
 											<spring:url value="${path}" var="create_form_url">
 												<spring:param name="form" />
 											</spring:url>
-											<spring:url value="/resources/images/create.png"
+											<spring:url value="/resources/images/add.png"
 												var="create_img_url" />
 											<spring:message arguments="${typeName}" code="entity_create"
 												var="create_label" htmlEscape="false" />

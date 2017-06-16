@@ -39,10 +39,11 @@
 		
 		<div class="row" style="margin-left:${service_margin_left}px; margin-right: ${service_margin_right}px; margin-top: ${show_4_Object}px; margin-bottom: ${show_4_Object}px">
 			<c:forEach var="i" begin="1" end="${serviceAmount}" step="1">
-				<div class="col-xs-${service_number_xs} col-sm-${service_number_sm} col-md-${service_number_md} col-lg-${service_number_lg}" style="text-align: center;">
+				<div class="col-xs-${service_number_xs} col-sm-${service_number_sm} col-md-${service_number_md} col-lg-${service_number_lg}" 
+				style="text-align: center;">
 					
 			  		<c:set var="opacity" value="1"/>
-			        <c:if test="${not empty visibleStatusList and visibleStatusList[i-1] ne 'true' }" >
+			        <c:if test="${not empty visibleStatusList and visibleStatusList[i-1] eq '' }" >
 			  			<c:set var="opacity" value="0.1"/>
 			        </c:if>
 			        
@@ -60,18 +61,32 @@
 			        
 			        <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 				    	<c:choose>
-							<c:when test="${not empty visibleStatusList and not empty visibleStatusList[i-1]}">
-								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-								 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','true')" />
+							<c:when test="${not empty visibleStatusList and visibleStatusList[i-1] == '1'}">
+								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px;"
+								 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','check')" />
 					       	</c:when>
 					        <c:otherwise>
-								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px"
-								 onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','true')" />
+					        	<c:set var="visibility" value="${empty visibleStatusList[i-1] ? 'visible' : 'hidden'}" />
+								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility}; "
+								 onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','check')" />
 					        </c:otherwise>
 				  		</c:choose>
+				  		
+				  		<c:if test="${support_times}">
+				  			<span style="width: 25px; border-style:none; font-size: 24px;">
+					  			<c:set var="aboveTwo" value="${not empty visibleStatusList and not empty visibleStatusList[i-1] and visibleStatusList[i-1] != '1'}" />
+					  			
+								<a id="decreaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','down1')" style="visibility:${aboveTwo?'visible':'hidden'};"> - </a>
+					     		
+					     		<input id="txt-${menuIdx}_${i}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[i-1]}" 
+								style="text-align:center; width:20px; border-style:none; background:none; font-size: 16px; visibility:${aboveTwo?'visible':'hidden'}"/>
+							 	
+							 	<a id="increaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','up1')" style="visibility:${not empty visibleStatusList[i-1]? 'visible':'hidden'}"> + </a>
+						 	</span>
+				    	</c:if>
 				    </c:if>
 				</div>
-			</c:forEach>	
+			</c:forEach>
 			<util:adjustImages position="service_${menuIdx}" allowedLevel="[ROLE_MANAGER]"/>
 		</div>
 	</div>
@@ -80,38 +95,61 @@
 	
     <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 	<script type="text/javascript">
-		function updateStatus(imageKey,user_role,isIncrease) {
-			//ligtht up it if it's a check action (before is unchecked), unlight it if it's uncheck.
-			var curObj = document.getElementById("check-" + imageKey);
-			if(curObj != null){
-	            var opacity = curObj.checked ? 1: 0.1;
-	            
-	            var obj = document.getElementById("img-" + imageKey);
-	            obj.style.cssText = "opacity: " + opacity;
-
-	            obj = document.getElementById("des-" + imageKey);
-	            obj.style.cssText = "opacity: " + opacity; 
-	            
-	            if(document.getElementById("selectedItem")){
-	            	var currentItem = Number(selectedItem.value);
-	            	selectedItem.value = curObj.checked ? currentItem + 1 : currentItem - 1;
-	            }
-	            if(document.getElementById("totalPrice")){
-		            var curentPrice = Number(totalPrice.value);
-		            var text = obj.innerText;
-		            var i = text.indexOf('$');
-		            text = text.substring(i+1);
-		            var selectedPrice = Number(text);
-		            totalPrice.value = curObj.checked ? (curentPrice + selectedPrice).toFixed(2) : (curentPrice - selectedPrice).toFixed(2);
-				}
+		function updateStatus(imageKey,user_role,change) {
+            //input field
+            var textField = document.getElementById("txt-" + imageKey);
+			var selected = Number(textField.value);
+            //current num and total
+           	var itemNum = Number(selectedItem.value);
+            var total = Number(totalPrice.value); 
+			//selected price
+            var description = document.getElementById("des-" + imageKey);
+            var text = description.innerText;
+            var i = text.indexOf('$');
+            text = text.substring(i+1);
+            var selectedPrice = Number(text);
+            //new num and total
+           	if(change.indexOf('down') == 0){
+           		selected = selected - Number(change.substring(4));
+           		textField.value = selected;
+           		selectedItem.value = itemNum - Number(change.substring(4));
+           		totalPrice.value = (total - selectedPrice).toFixed(2);
+           	}else if(change.indexOf('up') == 0){
+           		selected = selected + Number(change.substring(2));
+           		textField.value = selected;
+           		selectedItem.value = itemNum + Number(change.substring(2));
+           		totalPrice.value = (total + selectedPrice).toFixed(2);
+           	}else if(change == "check"){
+           		var curObj = document.getElementById("check-" + imageKey);
+       			selected = selected + (curObj.checked ? 1 : -1);
+           		textField.value = selected;
+           		selectedItem.value = itemNum +(curObj.checked ? 1 : -1);
+               	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);
+           	}
+            
+          	//description
+            description.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1; 
+            //image
+            var image = document.getElementById("img-" + imageKey);
+            image.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1;
+            
+          	//check box
+			var checkBox = document.getElementById("check-" + imageKey);
+			checkBox.style.visibility = selected > 1 ? 'hidden' : 'visible';
+			//increaser,decreaser
+            var textField = document.getElementById("txt-" + imageKey);
+			if(textField){
+           		textField.style.visibility = selected > 1 ? 'visible' : 'hidden'; 
+           		document.getElementById("decreaser-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
+           		document.getElementById("increaser-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
 			}
-			
 			//save a copy into the session. the selectedItems in session is not only helped to displaying page with an "already selected" status, 
 			//but also used to calculate toltal price. when user swith between other web site in sharethegoodones.com, the selectedItem be clean up.
 			$.ajax({
 		    	headers: "Accept=application/json",
 		        type: "POST",
 		        url: "updateSelection/"+imageKey,
+		        data:"change=" + change,
 		        async:true,
 		        success:function(textContent){
 		        	//do nothing.

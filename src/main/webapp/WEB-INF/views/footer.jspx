@@ -131,13 +131,11 @@
 				
 				<!-- for logout icon -->
 				<c:out value=" | " /> 
-				<span> 
-					<spring:url value="/resources/j_spring_security_logout" var="logout" /> 
-					<a href="${logout}"> 
-						<spring:url value="/resources/images/logout.png" var="logout_img_url" /> 
-						<img alt="Logout" src="${logout_img_url}" title="Click here to logout." />
-					</a>
-				</span>
+				<spring:url value="/resources/j_spring_security_logout" var="logout" /> 
+				<a href="${logout}"> 
+					<spring:url value="/resources/images/logout.png" var="logout_img_url" /> 
+					<img alt="Logout" src="${logout_img_url}" title="Click here to logout." />
+				</a>
 			</span>
 		</c:if>
 		
