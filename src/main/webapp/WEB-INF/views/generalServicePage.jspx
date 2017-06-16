@@ -71,9 +71,8 @@
 								 onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','check')" />
 					        </c:otherwise>
 				  		</c:choose>
-				  		
 				  		<c:if test="${support_times}">
-				  			<span style="width: 25px; border-style:none; font-size: 24px;">
+					  		<span style="border-style:none; font-size: 24px;">
 					  			<c:set var="aboveTwo" value="${not empty visibleStatusList and not empty visibleStatusList[i-1] and visibleStatusList[i-1] != '1'}" />
 					  			
 								<a id="decreaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}','${user_role}','down1')" style="visibility:${aboveTwo?'visible':'hidden'};"> - </a>
