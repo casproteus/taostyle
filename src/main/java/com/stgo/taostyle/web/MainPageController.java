@@ -2443,7 +2443,6 @@ public class MainPageController extends BaseController {
 
         makesureSessionInitialized(request);// if first time visit, session is till empty, then initialise it.
 
-        HttpSession session = request.getSession();
         Object langPrf = TaoUtil.getLangPrfWithDefault(request);
         Person person = TaoUtil.getCurPerson(request);
         TextContent textContent = TextContent.findContentsByKeyAndPerson(langPrf + keyStr, person);
@@ -2451,6 +2450,9 @@ public class MainPageController extends BaseController {
             textContent = new TextContent();
             textContent.setPosInPage(langPrf + keyStr);
         }
+
+        textContent.setRecordStatus(1); // This property could be used to present the current selected items, while the
+                                        // try failed, because the updateStatus method not unified.
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         return new ResponseEntity<String>(textContent.toJson(), headers, HttpStatus.OK);

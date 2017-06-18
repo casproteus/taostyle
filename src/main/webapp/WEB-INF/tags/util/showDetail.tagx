@@ -1,0 +1,140 @@
+<jsp:root xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:spring="http://www.springframework.org/tags"
+	xmlns:jsp="http://java.sun.com/JSP/Page" version="2.0">
+	
+	<jsp:output omit-xml-declaration="yes" />
+	
+	<jsp:directive.attribute name="allowedLevel" type="java.lang.String"
+		required="false" rtexprvalue="true"
+		description="Indicate the level of user who could change the image and text on detail panel." />
+		
+	<a id="luanchDetailDlg" class="hide" href="#windowTitleDialog" data-toggle="modal" />
+
+	<div id="windowTitleDialog" class="gallery modal hide fade in col-xs-12 col-sm-10 col-md-8 col-lg-6"
+		aria-hidden="true" aria-labelledby="windowTitleLabel" role="dialog" tabindex="-1"
+		style="background:#${background_pop}; opacity:${pop_opacity};">
+		
+		<div class="modal-header">
+			<a class="close" data-dismiss="modal" href="#">
+				<spring:url value="/resources/images/close.png" var="close_img_url" />
+				<img alt="X" src="${close_img_url}" />
+			</a>
+		</div>
+		<img id="div_service_img" width="100%" />
+		<c:if test="${user_role == '[ROLE_ADMIN]' or (not empty allowedLevel and user_role eq allowedLevel)}">
+			<div class="span1" style="z-index: 5000;">
+				<!--  position: absolute; top:0px -->
+				<spring:url value="/changeImgForm" var="form_url" />
+				<form action="${fn:escapeXml(form_url)}" method="POST">
+					<input id="serviceDetailImage" type="hidden" name="position" value="" />
+					<button type="submit">
+						<spring:url value="/resources/images/changeImg.png" var="content_img_url" />
+						<img src="${content_img_url}" title="click me to modify the Image of this area." />
+					</button>
+				</form>
+			</div>
+		</c:if>
+		
+					
+		<div id="div_service_text" class="modal-body"
+			style="max-height: 600px; color: #ffffff">
+			<!-- firefox -->
+		</div>
+		<!-- display the edit button, this button must not reuse the tags, because we need to use it's uniq id to set value into it when service clicked. -->
+		<c:if test="${user_role == '[ROLE_ADMIN]' or (not empty allowedLevel and user_role eq allowedLevel)}">
+			<div class="span1">
+				<spring:url value="/changeContentForm" var="form_url" />
+				<form action="${fn:escapeXml(form_url)}" method="GET">
+					<!-- have to use GET, because the controller is using get, that's because the edit.tagx is using a instead of form. -->
+					<input id="serviceDetailTxt" type="hidden" name="position" value="" />
+					<!-- the value of this element can be too large when the content contains image, so remove it. <input id="servicedetailContent" type="hidden" name="content" value=""/> -->
+					<!--because complex content may cause the display error. ${fn:length(content) > 1000 ? '' : content} -->
+
+					<button type="submit" style="width: 10px, height:  10px">
+						<spring:url value="/resources/images/changeText.png" var="content_txt_url" />
+						<img src="${content_txt_url}" title="click me to modify the text of this area." />
+					</button>
+				</form>
+			</div>
+		</c:if>
+		<!-- can not open it now, because the updateStatus function are different in feature page and service page.
+		<c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
+			<input id="check" type="checkbox" name="check" style="width:80px; height:20px; visibility:visibility;"
+			checked="checked"  onclick="javascript:updateStatus('imageKey','${user_role}','check')" />
+		       	
+	  		<c:if test="${support_times}">
+		  		<span style="border-style:none; font-size: 24px;">
+					<a id="decreaser" onclick="javascript:updateStatus('imageKey','${user_role}','down1')" style="visibility:hidden};"> - </a>
+		     		
+		     		<input id="windowTitleDialog_txt" type="text" name="txt" value="" readonly="readonly" 
+					style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px; visibility:visible}"/>
+				 	
+				 	<a id="increaser" onclick="javascript:updateStatus('imageKey','${user_role}','up1')" style="visibility:'visible'"> + </a>
+			 	</span>
+	    	</c:if>
+	    </c:if>
+	      -->
+	</div>
+		
+	<script type="text/javascript">
+	  function showDetail(value) {
+		
+	    $.ajax({
+	    	headers: "Accept=application/json",
+	        type: "GET",
+	        url: "textcontentJSon/"+value,
+	        //data: "serviceid=" + value,
+	        async:false,
+	        success:function(textContent){
+	        	document.getElementById("div_service_img").src="getImage/" + textContent.posInPage.substr(3);
+	        	if(document.getElementById("serviceDetailImage") != null){
+	        		document.getElementById("serviceDetailImage").value=textContent.posInPage.substr(3);
+	        	}
+	        	
+	        	document.getElementById("div_service_text").innerHTML=textContent.content;
+	        	if(document.getElementById("serviceDetailTxt") != null)
+	        		document.getElementById("serviceDetailTxt").value=textContent.posInPage;
+
+	        	/**can not open it now, because the updateStatus function are different in feature page and service page.
+	        	//controllers
+        		var check = document.getElementById("check");
+        		var text = document.getElementById("windowTitleDialog_txt");
+        		var decreaser = document.getElementById("decreaser");
+        		var increaser = document.getElementById("increaser");
+        		var style_decreaser = decreaser.style;
+        		var style_text = text.style;
+        		var style_increaser = increaser.style;
+        		var onclick_check = check.onclick;
+        		var onclick_decreaser = decreaser.onclick;
+        		var onclick_increaser = increaser.onclick;
+        		
+        		text.value = textContent.recordStatus;
+	        	if(textContent.recordStatus == 0){
+		        	check.checked=false;
+		        	style_decreaser.visibility="hidden";
+		        	style_text.visibility="hidden";
+		        	style_increaser.visibility="hidden";
+		        	
+	        	}else if(textContent.recordStatus == 1){
+		        	check.checked=true;
+		        	style_decreaser.visibility="hidden";
+		        	style_text.visibility="hidden";
+		        	style_increaser.visibility="visible";
+		        	check.onclick = updateStatus(textContent.posInPage.substr(3),0,'[ROLE_CLIENT]','check', check);
+		        		
+	        	}else{
+	        		check.checked=true;
+		        	style_decreaser.visibility="visible";
+		        	style_text.visibility="visible";
+		        	style_increaser.visibility="visible";
+		        	
+	        	}**/
+  			
+	    		$("#luanchDetailDlg").click();
+	        }
+	    });
+	  }
+	</script>
+</jsp:root>
+

@@ -99,11 +99,11 @@
 						  			
 									<a id="decreaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','down1')" style="visibility:${aboveTwo?'visible':'hidden'};"> - </a>
 						     		
-						     		<input id="txt-${featureIdx}-${imageIdx}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[j][i]}" 
-									style="text-align:center; width:20px; border-style:none; background:none; font-size: 16px; visibility:${aboveTwo?'visible':'hidden'}"/>
+						     		<input id="txt-${featureIdx}-${imageIdx}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[j][i]} " readonly="readonly" 
+									style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px; visibility:${aboveTwo?'visible':'hidden'}"/>
 								 	
 								 	<a id="increaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','up1')"
-								 	 style="visibility:${user_role != '[ROLE_ADMIN]'  and user_role != '[ROLE_MANAGER]' and user_role != '[ROLE_PRINTER]' and not empty visibleStatusList[j][i]? 'visible':'hidden'}"> + </a>
+								 	 style="visibility:${user_role != '[ROLE_ADMIN]'  and user_role != '[ROLE_MANAGER]' and user_role != '[ROLE_PRINTER]' and not empty visibleStatusList[j][i]? 'visible':'hidden'}">  +   </a>
 							 	</span>
 					    	</c:if>
 					    </c:if>
@@ -117,35 +117,11 @@
 	<util:addRemoveFeatureGroup allowedLevel="[ROLE_MANAGER]" />
 	<util:checkOut />
 	
-	<script type="text/javascript">
-	function showDetail(value) {
-	    $.ajax({
-	    	headers: "Accept=application/json",
-	        type: "GET",
-	        url: "textcontentJSon/"+value,
-	        //data: "serviceid=" + value,
-	        async:false,
-	        success:function(textContent){
-	        	document.getElementById("div_service_img").src="getImage/" + textContent.posInPage.substr(3);
-	        	if(document.getElementById("serviceDetailImage") != null){// not exist before logged in.
-	        		document.getElementById("serviceDetailImage").value=textContent.posInPage.substr(3);
-	        	}
-	        	
-	        	document.getElementById("div_service_text").innerHTML=textContent.content;
-	        	if(document.getElementById("serviceDetailTxt") != null)// not exist before logged in.
-	        		document.getElementById("serviceDetailTxt").value=textContent.posInPage;
-	
-	    		$("#luanchDetailDlg").click();
-	        }
-	    });
-	}
-	</script>
-
 	<!-- Check Box (manager and above always show, they use it to select product for feature.) -->
     <c:if test="${not empty show_service_cBox or isAboveManager eq 'true'}">
 	<script type="text/javascript">
       	//the featureIdx could be feature.id or the index of the feature.
-		function updateStatus(imageKey,featureIdx,user_role,change) {
+		function updateStatus(imageKey,featureIdx,user_role,change, curObj) {
 			if('[ROLE_ADMIN]' == user_role || user_role == '[ROLE_MANAGER]'){
 				//if logged in as Manager or admin, then ajax to back end.
 			    $.ajax({
@@ -186,7 +162,7 @@
 			    });
 			}else{
 				//selected bheckbox
-           		var curObj = document.getElementById("check-" + featureIdx + "-" + imageKey);
+           		curObj = curObj == null ? document.getElementById("check-" + featureIdx + "-" + imageKey) : curObj;
 	            //input field
 	            var textField = document.getElementById("txt-" + featureIdx + "-" + imageKey);
 				var selected = textField ? Number(textField.value) : (curObj.checked ? 1 : 0);
@@ -269,59 +245,6 @@
       </script>
   	</c:if>
   	
-	<a id="luanchDetailDlg" class="hide" href="#windowTitleDialog" data-toggle="modal" />
+	<util:showDetail allowedLevel="[ROLE_MANAGER]"/>
 
-	<div id="windowTitleDialog" class="gallery modal hide fade in col-xs-12 col-sm-10 col-md-8 col-lg-6"
-		aria-hidden="true" aria-labelledby="windowTitleLabel" role="dialog" tabindex="-1"
-		style="background:#${background_pop}; opacity:${pop_opacity};">
-		<div class="modal-header">
-			<a class="close" data-dismiss="modal" href="#">
-				<spring:url value="/resources/images/close.png" var="close_img_url" />
-				<img alt="X" src="${close_img_url}" />
-			</a>
-		</div>
-		
-		<img id="div_service_img" width="100%" />
-		<c:if test="${user_role == '[ROLE_ADMIN]' or (not empty allowedLevel and user_role eq allowedLevel)}">
-			<div class="span1" style="z-index: 1000;">
-				<!--  position: absolute; top:0px -->
-				<spring:url value="/changeImgForm" var="form_url" />
-				<form action="${fn:escapeXml(form_url)}" method="POST">
-					<input id="serviceDetailImage" type="hidden" name="position" value="${position}" />
-					<button type="submit">
-						<spring:url value="/resources/images/changeImg.png"
-							var="content_img_url" />
-						<img src="${content_img_url}"
-							title="click me to modify the Image of this area." />
-					</button>
-				</form>
-			</div>
-		</c:if>
-		
-					
-		<div id="div_service_text" class="modal-body"
-			style="max-height: 600px; color: #ffffff">
-			<!-- firefox -->
-		</div>
-
-		<!-- display the edit button, this button must not reuse the tags, because we need to use it's uniq id to set value into it when service clicked. -->
-		<c:if test="${isAboveEmployee}">
-			<div class="span1">
-				<spring:url value="/changeContentForm" var="form_url" />
-				<form action="${fn:escapeXml(form_url)}" method="GET">
-					<!-- have to use GET, because the controller is using get, that's because the edit.tagx is using a instead of form. -->
-					<input id="serviceDetailTxt" type="hidden" name="position" value="${position}" />
-					<!-- the value of this element can be too large when the content contains image, so remove it. <input id="servicedetailContent" type="hidden" name="content" value=""/> -->
-					<!--because complex content may cause the display error. ${fn:length(content) > 1000 ? '' : content} -->
-
-					<button type="submit" style="width: 10px, height:  10px">
-						<spring:url value="/resources/images/changeText.png"
-							var="content_txt_url" />
-						<img src="${content_txt_url}"
-							title="click me to modify the text of this area." />
-					</button>
-				</form>
-			</div>
-		</c:if>
-	</div>
 </div>

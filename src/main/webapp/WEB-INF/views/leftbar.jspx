@@ -17,7 +17,7 @@
 		<c:if test="${'true' == show_big_hander}">
 			<c:set var="hander_padding" value="${fn:length(subMenu) *(11 + leftbar_item_padding)}" />
 		</c:if>
-		<div class="leftbar" id="barDiv" style="left:10px; background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:2000;">
+		<div class="leftbar" id="barDiv" style="left:10px; background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:1000;">
 			<div class="accordion" id="accordionLeftBar"  >
 			  <c:forEach var="i" begin="0" end="${fn:length(subMenu)}" step="1">
 				<c:if test="${subMenu[i][0] != null and subMenu[i][0] != '' or user_role == '[ROLE_ADMIN]'}">
@@ -125,7 +125,7 @@
 			
 			function switchHanderToBarDiv(){
 				document.getElementById("hander").style.visibility='hidden';
-				setTimeout("showBarDiv()", 500);
+				setTimeout("showBarDiv()", 200);
 			}
 			
 			function showBarDiv(){
