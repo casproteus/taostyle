@@ -1848,6 +1848,8 @@ public class MainPageController extends BaseController {
         HttpSession session = request.getSession();
         String selectedItems = (String) session.getAttribute(CC.selectedItems);
         String[] imageKeyStrs = StringUtils.split(selectedItems, ',');
+        String noteOfTheItems = (String) session.getAttribute(CC.noteOfTheItems);
+        String[] notes = StringUtils.split(noteOfTheItems, ',');
         if (imageKeyStrs == null) {
             return "/generalFeaturePage";
         }
@@ -1858,8 +1860,12 @@ public class MainPageController extends BaseController {
         List<List<String>> visibleStatusList = new ArrayList<List<String>>();
         List<String> groupTitles = new ArrayList<String>();
 
-        HashMap map = new HashMap();
-        for (String imageKeyStr : imageKeyStrs) {
+        HashMap map_key = new HashMap();
+        HashMap map_note = new HashMap();
+        for (int i = 0; i < imageKeyStrs.length; i++) {
+            String imageKeyStr = imageKeyStrs[i];
+            String note = notes == null || notes.length <= i ? " " : notes[i]; // "" will be ignored when split, so use
+                                                                               // " ".
             int p = imageKeyStr.lastIndexOf('_');
             String menuIdx = imageKeyStr.substring(0, p);
             if (menuIdx.endsWith("_0")) {
@@ -1868,18 +1874,29 @@ public class MainPageController extends BaseController {
                     menuIdx = menuIdx.substring(0, menuIdx.length() - 2);
                 }
             }
-            List<String> list = (List<String>) map.get(menuIdx);
+            // key
+            List<String> list = (List<String>) map_key.get(menuIdx);
             if (list == null) {
                 list = new ArrayList<String>();
-                map.put(menuIdx, list);
+                map_key.put(menuIdx, list);
             }
             list.add("service_" + imageKeyStr);
+            // note
+            list = (List<String>) map_note.get(menuIdx);
+            if (list == null) {
+                list = new ArrayList<String>();
+                map_note.put(menuIdx, list);
+            }
+            list.add(note);
         }
         // to make it in order.
         List<String> menusForRef = TaoUtil.fetchAllMenuByType(CC.SERVICE, request, langPrf, person);
         long i = 0;
+        StringBuilder sb_key = new StringBuilder(",");
+        StringBuilder sb_note = new StringBuilder("");// no need to start with ",", because not used to check if
+                                                      // contains some thing.
         for (String menuSring : menusForRef) {
-            List<String> keys = (List<String>) map.get(menuSring);
+            List<String> keys = (List<String>) map_key.get(menuSring);
             if (keys != null) {
                 // imageKeyLists
                 imageKeyLists.add(keys);
@@ -1904,8 +1921,21 @@ public class MainPageController extends BaseController {
                 // groupTitles
                 TextContent textContent = TextContent.findContentsByKeyAndPerson(menuPRF + menuSring, person);
                 groupTitles.add(textContent.getContent());
+
+                // reorder the selecctionItems
+                for (String key : keys) {
+                    sb_key.append(key);
+                    sb_key.append(',');
+                }
+                // reorder the notes
+                for (String note : (List<String>) map_note.get(menuSring)) {
+                    sb_note.append(note);
+                    sb_note.append(',');
+                }
             }
         }
+        session.setAttribute(CC.selectedItems, sb_key.toString());
+        session.setAttribute(CC.noteOfTheItems, sb_note.toString());
 
         model.addAttribute("features", features);
         model.addAttribute("imageKeys", imageKeyLists);
@@ -1918,6 +1948,8 @@ public class MainPageController extends BaseController {
         model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message2));
         model.addAttribute("show_status_total", "true");
         model.addAttribute("show_status_break", "true");
+        //
+        model.addAttribute("shoppingCartMode", "true");
 
         // left menu bar
         String pKey = (String) session.getAttribute(CC.default_feature_menu);
@@ -2453,6 +2485,40 @@ public class MainPageController extends BaseController {
 
         textContent.setRecordStatus(1); // This property could be used to present the current selected items, while the
                                         // try failed, because the updateStatus method not unified.
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+        return new ResponseEntity<String>(textContent.toJson(), headers, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/{client}/showNote/{keyStr}", headers = "Accept=application/json")
+    @ResponseBody
+    public ResponseEntity<String> showNote(
+            @PathVariable(CC.CLIENT)
+            String client,
+            @PathVariable("keyStr")
+            String keyStr,
+            HttpServletRequest request) {
+
+        if (hasNotLoggedIn(request)) {
+            dirtFlagCommonText = TaoUtil.switchClient(request, client);
+        }
+        return showNote(keyStr, request);
+    }
+
+    @RequestMapping(value = "showNote/{keyStr}", headers = "Accept=application/json")
+    @ResponseBody
+    public ResponseEntity<String> showNote(
+            @PathVariable("keyStr")
+            String keyStr,
+            HttpServletRequest request) {
+
+        makesureSessionInitialized(request);// if first time visit, session is till empty, then initialise it.
+
+        String noteOfTheItems = (String) request.getSession().getAttribute(CC.noteOfTheItems);
+        TextContent textContent = new TextContent();
+        textContent = new TextContent();
+        textContent.setContent(StringUtils.split(noteOfTheItems)[Integer.valueOf(keyStr)]);
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
         return new ResponseEntity<String>(textContent.toJson(), headers, HttpStatus.OK);

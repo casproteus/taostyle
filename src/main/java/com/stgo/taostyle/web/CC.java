@@ -28,6 +28,7 @@ public interface CC {
     String debugInfo = "debugInfo";
     String currentUser = "currentUser";
     String selectedItems = "selectedItems";
+    String noteOfTheItems = "noteOfTheItems";
     String itemNumber = "itemNumber";
     String totalPrice = "totalPrice";
     String latitude = "latitude";

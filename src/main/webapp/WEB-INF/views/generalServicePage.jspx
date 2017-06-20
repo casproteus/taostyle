@@ -83,6 +83,12 @@
 							 	<a id="increaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','up1')" style="visibility:${not empty visibleStatusList[i-1]? 'visible':'hidden'}"> + </a>
 						 	</span>
 				    	</c:if>
+				    	
+				  		<c:if test="${'true'==support_note}">
+					  		<spring:url value="/resources/images/note.png" var="note_img_url" /> 
+							<img id="note-${menuIdx}_${i}" alt="note" src="${note_img_url}" style="padding-bottom: 10px;  cursor:pointer; visibility:${not empty visibleStatusList and visibleStatusList[i-1] == '1'?'visible':'hidden'}"  
+							onclick="javascript:showNote('${menuIdx}_${i}',-1)"/>
+				    	</c:if>
 				    </c:if>
 				</div>
 			</c:forEach>
@@ -93,6 +99,7 @@
 	<util:checkOut />
 	
 	<util:showDetail allowedLevel="[ROLE_MANAGER]"/>
+	<util:showNote allowedLevel="[ROLE_MANAGER]"/>
 	
     <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 	<script type="text/javascript">
@@ -144,6 +151,11 @@
            		textField.style.visibility = selected > 1 ? 'visible' : 'hidden'; 
            		document.getElementById("decreaser-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
            		document.getElementById("increaser-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
+			}
+			//note
+			var note = document.getElementById("note-" + imageKey);
+			if(note){
+				note.style.visibility = selected == 1 ? 'visible' : 'hidden'; 
 			}
 			//save a copy into the session. the selectedItems in session is not only helped to displaying page with an "already selected" status, 
 			//but also used to calculate toltal price. when user swith between other web site in sharethegoodones.com, the selectedItem be clean up.

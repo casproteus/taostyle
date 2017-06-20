@@ -106,6 +106,12 @@
 								 	 style="visibility:${user_role != '[ROLE_ADMIN]'  and user_role != '[ROLE_MANAGER]' and user_role != '[ROLE_PRINTER]' and not empty visibleStatusList[j][i]? 'visible':'hidden'}">  +   </a>
 							 	</span>
 					    	</c:if>
+					    	
+					  		<c:if test="${'true'==support_note}">
+						  		<spring:url value="/resources/images/note.png" var="note_img_url" /> 
+								<img id="note-${featureIdx}-${imageIdx}" alt="note" src="${note_img_url}" style="padding-bottom: 10px;  cursor:pointer; visibility:${not empty visibleStatusList and visibleStatusList[j][i] == '1'?'visible':'hidden'}"  
+								onclick="javascript:showNote('${imageKeys[j][i]}','-1')"/>
+					    	</c:if>
 					    </c:if>
 					</div>
 				</c:forEach>
@@ -209,6 +215,10 @@
 	           		document.getElementById("decreaser-" + featureIdx + "-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
 	           		document.getElementById("increaser-" + featureIdx + "-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
 				}
+				var note = document.getElementById("note-" + featureIdx + "-" + imageKey);
+				if(note){
+					note.style.visibility = selected == 1 ? 'visible' : 'hidden'; 
+				}
 
 				/**dark all unselected of previous categery. @NOTE: beacause we need to save user selection in session, so the featureIdx is not number anymore, 
 				var curGridView = document.getElementById((featureIdx - 1) + "-gridview");
@@ -246,5 +256,6 @@
   	</c:if>
   	
 	<util:showDetail allowedLevel="[ROLE_MANAGER]"/>
+	<util:showNote allowedLevel="[ROLE_MANAGER]"/>
 
 </div>
