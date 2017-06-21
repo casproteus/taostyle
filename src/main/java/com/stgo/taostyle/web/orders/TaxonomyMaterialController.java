@@ -39,7 +39,8 @@ public class TaxonomyMaterialController {
             uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
                     : nrOfPages));
         } else {
-            uiModel.addAttribute("taxonomymaterials", TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(mainOrderId));
+            uiModel.addAttribute("taxonomymaterials",
+                    TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrderID(mainOrderId));
         }
         return "taxonomymaterials/list";
     }

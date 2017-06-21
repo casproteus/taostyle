@@ -1,5 +1,7 @@
 package com.stgo.taostyle.domain;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
@@ -54,6 +56,23 @@ public class Service implements MultiLanguageabl {
             // do nothing.
         }
         return service;
+    }
+
+    public static List<Service> findServiceByPerson(
+            Person person) {
+        EntityManager tEntityManager = entityManager();
+        TypedQuery<Service> tQuery =
+                tEntityManager.createQuery("SELECT o FROM Service AS o WHERE o.person = :person ORDER BY o.id DESC",
+                        Service.class);
+        tQuery = tQuery.setParameter("person", person);
+        Service service = null;
+        List<Service> services = null;
+        try {
+            services = tQuery.getResultList();
+        } catch (Exception e) {
+            // do nothing.
+        }
+        return services;
     }
 
     public String getLocalName() {

@@ -2309,7 +2309,7 @@ public class MainPageController extends BaseController {
         mainOrder.setPayCondition("$" + newPrice);
         // disappear itself
         List<TaxonomyMaterial> taxonomyMaterials =
-                TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(sourceMainOrder.getId());
+                TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(sourceMainOrder);
         for (TaxonomyMaterial taxonomyMaterial : taxonomyMaterials) {
             taxonomyMaterial.setMainOrder(mainOrder);
             taxonomyMaterial.persist();
@@ -2761,7 +2761,7 @@ public class MainPageController extends BaseController {
         createACustomize(request, "service_number_sm", "6", person);
         createACustomize(request, "service_number_xs", "12", person);
 
-        createACustomize(request, "show_Status_bell", "true", person);
+        createACustomize(request, "show_status_bell", "true", person);
         createACustomize(request, "show_service_cBox", "true", person);
         createACustomize(request, "need_calculate_price", "true", person);
         createACustomize(request, "app_ContentManager", "true", person);// when someone is promoted to be a manager,

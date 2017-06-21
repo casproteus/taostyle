@@ -59,24 +59,29 @@ public class TaxonomyMaterial {
     }
 
     public static List<TaxonomyMaterial> findAllTaxonomyMaterialsByMainOrder(
-            Long mainOrderId) {
-        MainOrder tMainOrder = MainOrder.findMainOrder(mainOrderId);
-        if (tMainOrder == null) {
+            MainOrder mainOrder) {
+        if (mainOrder == null) {
             return entityManager().createQuery("SELECT o FROM TaxonomyMaterial o", TaxonomyMaterial.class)
                     .getResultList();
         } else {
             EntityManager tEntityManager = entityManager();
-            TypedQuery<TaxonomyMaterial> tQuery =
+            TypedQuery<TaxonomyMaterial> query =
                     tEntityManager.createQuery("SELECT o FROM TaxonomyMaterial AS o WHERE o.mainOrder = :pKey",
                             TaxonomyMaterial.class);
-            tQuery = tQuery.setParameter("pKey", tMainOrder);
+            query = query.setParameter("pKey", mainOrder);
             List<TaxonomyMaterial> taxonomyMaterials = new ArrayList<TaxonomyMaterial>();
             try {
-                taxonomyMaterials = tQuery.getResultList();
+                taxonomyMaterials = query.getResultList();
             } catch (Exception e) {
             }
             return taxonomyMaterials;
         }
+    }
+
+    public static List<TaxonomyMaterial> findAllTaxonomyMaterialsByMainOrderID(
+            Long mainOrderId) {
+        MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
+        return findAllTaxonomyMaterialsByMainOrder(mainOrder);
     }
 
     public static List<TaxonomyMaterial> findTaxonomyMaterialEntriesByMainOrder(
