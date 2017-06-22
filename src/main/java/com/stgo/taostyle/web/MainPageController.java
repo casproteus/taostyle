@@ -1759,7 +1759,7 @@ public class MainPageController extends BaseController {
         String newItemStr = imageKey.startsWith("service_") ? imageKey.substring(8) + "," : imageKey + ",";
 
         Service service = Service.findServiceByCatalogAndPerson(imageKey, person);
-        float price = (float) (Math.round(Float.valueOf(service.getDescription()) * 100) / 100);
+        float price = (float) Math.round(Float.valueOf(service.getDescription()) * 100) / 100;
 
         // prepare the times and isAdd flag.
         int times = 0;
