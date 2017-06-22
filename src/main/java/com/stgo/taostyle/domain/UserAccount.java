@@ -121,7 +121,7 @@ public class UserAccount {
         TypedQuery<UserAccount> tQuery =
                 entityManager()
                         .createQuery(
-                                "SELECT o FROM UserAccount AS o WHERE UPPER(o.loginname) = UPPER(:username) and o.tel = :tel or o.cell = :cel",
+                                "SELECT o FROM UserAccount AS o WHERE UPPER(o.loginname) = UPPER(:username) and o.tel = :tel or o.cel = :cel",
                                 UserAccount.class);
         tQuery = tQuery.setParameter("username", userName);
         tQuery = tQuery.setParameter("tel", tell);

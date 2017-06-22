@@ -277,7 +277,7 @@ public class TaoUtil {
             Person person) {
 
         String menuIdx = completeMenuIdx(pMenuIdx, pSubMenuIdx, pSubSubMenuIdx, langPrf, person);
-        String key = "service_" + menuIdx;
+        String key = "product_" + menuIdx;
 
         TextContent tContent = TextContent.findContentsByKeyAndPerson(langPrf + key + "_content", person);
         model.addAttribute("subpageContent", tContent == null ? "" : tContent.getContent());

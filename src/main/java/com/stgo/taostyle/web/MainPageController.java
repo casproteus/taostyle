@@ -221,7 +221,13 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request) {
         List<MainOrder> mainOrders = MainOrder.findMainOrderByCON(request.getSession().getId());
-        model.addAttribute("mainOrderList", mainOrders);
+        if (mainOrders == null || mainOrders.size() == 0 || mainOrders.size() > 1) {
+            model.addAttribute("mainOrderList", mainOrders);
+        } else {
+            MainOrder mainOrder = mainOrders.get(0);
+            List<Material> materials = Material.findAllMaterialsByMainOrder(mainOrder);
+            model.addAttribute("materials", materials);
+        }
         return "signup";
     }
 
@@ -1750,7 +1756,7 @@ public class MainPageController extends BaseController {
 
         Integer currentItemNumber = (Integer) request.getSession().getAttribute(CC.itemNumber);
         currentItemNumber = currentItemNumber == null ? new Integer(0) : currentItemNumber;
-        String newItemStr = imageKey + ",";
+        String newItemStr = imageKey.startsWith("service_") ? imageKey.substring(8) + "," : imageKey + ",";
 
         Service service = Service.findServiceByCatalogAndPerson(imageKey, person);
         float price = (float) (Math.round(Float.valueOf(service.getDescription()) * 100) / 100);
@@ -1782,7 +1788,7 @@ public class MainPageController extends BaseController {
             }
         } else {
             for (int i = 0; i < times; i++) {
-                int p = selectedItems.indexOf(newItemStr);
+                int p = selectedItems.indexOf("," + newItemStr);
                 if (p > -1) {
                     selectedItems = selectedItems.substring(0, p) + selectedItems.substring(p + imageKey.length() + 1);
                     currentPrice -= price;
@@ -1850,7 +1856,7 @@ public class MainPageController extends BaseController {
         String[] imageKeyStrs = StringUtils.split(selectedItems, ',');
         String noteOfTheItems = (String) session.getAttribute(CC.noteOfTheItems);
         String[] notes = StringUtils.split(noteOfTheItems, ',');
-        if (imageKeyStrs == null) {
+        if (imageKeyStrs == null || imageKeyStrs.length == 0) {
             return "/generalFeaturePage";
         }
 
@@ -1880,7 +1886,8 @@ public class MainPageController extends BaseController {
                 list = new ArrayList<String>();
                 map_key.put(menuIdx, list);
             }
-            list.add("service_" + imageKeyStr);
+            list.add("service_" + imageKeyStr);// because front end user imageKeyString with "service_", -they need it
+                                               // to fetch image.
             // note
             list = (List<String>) map_note.get(menuIdx);
             if (list == null) {
@@ -1924,7 +1931,7 @@ public class MainPageController extends BaseController {
 
                 // reorder the selecctionItems
                 for (String key : keys) {
-                    sb_key.append(key);
+                    sb_key.append(key.substring(8));
                     sb_key.append(',');
                 }
                 // reorder the notes
@@ -1950,6 +1957,9 @@ public class MainPageController extends BaseController {
         model.addAttribute("show_status_break", "true");
         //
         model.addAttribute("shoppingCartMode", "true");
+
+        model.addAttribute("support_times", "false");
+        model.addAttribute("show_service_cBox", "false");
 
         // left menu bar
         String pKey = (String) session.getAttribute(CC.default_feature_menu);
@@ -1995,7 +2005,7 @@ public class MainPageController extends BaseController {
             HttpServletRequest request) {
         HttpSession session = request.getSession();
         if (TaoSecurity.isHecker(request)) {
-            session.setAttribute(CC.totalPrice, 0.00);
+            session.setAttribute(CC.totalPrice, 0.00f);
             session.setAttribute(CC.itemNumber, 0);
             session.setAttribute(CC.selectedItems, null);
             TextContent textContent = new TextContent();
@@ -2015,11 +2025,15 @@ public class MainPageController extends BaseController {
         }
         String source = request.getParameter("source");
         // format:var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
-        String[] params = StringUtils.split(source, ",");
+        String[] params = StringUtils.split(source, "zSTGOz");
+        int startPos = 0;
+        String sizeTable = params[startPos];
+        if (source.startsWith("zSTGOz")) {
+            startPos--;
+        }
 
-        String sizeTable = params[0];
-        String tel = params[0];
-        String name = params[1];
+        String name = params[startPos + 1];
+        String tel = params[startPos + 2];
 
         UserAccount client = null;
         if (curUser != null) {
@@ -2032,7 +2046,6 @@ public class MainPageController extends BaseController {
             // now even logged in user should also input address and new tell, because might ordered for his mother.
         }
 
-        String delieverdate = null;
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
         String moneyLetter = CC.money.valueOf(langPrf.substring(0, 2)).getValue();
 
@@ -2042,11 +2055,25 @@ public class MainPageController extends BaseController {
         sourcdAndNewMainOrder.setContactPerson(null);// it will be set value when a employee processed.
         sourcdAndNewMainOrder.setClient(client);// it will be null if a non registered user put an order.
         sourcdAndNewMainOrder.setSizeTable(sizeTable);
+        sourcdAndNewMainOrder.setClientSideModelNumber(params[startPos + 3]);
+        String delieverdate = params[startPos + 4];
+
         if (StringUtils.isBlank(delieverdate)) {
             sourcdAndNewMainOrder.setDelieverdate(new Date());
         } else {
+            delieverdate = delieverdate.trim().toLowerCase();
+            SimpleDateFormat simpleDateFormat =
+                    new SimpleDateFormat(delieverdate.endsWith("am") || delieverdate.endsWith("pm") ? "HH:mm a"
+                            : "HH:mm");
             try {
-                sourcdAndNewMainOrder.setDelieverdate(new SimpleDateFormat("HH:mm:SS").parse(delieverdate));
+                Date date = simpleDateFormat.parse(delieverdate);
+                Long preparetime = Long.valueOf((String) session.getAttribute("prepare_time"));
+                if (preparetime != null) {
+                    long time = date.getTime();
+                    time -= preparetime * 60 * 1000;
+                    date = new Date(time);
+                }
+                sourcdAndNewMainOrder.setDelieverdate(date);
             } catch (Exception e) {
                 // do nothing.
             }
@@ -2061,7 +2088,10 @@ public class MainPageController extends BaseController {
         float total = 0;
         List<Material> materials = new ArrayList<Material>();
         for (String item : items) {
-            String key = langPrf + "service_" + item + "_description";
+            if (!item.startsWith("service_")) {
+                item = "service_" + item;
+            }
+            String key = langPrf + item + "_description";
 
             // todo: should get the infomation from Service table.
             TextContent textContent = TextContent.findContentsByKeyAndPerson(key, person);
@@ -2128,14 +2158,18 @@ public class MainPageController extends BaseController {
         taxonomyMaterial.persist();
 
         // resection selection status.
-        session.setAttribute(CC.totalPrice, 0.00);
+        session.setAttribute(CC.totalPrice, 0.00f);
         session.setAttribute(CC.itemNumber, 0);
         session.setAttribute(CC.selectedItems, null);
         session.setAttribute(CC.latitude, null);
         session.setAttribute(CC.longitude, null);
 
         // ----------------return-----------------------
-        return new ResponseEntity<String>(HttpStatus.OK);
+        TextContent textContent = new TextContent();
+        textContent.setContent(sourcdAndNewMainOrder.getId().toString());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+        return new ResponseEntity<String>(textContent.toJson(), headers, HttpStatus.OK);
     }
 
     private MainOrder searchSameSourceMainOrder(
@@ -2303,8 +2337,12 @@ public class MainPageController extends BaseController {
     private void addjustPayconditionAndLogs(
             MainOrder mainOrder,
             MainOrder sourceMainOrder) {
-        String price = sourceMainOrder.getPayCondition().substring(1);
-        String price2 = mainOrder.getPayCondition().substring(1);
+        String price = (String) sourceMainOrder.getPayCondition();
+        price = price == null ? "0.00" : price.substring(1);
+
+        String price2 = (String) mainOrder.getPayCondition();
+        price2 = price2 == null ? "0.00" : price2.substring(1);
+
         float newPrice = Float.valueOf(price) + Float.valueOf(price2);
         mainOrder.setPayCondition("$" + newPrice);
         // disappear itself
@@ -2773,6 +2811,9 @@ public class MainPageController extends BaseController {
         createACustomize(request, langPrf + CC.show_status_message2, "Click to submit the order -->", person);
         createACustomize(request, "show_status_message",
                 (String) request.getSession().getAttribute(langPrf + CC.show_status_message1), person);
+
+        createACustomize(request, "prepare_time", "30", person);
+
     }
 
     private void createACustomize(

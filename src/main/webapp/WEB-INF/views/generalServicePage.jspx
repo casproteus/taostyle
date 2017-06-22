@@ -131,7 +131,9 @@
            		totalPrice.value = (total + selectedPrice).toFixed(2);
            	}else if(change == "check"){
            		selected = 1 - selected;
-           		textField.value = selected;
+           		if(textField){
+           			textField.value = selected;
+           		}
            		selectedItem.value = itemNum +(curObj.checked ? 1 : -1);
                	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);
            	}

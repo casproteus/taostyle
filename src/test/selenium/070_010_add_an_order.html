@@ -13,38 +13,48 @@
 </thead><tbody>
 <tr>
 	<td>open</td>
-	<td>/taostyle/menu_2?t=10</td>
+	<td>/taostyle/menu_2</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>id=check-0-1</td>
+	<td>id=check-12-service_3_1_0_1</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>id=check-1-1</td>
+	<td>id=check-13-service_3_2_0_2</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>id=check-2-1</td>
+	<td>css=button.navbar-toggle</td>
 	<td></td>
 </tr>
 <tr>
 	<td>click</td>
-	<td>id=check-2-1</td>
+	<td>link=FULL MENU</td>
 	<td></td>
 </tr>
 <tr>
-	<td>click</td>
-	<td>css=img[alt=&quot;hide unchecked items&quot;]</td>
+	<td>clickAndWait</td>
+	<td>link=-SOAP</td>
 	<td></td>
 </tr>
 <tr>
-	<td>assertAlert</td>
-	<td>Order submmited! We appreciate your patient :)</td>
+	<td>verifyValue</td>
+	<td>id=check-3_1_0_1</td>
+	<td>on</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>xpath=(//a[contains(text(),'-APPETIZERS')])[2]</td>
 	<td></td>
+</tr>
+<tr>
+	<td>verifyValue</td>
+	<td>id=check-3_2_0_2</td>
+	<td>on</td>
 </tr>
 </tbody></table>
 </body>
