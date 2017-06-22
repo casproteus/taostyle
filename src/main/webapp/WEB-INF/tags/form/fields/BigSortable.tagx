@@ -39,7 +39,13 @@
 		description="Include 'delete' link into table (default true)" />
 	<jsp:directive.attribute name="total" type="java.lang.String"
 		required="false" rtexprvalue="true"
-		description="Include 'delete' link into table (default true)" />
+		description="Include 'total' into table (default false)" />
+	<jsp:directive.attribute name="tax" type="java.lang.String"
+		required="false" rtexprvalue="true"
+		description="Include 'tax' into table (default false)" />
+	<jsp:directive.attribute name="final" type="java.lang.Float"
+		required="false" rtexprvalue="true"
+		description="Include 'final' into table (default false)" />
 	<jsp:directive.attribute name="render" type="java.lang.Boolean"
 		required="false" rtexprvalue="true"
 		description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
@@ -265,7 +271,10 @@
 						<util:pagination maxPages="${maxPages}" page="${param.page}" size="${param.size}" />
 					</c:if>
 					<c:if test="${not empty total}">
-						<c:out value="Total:" />${total}
+						Total:${total}
+						<c:if test="${not empty tax}">
+						 	+ Tax:${tax} = $${final}
+						</c:if>
 					</c:if>
 				</td>
 			</tr>

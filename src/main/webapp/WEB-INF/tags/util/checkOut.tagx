@@ -209,7 +209,7 @@
 				        		window.location = "../dashboard";
 				        	}
 			        	}else{
-			        		alert( "Sorry, your order was rejected for some reason, we've logged your ip and machine. Please to call us "+ contact_phone + " for better service.");
+			        		alert( "Sorry, your order was not submit successfully. Please to call us "+ contact_phone + " for better service.");
 			        	}
 			        }
 			    });

@@ -526,11 +526,26 @@ public class MainPageController extends BaseController {
 
             model.addAttribute("materials", materials);
 
-            model.addAttribute("sizeTable", mainOrder.getSizeTable());
+            model.addAttribute("sizeTable", StringUtils.isBlank(mainOrder.getSizeTable()) ? mainOrder.getModel()
+                    : mainOrder.getSizeTable());
             model.addAttribute("mainOrderID", mainOrder.getId());
             model.addAttribute("targetTime", TaoUtil.formateDate(request, mainOrder.getDelieverdate()));
-            model.addAttribute("contactPhone", mainOrder.getClient());// actually client's cellphone
-            model.addAttribute("total", mainOrder.getPayCondition());
+            model.addAttribute("name", mainOrder.getModel());
+            model.addAttribute("contactPhone", mainOrder.getSampleRequirement());
+            model.addAttribute("address", mainOrder.getClientSideModelNumber());
+            String total = mainOrder.getPayCondition();
+            model.addAttribute("total", total);
+            float totalPrice = Float.valueOf(total.substring(1)).floatValue();
+            String taxRate = (String) request.getSession().getAttribute("tax_rate");
+            float taxValue = 0.00f;
+            try {
+                taxValue = totalPrice * Float.valueOf(taxRate) / 100;
+                taxValue = (float) Math.round(taxValue * 100) / 100;
+            } catch (Exception e) {
+                TaoDebug.error("tax not set yet!", request);
+            }
+            model.addAttribute("tax", taxValue);
+            model.addAttribute("final", totalPrice + taxValue);
             if (currentUser != null) {
                 model.addAttribute("printStyle", currentUser.getFax());
             }
@@ -2055,6 +2070,8 @@ public class MainPageController extends BaseController {
         sourcdAndNewMainOrder.setContactPerson(null);// it will be set value when a employee processed.
         sourcdAndNewMainOrder.setClient(client);// it will be null if a non registered user put an order.
         sourcdAndNewMainOrder.setSizeTable(sizeTable);
+        sourcdAndNewMainOrder.setModel(name);
+        sourcdAndNewMainOrder.setSampleRequirement(tel);
         sourcdAndNewMainOrder.setClientSideModelNumber(params[startPos + 3]);
         String delieverdate = params[startPos + 4];
 
@@ -2066,14 +2083,28 @@ public class MainPageController extends BaseController {
                     new SimpleDateFormat(delieverdate.endsWith("am") || delieverdate.endsWith("pm") ? "HH:mm a"
                             : "HH:mm");
             try {
-                Date date = simpleDateFormat.parse(delieverdate);
-                Long preparetime = Long.valueOf((String) session.getAttribute("prepare_time"));
-                if (preparetime != null) {
-                    long time = date.getTime();
-                    time -= preparetime * 60 * 1000;
-                    date = new Date(time);
+                Date targetDate = simpleDateFormat.parse(delieverdate);
+                int targetHour = targetDate.getHours();
+                long time = targetDate.getTime();
+
+                Date now = new Date();
+                int nowHour = now.getHours();
+                if (delieverdate.endsWith("am") || delieverdate.endsWith("pm")) {
+                    if (targetHour < 12 && delieverdate.endsWith("pm")) {
+                        time += 12 * 60 * 60 * 1000;
+                    }
+                } else {
+                    if (nowHour > targetHour) {
+                        time += 12 * 60 * 60 * 1000;
+                    }
                 }
-                sourcdAndNewMainOrder.setDelieverdate(date);
+                // @ comment out, this is a bad idea. will cause confusion, and we need the arrive time on bill.
+                // Long preparetime = Long.valueOf((String) session.getAttribute("prepare_time"));
+                // if (preparetime != null) {
+                // time -= preparetime * 60 * 1000;
+                targetDate = new Date(time);
+                // }
+                sourcdAndNewMainOrder.setDelieverdate(targetDate);
             } catch (Exception e) {
                 // do nothing.
             }

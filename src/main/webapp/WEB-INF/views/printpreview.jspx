@@ -26,13 +26,20 @@
 				<page:BigList id="pl_com_stgo_taostyle_domain_material" label="${targetTime} ( ${sizeTable}${contactPhone} )" items="${materials}"
 				 mainOrderID="${mainOrderID}" render="${fn:length(materials) gt 0}">
 					<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
-					update="true"  delete="${isEmployee}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}">
+					update="true"  delete="${isEmployee}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}" tax="${tax}"  final="${final}">
 						<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="portionName"/>
 						<c:if test="${isNotPrinter}">
 							<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>
 						</c:if>
 						<table:column id="c_com_stgo_taostyle_domain_material_remark" label="Note" property="remark"/>
 					</table:BigSortable>
+					<c:if test="${not empty address}">
+						Addr:${address} 
+						<br/>
+					</c:if>
+					<c:if test="${not empty contactPhone}">
+						Tel:${contactPhone}
+					</c:if>
 				</page:BigList>
 			</div>
 		</c:if>
@@ -49,6 +56,10 @@
 						</div>
 					</c:forEach>
 				</div>
+				<c:if test="${'recept' eq printStyle}">
+					--${address}--${contactPhone}-- <br/>
+					Total:${total} + Tax:${tax} = $${final}
+				</c:if>
 				<input id="mainOrderID" type="hidden" value="${mainOrderID}" /> 
 				<input id="printStyle" type="hidden" value="${printStyle}"/>
 		<!-- when debugging, modifiy the mainOrderID to mainOrderID_, to make the ajax call fail, so record will not be updated.  -->
@@ -97,7 +108,7 @@
 					    printWin.print();
 					    //alert("print end!");
 */
-			    	}else {
+			    	}else{
 					    var printContents = document.getElementById(elementId).innerHTML;
 				     	document.body.innerHTML = printContents;
 				       	//alert(document.body.outerHTML);
