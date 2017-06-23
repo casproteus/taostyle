@@ -15,7 +15,7 @@
 		required="false" rtexprvalue="true"
 		description="if not null then the role will also be allowed to modify." />
 
-	<c:if test="${empty render or render}">
+	<c:if test="${'true' == show_status_area}">
 	  <c:if test="${user_role != '[ROLE_PRINTER]'}">
 		<div id="bellArea">
 		  <div id="noticeArea" align="right" style="position: fixed; padding-right:${width_bell_img}px; border-radius:0px; z-index: 1000;
@@ -175,7 +175,7 @@
 				//setTimeout("send('" + orderedItems + "','" + source + "',latitude,longitude,'" + map_x + "','" + map_y + "','" + limit_diff +"','" + contact_phone + "')",6000);
 				send(orderedItems,source,latitude,longitude,map_x ,map_y,limit_diff,contact_phone);
 				//hide bell
-				if(isAboveEmployee == 'false'){ 
+				if(isAboveEmployee == '' || isAboveEmployee == 'false'){ 
 					obj = document.getElementById("bellArea");
 			        obj.parentNode.removeChild(obj);
 		        }

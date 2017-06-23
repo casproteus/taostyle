@@ -521,6 +521,10 @@ public class MainPageController extends BaseController {
                     return CC.STATUS_MINE_ARE_FULL;
                 }
             } else {
+                // check authentication
+                if (!request.getSession().getId().equals(mainOrder.getClientSideOrderNumber())) {
+                    return "printpreview";
+                }
                 materials = Material.findAllMaterialsByMainOrder(mainOrder);
             }
 
@@ -2094,7 +2098,7 @@ public class MainPageController extends BaseController {
                         time += 12 * 60 * 60 * 1000;
                     }
                 } else {
-                    if (nowHour > targetHour) {
+                    if (nowHour > targetHour && targetHour < 12) {
                         time += 12 * 60 * 60 * 1000;
                     }
                 }
@@ -2196,11 +2200,15 @@ public class MainPageController extends BaseController {
         session.setAttribute(CC.longitude, null);
 
         // ----------------return-----------------------
-        TextContent textContent = new TextContent();
-        textContent.setContent(sourcdAndNewMainOrder.getId().toString());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-        return new ResponseEntity<String>(textContent.toJson(), headers, HttpStatus.OK);
+        if ("true".equals(session.getAttribute("support_note"))) {
+            TextContent textContent = new TextContent();
+            textContent.setContent(sourcdAndNewMainOrder.getId().toString());
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Content-Type", "application/json; charset=utf-8");
+            return new ResponseEntity<String>(textContent.toJson(), headers, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<String>(HttpStatus.OK);
+        }
     }
 
     private MainOrder searchSameSourceMainOrder(
@@ -2835,16 +2843,12 @@ public class MainPageController extends BaseController {
         createACustomize(request, "need_calculate_price", "true", person);
         createACustomize(request, "app_ContentManager", "true", person);// when someone is promoted to be a manager,
                                                                         // shall we set his name here?
+        createACustomize(request, "show_status_area", "true", person);
         createACustomize(request, "show_status_total", "true", person);
         createACustomize(request, "show_status_break", "true", person);
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
-        createACustomize(request, langPrf + CC.show_status_message1, "Click to check current selections -->", person);
-        createACustomize(request, langPrf + CC.show_status_message2, "Click to submit the order -->", person);
         createACustomize(request, "show_status_message",
                 (String) request.getSession().getAttribute(langPrf + CC.show_status_message1), person);
-
-        createACustomize(request, "prepare_time", "30", person);
-
     }
 
     private void createACustomize(

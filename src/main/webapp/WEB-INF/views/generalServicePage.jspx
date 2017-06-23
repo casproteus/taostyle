@@ -29,6 +29,11 @@
 		<c:set var="isAboveManager"  value="true" />
 	</c:if>
 	
+  	<c:set var="isAboveEmployee"  value="false" />
+	<c:if test="${isAboveManager or user_role == '[ROLE_EMPLOYEE]'}">
+		<c:set var="isAboveEmployee"  value="true" />
+	</c:if>
+	
 	<!-- Main Content -->
 	<div id="gridview" class="${span}" align="center"
 		style="margin-top: 10px; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity}; border-radius: 8px;">
