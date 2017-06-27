@@ -269,6 +269,9 @@ public class MainPageController extends BaseController {
 
             createACustomize(request, "app_WebsiteAddress", "http://www.shareTheGoodOnes.com/" + person.getName(),
                     person);
+            if (hasNotLoggedIn(request)) {
+                dirtFlagCommonText = TaoUtil.switchClient(request, person.getName());
+            }
 
         } else {
             if (loginname.contains(CC.SAVED_NAME_STR)) {
@@ -714,6 +717,11 @@ public class MainPageController extends BaseController {
                     posStr = posStr.substring(0, posStr.length() - 12);
                 }
                 Service service = Service.findServiceByCatalogAndPerson(posStr, person);
+                if (service == null) {
+                    service = new Service();
+                    service.setC1(posStr);
+                    service.setPerson(person);
+                }
                 service.setName(productName);
                 service.setDescription(payCondition);
                 service.persist();
@@ -723,6 +731,11 @@ public class MainPageController extends BaseController {
                     posStr = posStr.substring(0, posStr.length() - 12);
                 }
                 Product product = Product.findProductByCatalogAndPerson(posStr.substring(8), person);
+                if (product == null) {
+                    product = new Product();
+                    product.setC1(posStr.substring(8));
+                    product.setPerson(person);
+                }
                 product.setName(productName);
                 product.setDescription(payCondition);
                 product.persist();
