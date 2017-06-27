@@ -520,6 +520,11 @@ public class MainPageController extends BaseController {
                 } else if (processed) {
                     return CC.STATUS_MINE_ARE_FULL;
                 }
+            } else if (currentUser != null
+                    && (CC.ROLE_EMPLOYEE.equals(currentUser.getSecuritylevel()) || CC.ROLE_MANAGER.equals(currentUser
+                            .getSecuritylevel()))) {
+                materials = Material.findAllMaterialsByMainOrder(mainOrder);
+
             } else {
                 // check authentication
                 if (!request.getSession().getId().equals(mainOrder.getClientSideOrderNumber())) {
