@@ -1880,8 +1880,8 @@ public class MainPageController extends BaseController {
         String[] imageKeyStrs = StringUtils.split(selectedItems, ',');
         String noteOfTheItems = (String) session.getAttribute(CC.noteOfTheItems);
         String[] notes = StringUtils.split(noteOfTheItems, ',');
-        if (imageKeyStrs == null || imageKeyStrs.length == 0) {
-            return "/generalFeaturePage";
+        if (imageKeyStrs == null) {
+            imageKeyStrs = new String[] {};
         }
 
         List<Feature> features = new ArrayList<Feature>();
@@ -1987,6 +1987,10 @@ public class MainPageController extends BaseController {
 
         // left menu bar
         String pKey = (String) session.getAttribute(CC.default_feature_menu);
+        if (pKey == null) {
+            List<String> featureMenus = TaoUtil.fetchAllMenuByType(CC.FEATURE, request, langPrf, person);
+            pKey = featureMenus != null && featureMenus.size() > 0 ? "menu_" + featureMenus.get(0) : "menu_3_1";
+        }
         int p = pKey.indexOf('_', 5);
         if (p > 5) {
             pKey = pKey.substring(0, p + 1);
@@ -2728,6 +2732,7 @@ public class MainPageController extends BaseController {
         createACustomize(request, "CONTENTTYPE_2", "FEATURE", person);
         createACustomize(request, "CONTENTTYPE_3", "SERVICE", person);
         createACustomize(request, "CONTENTTYPE_10", "LOCATION", person);
+        createACustomize(request, "default_feature_menu", "menu_2", person);
         // location
         createACustomize(request, "MAP_POS_X2", "45.497634", person);
         createACustomize(request, "MAP_POS_Y2", "-73.554010", person);
@@ -2844,6 +2849,8 @@ public class MainPageController extends BaseController {
         createACustomize(request, "service_number_xs", "12", person);
 
         createACustomize(request, "show_status_bell", "true", person);
+        createACustomize(request, "CONTENTTYPE_3_1", "FEATURE", person);
+        createACustomize(request, "default_feature_menu", "menu_3_1", person);
         createACustomize(request, "show_service_cBox", "true", person);
         createACustomize(request, "need_calculate_price", "true", person);
         createACustomize(request, "app_ContentManager", "true", person);// when someone is promoted to be a manager,
