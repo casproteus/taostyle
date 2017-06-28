@@ -202,7 +202,7 @@
 			        success:function(textContent){
 			        	if(textContent == null || textContent.length == 0){
 			        		alert( "Order submmited! (you can also call us-- " + contact_phone + " to comfirm.)");
-			        		window.location = "../showDetailOrder/"+textContent.content;
+			        		//stay in current page.
 			        	}else if(textContent.content){
 			        		if(user_role.value == ''){
 				        		window.location = "../showDetailOrder/"+textContent.content;

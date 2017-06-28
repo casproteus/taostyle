@@ -2057,7 +2057,7 @@ public class MainPageController extends BaseController {
         UserAccount curUser = (UserAccount) session.getAttribute(CC.currentUser);
         orderedItems = (String) session.getAttribute(CC.selectedItems);
         String[] items = StringUtils.split(orderedItems, ",");
-        if (items.length == 0) {
+        if (items == null || items.length == 0) {
             if (curUser == null || !CC.ROLE_EMPLOYEE.equals(curUser.getSecuritylevel())) {
                 TextContent textContent = new TextContent();
                 textContent.setContent("Nothing selected yet!");
