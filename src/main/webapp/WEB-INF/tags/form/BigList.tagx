@@ -77,47 +77,48 @@
 		}
 		
 		function printMainOrder(mainOrderID, wsUri) {
-			alert("Are you sure to send the order for printing?");
-			
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateAnOrderStatus/"+mainOrderID,
-		        data: "recordStatus=10",
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		        	}
-		        	window.location = "../dashboard";
-		        }
-		    });
+			var confirmed = confirm("Are you sure to send it to printer?");
+			if(confirmed){
+				$.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "updateAnOrderStatus/"+mainOrderID,
+			        data: "recordStatus=10",
+			        async:false,
+			        success:function(textContent){
+			        	if(textContent == null || textContent.length == 0){
+			        	}else{
+			        		alert( "Please check the connection of internet or cotact the admin.");
+			        	}
+			        	window.location = "../dashboard";
+			        }
+			    });
+			}
 		}
 		
 		function orderCompleted(mainOrderID) {
-			var mainOrder = alert("Please make sure all contents of this order are served.");
-
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateAnOrderStatus/"+mainOrderID,
-		        data: "recordStatus=50",
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		        	}
-		        	window.location = "../dashboard";
-		        }
-		    });
+			var confirmed = confirm("Are you sure all served?");
+			if(confirmed){
+				$.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "updateAnOrderStatus/"+mainOrderID,
+			        data: "recordStatus=50",
+			        async:false,
+			        success:function(textContent){
+			        	if(textContent == null || textContent.length == 0){
+			        	}else{
+			        		alert( "Please check the connection of internet or cotact the admin.");
+			        	}
+			        	window.location = "../dashboard";
+			        }
+		    	});
+			}
 		}
 		
 		function cleanAnOrder(mainOrderID) {
-			var mainOrder = prompt("Are you sure you want to remove the order from list?");
-
-			if (mainOrder == null || mainOrder == "") {
+			var confirmed = confirm("Are you sure to remove it?");
+			if(confirmed){
 				$.ajax({
 			    	headers: "Accept=application/json",
 			        type: "POST",

@@ -95,8 +95,9 @@
 					<c:set var="position" value="${fn:indexOf(name_db, '*')}" /> 
 					<c:set var="name_db" value="${fn:substring(name_db, 0, position)}"/>
 					 -->
+					<c:set var="selectable" value="${user_role eq '[ROLE_EMPLOYEE]' ? 'true' : 'false'}"/>
 					<table:BigSortable data="${mainOrderList}" id="l_com_stgo_taostyle_domain_MainOrder" path="/showDetailOrder" 
-					selectable="true" create="false" update="false"  delete="false">
+					selectable="${selectable}" create="false" update="false"  delete="false">
 						<!-- table:column id="c_com_stgo_taostyle_domain_mainorder_id" label="ID" property="id"/-->
 						<table:column id="c_com_stgo_taostyle_domain_mainorder_delieverdate" date="true" dateTimePattern="HH:mm:ss" label="Target" property="delieverdate"/>
 						<table:column id="c_com_stgo_taostyle_domain_mainorder_sizetable" label="Customer" property="sizeTable"/>
@@ -106,13 +107,17 @@
 					<c:if test="${user_role eq '[ROLE_MANAGER]'}">
 						<input id="OrderClean" type="submit" class="btn btn-primary" onclick="javascript:cleanHistoricalMainOrder()" value="Clean" />
 					</c:if>
+					
+					<c:if test="${user_role eq '[ROLE_EMPLOYEE]'}">
+						<spring:url value="/resources/images/link.png" var="link_img_url" />
+						<img alt="Merge" src="${link_img_url}" title="Merge into an other order." onclick="javascript:combineMainOrder()" style="cursor:pointer"/>
+						 | 
+						<spring:url value="/resources/images/clean.png" var="clean_img_url" />
+						<img alt="Merge" src="${clean_img_url}" title="Clean the order from the list" onclick="javascript:cleanOrders()" style="cursor:pointer"/>
+					</c:if>
 				</page:list>
 			
-				<spring:url value="/resources/images/link.png" var="link_img_url" />
-				<img alt="Merge" src="${link_img_url}" title="Merge into an other order." onclick="javascript:combineMainOrder()" style="cursor:pointer"/>
-				 | 
-				<spring:url value="/resources/images/clean.png" var="clean_img_url" />
-				<img alt="Merge" src="${clean_img_url}" title="Clean the order from the list" onclick="javascript:cleanOrders()" style="cursor:pointer"/>
+				
 			</c:if>
 		</div>
 	</c:if>
@@ -173,44 +178,47 @@
 	            return;
 	        }
 	        
-	        alert("Are you sure you want to remove the rows from list? Currently selected rows :" + chkBoxes.length);
-	        
-	        var ids = [ ];
-	        $(chkBoxes).each(function() {
-	            ids.push($(this).attr('id'));
-	        }); 
-
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateAnOrderStatus/"+ids,
-		        data: "recordStatus=-1",
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		        	}
-		        	window.location = "./dashboard";
-		        }
-		    });
-			
+	        var confirmed = confirm("Are you sure to remove all selected rows? Currently selected " + chkBoxes.length + " rows.");
+	        if(confirmed){
+		        var ids = [ ];
+		        $(chkBoxes).each(function() {
+		            ids.push($(this).attr('id'));
+		        }); 
+	
+				$.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "updateAnOrderStatus/"+ids,
+			        data: "recordStatus=-1",
+			        async:false,
+			        success:function(textContent){
+			        	if(textContent == null || textContent.length == 0){
+			        	}else{
+			        		alert( "Please check the connection of internet or cotact the admin.");
+			        	}
+			        	window.location = "./dashboard";
+			        }
+			    });
+	        }
 		}
 		
 		function cleanHistoricalMainOrder() {
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "cleanHistoricalMainOrder/",
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		        	}
-		        	window.location = "./dashboard";
-		        }
-		    });
+			var confirmed = confirm("Are you sure to remove all historical orders?");
+			if(confirmed){
+				$.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "cleanHistoricalMainOrder/",
+			        async:false,
+			        success:function(textContent){
+			        	if(textContent == null || textContent.length == 0){
+			        	}else{
+			        		alert( "Please check the connection of internet or cotact the admin.");
+			        	}
+			        	window.location = "./dashboard";
+			        }
+			    });
+			}
 		}
 	</script>
 	
