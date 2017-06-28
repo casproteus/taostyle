@@ -2222,7 +2222,8 @@ public class MainPageController extends BaseController {
         session.setAttribute(CC.longitude, null);
 
         // ----------------return-----------------------
-        if ("true".equals(session.getAttribute("support_note"))) {
+        if ("true".equals(session.getAttribute("support_customer_note"))
+                || (curUser != null && CC.ROLE_EMPLOYEE.equals(curUser.getSecuritylevel()))) {
             TextContent textContent = new TextContent();
             textContent.setContent(sourcdAndNewMainOrder.getId().toString());
             HttpHeaders headers = new HttpHeaders();

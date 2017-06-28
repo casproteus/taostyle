@@ -107,7 +107,7 @@
 							 	</span>
 					    	</c:if>
 					    	
-					  		<c:if test="${'true'==support_note}">
+					  		<c:if test="${'true'==support_customer_note}">
 						  		<spring:url value="/resources/images/note.png" var="note_img_url" /> 
 								<img id="note-${featureIdx}-${imageIdx}" alt="note" src="${note_img_url}" style="padding-bottom: 10px;  cursor:pointer; visibility:${not empty visibleStatusList and visibleStatusList[j][i] == '1'?'visible':'hidden'}"  
 								onclick="javascript:showNote('${imageKeys[j][i]}','-1')"/>

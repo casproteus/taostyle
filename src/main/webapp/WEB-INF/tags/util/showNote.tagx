@@ -9,7 +9,7 @@
 		required="false" rtexprvalue="true"
 		description="Indicate the level of user who could add note for a selected item." />
 	
-	<c:if test="${'true' == support_note}">
+	<c:if test="${'true' == support_customer_note}">
 		<a id="luanchNoteDlg" class="hide" href="#windowNoteDialog" data-toggle="modal" />
 	
 		<div id="windowNoteDialog" class="gallery modal hide fade in col-xs-12 col-sm-10 col-md-8 col-lg-6"
