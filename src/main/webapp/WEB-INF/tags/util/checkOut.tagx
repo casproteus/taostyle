@@ -144,16 +144,25 @@
 				}*/
 		
 				//we supporse user selected something, then if it's from outside, collect user information.
-				var name = "";
 				var phoneNumber = "n";
 				var address = "n";
 				var arrive = "n";
 				var location ="n";
 				var geoOutRange = false;
 				if(tableID == null || tableID.length == 0){
+					tableID = "not_on_site"
 					phoneNumber = prompt("Thank you for ordering, please leave your phone number:","");
-					address = prompt("Delever to address:","");			
-					arrive = prompt("Time you would like it to arrive:","");
+					if(phoneNumber == ""){
+						phoneNumber = "did-not-input"
+					}
+					address = prompt("Delever to address:(Leave it empty for picking up in store)","");		
+					if(address == ""){
+						address =  "did-not-input"
+					}
+					arrive = prompt("Approximate time you would like to have it:","");
+					if(arrive == ""){
+						arrive =  "did-not-input"
+					}
 		
 					//TODO: send to back end to create a log
 					if(contact_phone == null){
@@ -167,7 +176,10 @@
 					}
 				}
 		
-				name = prompt("Your name please:", "");
+				var name = prompt("Your name please:", "");
+				if(name == ""){
+					name =  "did-not-input"
+				}
 				orderedItems = orderedItems.substr(1);
 				var source = tableID + "zSTGOz" + name + "zSTGOz" + phoneNumber + "zSTGOz" + address + "zSTGOz" + arrive;
 				

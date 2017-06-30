@@ -44,29 +44,36 @@
 			</div>
 			
 			<!-- hidden places for each printer -->
-			<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
-				<c:if test="${not empty materialsForPrinter[i-1]}">
-					<div id="forPrinter${i}" name="${printers[i-1]}" class="${span}" align="left" style="margin-left:${leftmargin}">
-						<p align="center"> ${targetTime}  ( ${sizeTable}${contactPhone} ) </p>
-						<div id="deshesArea">
-							<c:forEach var="i" begin="1" end="${fn:length(materials)}" step="1">
-								<div id="dish_${i}">
-									<p>${i}) ${materials[i-1]['portionName']}</p>
-									<p align="right">${materials[i-1]['remark']}</p>
-								</div>
-							</c:forEach>
-						</div>
-						<c:if test="${'recept' eq printStyle}">
-							--${address}--${contactPhone}-- <br/>
-							Total:${total} + Tax:${tax} = $${final}
-						</c:if>
-						<input id="mainOrderID" type="hidden" value="${mainOrderID}" /> 
-						<input id="printStyle" type="hidden" value="${printStyle}"/>
+			<div id="hiddenDivs" class="gallery modal hide fade in col-xs-12 col-sm-10 col-md-8 col-lg-6"
+			aria-hidden="true" aria-labelledby="windowTitleLabel" role="dialog" tabindex="-1"
+			style="background:#${background_pop}; opacity:${pop_opacity};">
+			
+				<input id="mainOrderID" type="hidden" value="${mainOrderID}" /> 
 				<!-- when debugging, modifiy the mainOrderID to mainOrderID_, to make the ajax call fail, so record will not be updated.  -->
-				<!-- The style of Print, it could be all(print all item) or each(print each item in one bill.  -->
-					</div>
-				</c:if>
-			</c:forEach>
+				<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
+					<c:if test="${not empty materialsForPrinters[i-1]}">
+						<div id="forPrinter${i}" name="${printers[i-1]}" class="${span}" align="left" style="margin-left:${leftmargin}">
+							<p align="center"> ${targetTime}  ( ${sizeTable}${contactPhone} ) </p>
+							<div id="${printers[i]}">
+								<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">
+									<div id="${printers[i]}_dish_${j}">
+										<p>${j}) ${materialsForPrinters [i-1][j-1]['portionName']}</p>
+										<p align="right">${materialsForPrinters [i-1][j-1]['remark']}</p>
+									</div>
+								</c:forEach>
+							</div>
+							<c:if test="${'recept' eq printStyle}">
+								--${address}--${contactPhone}-- <br/>
+								Total:${total} + Tax:${tax} = $${final}
+							</c:if>
+							
+							<input id="forPrinter${i}_printStyle" type="hidden" value="${printStyle}"/>
+							<!-- The style of Print, it could be all(print all item) or each(print each item in one bill.  -->
+						</div>
+					</c:if>
+				</c:forEach>
+			</div>
+			<a id="showHiddenDivs" class="hide" href="#hiddenDivs" data-toggle="modal" />
 		</c:if>
 	</c:if>
 	<c:if test="${user_role == '[ROLE_PRINTER]'}">

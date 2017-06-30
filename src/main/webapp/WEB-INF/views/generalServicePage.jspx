@@ -114,41 +114,42 @@
             //input field
             var textField = document.getElementById("txt-" + imageKey);
 			var selected = textField ? Number(textField.value) : (curObj.checked ? 1 : 0);
-            //current num and total
-           	var itemNum = Number(selectedItem.value);
-            var total = Number(totalPrice.value); 
-			//selected price
-            var description = document.getElementById("des-" + imageKey);
-            var text = description.innerText;
-            var i = text.lastIndexOf('$');
-            text = text.substring(i+1);
-            var selectedPrice = Number(text);
-            //new num and total
-           	if(change.indexOf('down') == 0){
-           		selected = selected - Number(change.substring(4));
-           		textField.value = selected;
-           		selectedItem.value = itemNum - Number(change.substring(4));
-           		totalPrice.value = (total - selectedPrice).toFixed(2);
-           	}else if(change.indexOf('up') == 0){
-           		selected = selected + Number(change.substring(2));
-           		textField.value = selected;
-           		selectedItem.value = itemNum + Number(change.substring(2));
-           		totalPrice.value = (total + selectedPrice).toFixed(2);
-           	}else if(change == "check"){
-           		selected = 1 - selected;
-           		if(textField){
-           			textField.value = selected;
-           		}
-           		selectedItem.value = itemNum +(curObj.checked ? 1 : -1);
-               	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);
-           	}
-            
           	//description
+	        var description = document.getElementById("des-" + imageKey);
             description.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1; 
             //image
             var image = document.getElementById("img-" + imageKey);
             image.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1;
             
+            //current num and total
+            if(typeof selectedItem !== 'undefined'){
+	           	var itemNum = Number(selectedItem.value);
+	            var total = Number(totalPrice.value); 
+				//selected price
+	            var text = description.innerText;
+	            var i = text.lastIndexOf('$');
+	            text = text.substring(i+1);
+	            var selectedPrice = Number(text);
+	            //new num and total
+	           	if(change.indexOf('down') == 0){
+	           		selected = selected - Number(change.substring(4));
+	           		textField.value = selected;
+	           		selectedItem.value = itemNum - Number(change.substring(4));
+	           		totalPrice.value = (total - selectedPrice).toFixed(2);
+	           	}else if(change.indexOf('up') == 0){
+	           		selected = selected + Number(change.substring(2));
+	           		textField.value = selected;
+	           		selectedItem.value = itemNum + Number(change.substring(2));
+	           		totalPrice.value = (total + selectedPrice).toFixed(2);
+	           	}else if(change == "check"){
+	           		selected = 1 - selected;
+	           		if(textField){
+	           			textField.value = selected;
+	           		}
+	           		selectedItem.value = itemNum +(curObj.checked ? 1 : -1);
+	               	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);
+	           	}
+            }
           	//check box
 			var checkBox = document.getElementById("check-" + imageKey);
 			checkBox.style.visibility = selected > 1 ? 'hidden' : 'visible';

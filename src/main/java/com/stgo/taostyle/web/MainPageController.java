@@ -488,16 +488,13 @@ public class MainPageController extends BaseController {
             HttpServletRequest request) {
         if (mainOrderId > -1) {
             MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
-
-            List<String> printers = new ArrayList<>();
-            List<Material> matereialForPrinters = new ArrayList<>();
-            String returnPath = showDetailOrder(mainOrder, model, request, printers, matereialForPrinters);
             // prepare the data for websocket printers
-            mainOrder.setRecordStatus(CC.STATUS_PRINTED);
-
-            mainOrder.persist(); // DKW! when this excuted, useraccount will be persist into db.
+            List<String> printers = new ArrayList<>();
+            List<List<Material>> materialsForPrinters = new ArrayList<>();
+            String returnPath = showDetailOrder(mainOrder, model, request, printers, materialsForPrinters);
+            model.addAttribute("printers", printers);
+            model.addAttribute("materialsForPrinters", materialsForPrinters);
             // end preparing data for websocket printers.
-
             return returnPath;
         } else {
             model.addAttribute("materials", null);
@@ -512,7 +509,7 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request,
             List<String> printers,
-            List<Material> matereialForPrinters) {
+            List<List<Material>> materialsForPrinters) {
         if (mainOrder != null) {
             UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);
 
@@ -545,7 +542,28 @@ public class MainPageController extends BaseController {
                     && (CC.ROLE_EMPLOYEE.equals(currentUser.getSecuritylevel()) || CC.ROLE_MANAGER.equals(currentUser
                             .getSecuritylevel()))) {
                 materials = Material.findAllMaterialsByMainOrder(mainOrder);
+                // if the parameter is already initialized, means it's asking for datas needed by websocket printer.
+                if (printers != null) {
+                    // find out all printer users.
+                    List<UserAccount> users = UserAccount.findAllUserAccountsByPerson(TaoUtil.getCurPerson(request));
+                    for (UserAccount user : users) {
+                        if (CC.ROLE_PRINTER.equals(user.getSecuritylevel())) {
+                            // addin the printer.
+                            String printerName = TaoEncrypt.stripUserName(user.getLoginname());
+                            printers.add(printerName);
 
+                            // addin materieals
+                            List<Material> materialsForPrinter = new ArrayList<>();
+                            for (Material material : materials) {
+                                String printersStr = material.getMenFu();
+                                if (printersStr != null && printersStr.contains(printerName)) {
+                                    materialsForPrinter.add(material);
+                                }
+                            }
+                            materialsForPrinters.add(materialsForPrinter);
+                        }
+                    }
+                }
             } else {
                 // check authentication
                 if (!request.getSession().getId().equals(mainOrder.getClientSideOrderNumber())) {
@@ -2085,24 +2103,26 @@ public class MainPageController extends BaseController {
         String source = request.getParameter("source");
         // format:var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
         String[] params = StringUtils.split(source, "zSTGOz");
-        int startPos = 0;
-        String sizeTable = params[startPos];
-        if (source.startsWith("zSTGOz")) {
-            startPos--;
-        }
-
-        String name = params[startPos + 1];
-        String tel = params[startPos + 2];
+        String sizeTable = params[0];
+        String name = params[1];
+        String tel = params[2];
+        String address = params[3];
+        String delieverdate = params[4];
 
         UserAccount client = null;
         if (curUser != null) {
             client = (UserAccount) curUser;
-        } else if (tel.length() > 6) {
+        } else if (12 > tel.length() && tel.length() > 6) {
             client = UserAccount.findUserAccountsByNameAndTell(name, tel);
         } else {
             // means, user has logged in, so was not asked to input name, tel..while when he click send, it's already
             // time out... throw new RuntimeException("time out!, please log in again.");
             // now even logged in user should also input address and new tell, because might ordered for his mother.
+        }
+        if ("not_on_site".equals(sizeTable) && !"did-not-input".equals(name) && !"null".equals(name)) {
+            sizeTable = name;
+        } else if ("not_on_site".equals(sizeTable) && client != null) {
+            sizeTable = client.getLoginname();
         }
 
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
@@ -2116,12 +2136,11 @@ public class MainPageController extends BaseController {
         sourcdAndNewMainOrder.setSizeTable(sizeTable);
         sourcdAndNewMainOrder.setModel(name);
         sourcdAndNewMainOrder.setSampleRequirement(tel);
-        sourcdAndNewMainOrder.setClientSideModelNumber(params[startPos + 3]);
-        String delieverdate = params[startPos + 4];
+        sourcdAndNewMainOrder.setClientSideModelNumber(address);
 
-        if (StringUtils.isBlank(delieverdate)) {
+        if ("n".equals(delieverdate)) {
             sourcdAndNewMainOrder.setDelieverdate(new Date());
-        } else {
+        } else if (!"did-not-input".equals(delieverdate) && !"null".equals(delieverdate)) {
             delieverdate = delieverdate.trim().toLowerCase();
             SimpleDateFormat simpleDateFormat =
                     new SimpleDateFormat(delieverdate.endsWith("am") || delieverdate.endsWith("pm") ? "HH:mm a"
@@ -2163,10 +2182,7 @@ public class MainPageController extends BaseController {
         float total = 0;
         List<Material> materials = new ArrayList<Material>();
         for (String item : items) {
-            if (!item.startsWith("service_")) {
-                item = "service_" + item;
-            }
-            String key = langPrf + item + "_description";
+            String key = langPrf + (item.startsWith("service_") ? item : ("service_" + item)) + "_description";
 
             // todo: should get the infomation from Service table.
             TextContent textContent = TextContent.findContentsByKeyAndPerson(key, person);
