@@ -16,9 +16,12 @@
 	<jsp:directive.attribute name="richText" type="java.lang.String"
 		required="false" rtexprvalue="true"
 		description="Indicate if rich editor needed" />
+	<jsp:directive.attribute name="allowedLevel" type="java.lang.String"
+		required="false" rtexprvalue="true"
+		description="if not null then the role will also be allowed to modify." />
 
 	<c:if test="${empty render or render}">
-		<c:if test="${user_role == '[ROLE_ADMIN]'}">
+		<c:if test="${user_role == '[ROLE_ADMIN]' or (not empty allowedLevel and user_role eq allowedLevel)}">
 			<div class="span1">
 				<spring:url value="/changeTextForm" var="form_url" />
 				<c:if test="${richText eq 'true'}">

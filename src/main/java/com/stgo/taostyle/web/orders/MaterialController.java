@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.stgo.taostyle.domain.TextContent;
 import com.stgo.taostyle.domain.orders.MainOrder;
 import com.stgo.taostyle.domain.orders.Material;
+import com.stgo.taostyle.web.TaoUtil;
 
 @RequestMapping("/materials")
 @Controller
@@ -72,10 +74,10 @@ public class MaterialController {
     }
 
     void populateEditForm(
-            Model uiModel,
+            Model model,
             Material material) {
-        uiModel.addAttribute("material", material);
-        uiModel.addAttribute("mainorders", MainOrder.findAllMainOrders());
+        model.addAttribute("material", material);
+        model.addAttribute("mainorders", MainOrder.findAllMainOrders());
     }
 
     @RequestMapping(method = RequestMethod.PUT, produces = "text/html")
@@ -144,5 +146,21 @@ public class MaterialController {
         // return "redirect:/materials/" + encodeUrlPathSegment(material.getId().toString(), httpServletRequest);
         return "redirect:/mainorders/"
                 + encodeUrlPathSegment(material.getMainOrder().getId().toString(), httpServletRequest);
+    }
+
+    @RequestMapping(value = "/{id}", params = "form", produces = "text/html")
+    public String updateForm(
+            @PathVariable("id")
+            Long id,
+            Model model,
+            HttpServletRequest request) {
+        populateEditForm(model, Material.findMaterial(id));
+
+        String langPrf = TaoUtil.getLangPrfWithDefault(request);
+        List<String> quick_notes =
+                TextContent.findAllMatchedContent(langPrf + "quick_note_%", "content", TaoUtil.getCurPerson(request));
+        model.addAttribute("quick_note", quick_notes);
+
+        return "materials/update";
     }
 }

@@ -440,6 +440,10 @@ public class MainPageController extends BaseController {
         String securityLevel = userAccount.getSecuritylevel();
         if (CC.ROLE_MANAGER.equalsIgnoreCase(securityLevel)) {
             mainOrders = MainOrder.findMainOrdersByPerson(person, "desc");
+
+            String langPrf = TaoUtil.getLangPrfWithDefault(request);
+            List<String> quick_notes = TextContent.findAllMatchedContent(langPrf + "quick_note_%", "content", person);
+            model.addAttribute("quick_note", quick_notes);
         } else if (CC.ROLE_PRINTER.equalsIgnoreCase(securityLevel)) {
             request.setAttribute("show_footArea", "");
             request.setAttribute("show_foot", "false");
@@ -449,7 +453,7 @@ public class MainPageController extends BaseController {
             mainOrders = MainOrder.findMainOrdersByStatusAndPerson(CC.STATUS_TO_PRINT, person, "asc");
             if (mainOrders != null) {
                 for (MainOrder mainOrder : mainOrders) {
-                    String returnPath = showDetailOrder(mainOrder, model, request);
+                    String returnPath = showDetailOrder(mainOrder, model, request, null, null);
                     if (CC.STATUS_FULL.equals(returnPath)) {
                         mainOrder.setRecordStatus(CC.STATUS_PRINTED);
                         mainOrder.persist(); // DKW! when this excuted, useraccount will be persist into db.
@@ -484,17 +488,31 @@ public class MainPageController extends BaseController {
             HttpServletRequest request) {
         if (mainOrderId > -1) {
             MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
-            return showDetailOrder(mainOrder, model, request);
+
+            List<String> printers = new ArrayList<>();
+            List<Material> matereialForPrinters = new ArrayList<>();
+            String returnPath = showDetailOrder(mainOrder, model, request, printers, matereialForPrinters);
+            // prepare the data for websocket printers
+            mainOrder.setRecordStatus(CC.STATUS_PRINTED);
+
+            mainOrder.persist(); // DKW! when this excuted, useraccount will be persist into db.
+            // end preparing data for websocket printers.
+
+            return returnPath;
         } else {
             model.addAttribute("materials", null);
             return "printpreview";
         }
     }
 
+    // TODO: when teh printers array is not null, means it's employee user need the data for websocket printers! it need
+    // to be implemented.front end is already done.
     private String showDetailOrder(
             MainOrder mainOrder,
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            List<String> printers,
+            List<Material> matereialForPrinters) {
         if (mainOrder != null) {
             UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);
 
@@ -2727,6 +2745,12 @@ public class MainPageController extends BaseController {
             if (person.getName().equalsIgnoreCase(tUserName)) {
                 initializeToStyle2(request, person);
             }
+        } else if ("style3".equals(client)) {
+            String tUserName = userContextService.getCurrentUserName();
+            Person person = TaoUtil.getCurPerson(request);
+            if (person.getName().equalsIgnoreCase(tUserName)) {
+                initializeToStyle3(request, person);
+            }
         }
         return null;
     }
@@ -2849,32 +2873,49 @@ public class MainPageController extends BaseController {
         textContent.persist();
     }
 
-    // it's goog for restaurant: bigger horizontal image and bigger space for layout.
+    // it's good for small restaurant: bigger horizontal image and bigger space for layout.
     private void initializeToStyle2(
             HttpServletRequest request,
             Person person) {
+        createACustomize(request, CC.app_ContentManager, "true", person);// when someone is promoted to be a manager,
+        // shall we set his name here?
         createACustomize(request, "img_service_h", "720", person);
         createACustomize(request, "img_service_w", "960", person);
         createACustomize(request, "img_service_thum_h", "230", person);
         createACustomize(request, "img_service_thum_w", "270", person);
+        createACustomize(request, "need_calculate_price", "true", person);
         createACustomize(request, "service_number_lg", "4", person);
         createACustomize(request, "service_number_md", "6", person);
         createACustomize(request, "service_number_sm", "6", person);
         createACustomize(request, "service_number_xs", "12", person);
 
-        createACustomize(request, "show_status_bell", "true", person);
-        createACustomize(request, "CONTENTTYPE_3_1", "FEATURE", person);
-        createACustomize(request, "default_feature_menu", "menu_3_1", person);
         createACustomize(request, "show_service_cBox", "true", person);
-        createACustomize(request, "need_calculate_price", "true", person);
-        createACustomize(request, "app_ContentManager", "true", person);// when someone is promoted to be a manager,
-                                                                        // shall we set his name here?
         createACustomize(request, "show_status_area", "true", person);
-        createACustomize(request, "show_status_total", "true", person);
+        createACustomize(request, "show_status_bell", "true", person);
         createACustomize(request, "show_status_break", "true", person);
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
         createACustomize(request, "show_status_message",
                 (String) request.getSession().getAttribute(langPrf + CC.show_status_message1), person);
+        createACustomize(request, "show_status_total", "true", person);
+
+        createACustomize(request, "status_y", "50", person);
+    }
+
+    // it's good for big restaurant: having floating left bar and support multi times.
+    private void initializeToStyle3(
+            HttpServletRequest request,
+            Person person) {
+        createACustomize(request, "CONTENTTYPE_3_1", "FEATURE", person);
+        createACustomize(request, "default_feature_menu", "menu_3_1", person);
+
+        createACustomize(request, "support_note", "false", person);
+        createACustomize(request, "support_subMenu", "true", person);
+        createACustomize(request, "leftbar_fixed", "true", person);
+        createACustomize(request, "leftbar_item_padding", "20", person);
+
+        createACustomize(request, "support_times", "true", person);
+        createACustomize(request, "threshold_hiding_leftbar", "800", person);
+
     }
 
     private void createACustomize(

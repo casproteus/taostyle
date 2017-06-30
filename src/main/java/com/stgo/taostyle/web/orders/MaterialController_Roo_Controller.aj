@@ -30,12 +30,7 @@ privileged aspect MaterialController_Roo_Controller {
     }
     
         
-    @RequestMapping(value = "/{id}", params = "form", produces = "text/html")
-    public String MaterialController.updateForm(@PathVariable("id") Long id, Model uiModel) {
-        populateEditForm(uiModel, Material.findMaterial(id));
-        return "materials/update";
-    }
-    
+        
         
         
     String MaterialController.encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {

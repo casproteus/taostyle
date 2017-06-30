@@ -854,7 +854,7 @@ public class TaoUtil {
     private static void removeSensitiveDemoConfigurations(
             HttpSession session) {
         TaoDebug.info("start to removeSensitiveDemoConfigurations.");
-        session.removeAttribute("app_ContentManager");
+        session.removeAttribute(CC.app_ContentManager);
         session.removeAttribute("app_ManagerEmail");
         session.removeAttribute("app_name");
         session.removeAttribute(CC.app_WebsiteAddress);

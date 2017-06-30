@@ -138,7 +138,23 @@
 			object="${useraccount}" z="user-managed" />
 		-->
 	</page:show>
-
+	
+	<c:if test="${user_role eq '[ROLE_MANAGER]'}">
+		<legend style="padding-left: 20px; margin-bottom: 0px">Add or modify the available notes?</legend><br/>
+		<c:forEach var="i" begin="1" end="${support_note_max}" step="1">
+			<c:if test="${not empty quick_note[i-1]}">
+				<div align="center">
+					${quick_note[i-1]}
+					<util:changeText position="quick_note_${i}" content="${quick_note[i-1]}" allowedLevel="[ROLE_MANAGER]"/>
+				</div>
+			</c:if>
+		</c:forEach>
+		<c:if test="${support_note_max > fn:length(quick_note)}">
+			<div align="center">
+				<util:changeText position="quick_note_${fn:length(quick_note)+1}" content="" allowedLevel="[ROLE_MANAGER]" />
+			</div>
+		</c:if>
+	</c:if>
 	<script type="text/javascript">
 	
 		function combineMainOrder() {

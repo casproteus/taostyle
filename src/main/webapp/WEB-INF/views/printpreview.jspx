@@ -42,6 +42,31 @@
 					</c:if>
 				</page:BigList>
 			</div>
+			
+			<!-- hidden places for each printer -->
+			<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
+				<c:if test="${not empty materialsForPrinter[i-1]}">
+					<div id="forPrinter${i}" name="${printers[i-1]}" class="${span}" align="left" style="margin-left:${leftmargin}">
+						<p align="center"> ${targetTime}  ( ${sizeTable}${contactPhone} ) </p>
+						<div id="deshesArea">
+							<c:forEach var="i" begin="1" end="${fn:length(materials)}" step="1">
+								<div id="dish_${i}">
+									<p>${i}) ${materials[i-1]['portionName']}</p>
+									<p align="right">${materials[i-1]['remark']}</p>
+								</div>
+							</c:forEach>
+						</div>
+						<c:if test="${'recept' eq printStyle}">
+							--${address}--${contactPhone}-- <br/>
+							Total:${total} + Tax:${tax} = $${final}
+						</c:if>
+						<input id="mainOrderID" type="hidden" value="${mainOrderID}" /> 
+						<input id="printStyle" type="hidden" value="${printStyle}"/>
+				<!-- when debugging, modifiy the mainOrderID to mainOrderID_, to make the ajax call fail, so record will not be updated.  -->
+				<!-- The style of Print, it could be all(print all item) or each(print each item in one bill.  -->
+					</div>
+				</c:if>
+			</c:forEach>
 		</c:if>
 	</c:if>
 	<c:if test="${user_role == '[ROLE_PRINTER]'}">
