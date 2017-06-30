@@ -8,10 +8,7 @@
 <body>
 <table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
 <tr><td><b>Test Suite</b></td></tr>
-<tr><td><a href="010_010_login_as_demo_user.html">010_010_login_as_demo_user</a></td></tr>
-<tr><td><a href="010_020_client_display_check.html">010_020_client_display_check</a></td></tr>
-<tr><td><a href="010_030_change_password_as_demo_user.html">010_030_change_password_as_demo_user</a></td></tr>
-<tr><td><a href="010_100_logout_as_demo_user.html">010_100_logout_as_demo_user</a></td></tr>
+<tr><td><a href="020_999_delete_new_client.html">020_999_delete_new_client</a></td></tr>
 </tbody></table>
 </body>
 </html>

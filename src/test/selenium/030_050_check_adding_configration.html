@@ -22,8 +22,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>verifyText</td>
-	<td>//div[@id='main']/div/div/table/tbody/tr/td[2]</td>
+	<td>verifyTable</td>
+	<td>//div[@id='main']/div/div/table.1.0</td>
+	<td>app_name</td>
+</tr>
+<tr>
+	<td>verifyTable</td>
+	<td>//div[@id='main']/div/div/table.1.1</td>
 	<td>000clientForTest</td>
 </tr>
 <tr>
@@ -72,23 +77,18 @@
 	<td>000_fortest_keyValue</td>
 </tr>
 <tr>
-	<td>clickAndWait</td>
-	<td>css=img.btn.btn-success</td>
+	<td>assertTable</td>
+	<td>//div[@id='main']/div/div/table.1.0</td>
+	<td>000_fortest_cusKey</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=input.btn.btn-danger</td>
 	<td></td>
 </tr>
 <tr>
-	<td>type</td>
-	<td>id=_cusKey_id</td>
-	<td>CONTENTTYPE_4</td>
-</tr>
-<tr>
-	<td>type</td>
-	<td>id=_cusValue_id</td>
-	<td>SERVICE</td>
-</tr>
-<tr>
-	<td>clickAndWait</td>
-	<td>id=proceed</td>
+	<td>assertConfirmation</td>
+	<td>Are you sure want to delete this item?</td>
 	<td></td>
 </tr>
 </tbody></table>

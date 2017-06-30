@@ -4,28 +4,39 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://localhost/" />
-<title>050_050_manager_logout</title>
+<title>030_080_generate_qrcode</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">050_050_manager_logout</td></tr>
+<tr><td rowspan="1" colspan="3">030_080_generate_qrcode</td></tr>
 </thead><tbody>
 <tr>
-	<td>open</td>
-	<td>/taostyle/dashboard?notice=Nothing+will+be+uploaded+because+of+no+file+was+selected%21</td>
+	<td>click</td>
+	<td>link=CATALOGUE</td>
 	<td></td>
 </tr>
 <tr>
 	<td>clickAndWait</td>
-	<td>css=img[alt=&quot;Logout&quot;]</td>
+	<td>link=今日推荐</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/taostyle/resetQRCode?position=3_1_0</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>xpath=(//button[@type='submit'])[37]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>verifyText</td>
-	<td>css=img[alt=&quot;Login&quot;]</td>
+	<td>//div[8]/img</td>
 	<td></td>
 </tr>
+
 </tbody></table>
 </body>
 </html>
