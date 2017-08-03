@@ -5,8 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -17,7 +19,6 @@ import javax.validation.Valid;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
-import org.hsqldb.lib.HashMap;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -453,7 +454,7 @@ public class MainPageController extends BaseController {
             mainOrders = MainOrder.findMainOrdersByStatusAndPerson(CC.STATUS_TO_PRINT, person, "asc");
             if (mainOrders != null) {
                 for (MainOrder mainOrder : mainOrders) {
-                    String returnPath = showDetailOrder(mainOrder, model, request, null, null);
+                    String returnPath = prepareDetailOrder(mainOrder, model, request, null, null, null);
                     if (CC.STATUS_FULL.equals(returnPath)) {
                         mainOrder.setRecordStatus(CC.STATUS_PRINTED);
                         mainOrder.persist(); // DKW! when this excuted, useraccount will be persist into db.
@@ -490,9 +491,12 @@ public class MainPageController extends BaseController {
             MainOrder mainOrder = MainOrder.findMainOrder(mainOrderId);
             // prepare the data for websocket printers
             List<String> printers = new ArrayList<>();
+            Map<String, String> printersMap = new HashMap<String, String>();
             List<List<Material>> materialsForPrinters = new ArrayList<>();
-            String returnPath = showDetailOrder(mainOrder, model, request, printers, materialsForPrinters);
+            String returnPath =
+                    prepareDetailOrder(mainOrder, model, request, printers, printersMap, materialsForPrinters);
             model.addAttribute("printers", printers);
+            model.addAttribute("printersMap", printersMap);
             model.addAttribute("materialsForPrinters", materialsForPrinters);
             // end preparing data for websocket printers.
             return returnPath;
@@ -504,11 +508,12 @@ public class MainPageController extends BaseController {
 
     // TODO: when teh printers array is not null, means it's employee user need the data for websocket printers! it need
     // to be implemented.front end is already done.
-    private String showDetailOrder(
+    private String prepareDetailOrder(
             MainOrder mainOrder,
             Model model,
             HttpServletRequest request,
             List<String> printers,
+            Map<String, String> printersMap,
             List<List<Material>> materialsForPrinters) {
         if (mainOrder != null) {
             UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);
@@ -551,7 +556,9 @@ public class MainPageController extends BaseController {
                             // addin the printer.
                             String printerName = TaoEncrypt.stripUserName(user.getLoginname());
                             printers.add(printerName);
-
+                            if (printersMap != null) {
+                                printersMap.put(printerName, user.getFax());
+                            }
                             // addin materieals
                             List<Material> materialsForPrinter = new ArrayList<>();
                             for (Material material : materials) {

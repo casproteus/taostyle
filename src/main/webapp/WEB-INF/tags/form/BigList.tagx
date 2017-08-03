@@ -5,6 +5,18 @@
 	xmlns:jsp="http://java.sun.com/JSP/Page"
 	xmlns:spring="http://www.springframework.org/tags" version="2.0">
 	<jsp:output omit-xml-declaration="yes" />
+	<meta charset="utf-8" />
+<meta http-equiv="pragma" content="no-cache"/>
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="cache-control" content="no-store" />
+<meta http-equiv="expires" content="Thu, 01 Jun 1970 00:00:00 GMT" />
+<meta http-equiv="Access-Control-Allow-Origin" content="*"/>  
+	<spring:url value="/resources/js/printer/epos-2.3.0.js" var="epson_core" />
+	<script type="text/javascript" src="${epson_core}" ><!-- required for FF3 and Opera --></script>
+	
+	<spring:url value="/resources/js/printer/CustomerDisplayDevice.js" var="epson_device" />
+	<script type="text/javascript" src="${epson_device}" ><!-- required for FF3 and Opera --></script>
+
 
 	<jsp:directive.attribute name="id" type="java.lang.String"
 		required="true" rtexprvalue="true"
@@ -75,8 +87,176 @@
 		function backToMainOrder() {
 			window.location = "../dashboard";
 		}
-		
-		function printMainOrder(mainOrderID, wsUri) {
+		 function MyHashMap()
+		 {
+
+		     var size = 0;
+
+		     var entry = new Object();
+
+		     this.put = function (key , value)
+		     {
+		         if(!this.containsKey(key))
+		         {
+		             size ++ ;
+		         }
+		         entry[key] = value;
+		     }
+		     this.get = function (key)
+		     {
+		         if( this.containsKey(key) )
+		         {
+		             return entry[key];
+		         }
+		         else
+		         {
+		             return null;
+		         }
+		     }
+		      
+		     this.remove = function ( key )
+		     {
+		         if( delete entry[key] )
+		         {
+		             size --;
+		         }
+		     }
+		      
+		     this.containsKey = function ( key )
+		     {
+		         return (key in entry);
+		     }
+		      
+		     this.containsValue = function ( value )
+		     {
+		         for(var prop in entry)
+		         {
+		             if(entry[prop] == value)
+		             {
+		                 return true;
+		             }
+		         }
+		         return false;
+		     }
+		      
+		     this.values = function ()
+		     {
+		         var values = new Array(size);
+		         for(var prop in entry)
+		         {
+		             values.push(entry[prop]);
+		         }
+		         return values;
+		     }
+		      
+		     this.keys = function ()
+		     {
+		         var keys = new Array(size);
+		         for(var prop in entry)
+		         {
+		             keys.push(prop);
+		         }
+		         return keys;
+		     }
+		     this.size = function ()
+		     {
+		         return size;
+		     }
+		 }
+		function printMainOrder(mainOrderID, wsUri) {	
+			
+			var Printerlist="${printersMap}";
+				var printsMap=new MyHashMap();
+				<c:forEach items="${printersMap}" var="item">  
+				
+				printsMap.put("${item.key}","${item.value}");
+				
+				//<c:out value="${item.key}"/>  
+				//<c:out value="${item.value}"/>  
+				</c:forEach>  
+			
+			var Printerlist="${printers}";
+			<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
+				<c:if test="${not empty materialsForPrinters[i-1]}">
+					var printerIpAddress ="${printers[i-1]}";
+					var printType=printsMap.get("${printers[i-1]}");
+				    var builder = new epson.ePOSBuilder();
+		            builder.addTextLang('en');
+		            builder.addTextSmooth(true);
+		            builder.addTextFont(builder.FONT_A);
+					if(printType=== 'togo'){
+						 builder.addTextSize(1, 1);	
+				         builder.addText("Table Number " + "${sizeTable}" + "     "+"Order Time "+"${targetTime}"+'\n');
+				         builder.addText("------------------------------------------"+'\n');
+				         builder.addTextSize(2, 2);
+						<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
+					    
+					    builder.addTextAlign(builder.ALIGN_LEFT);
+						builder.addText("${materialsForPrinters [i-1][j-1]['portionName']}"+'\n')
+						builder.addTextAlign(builder.ALIGN_RIGHT);
+						builder.addText("${materialsForPrinters [i-1][j-1]['remark']}"+'\n')
+					    </c:forEach>	
+						 builder.addTextSize(1, 1);	
+						 builder.addTextAlign(builder.ALIGN_LEFT);
+						builder.addText("------------------------------------------"+'\n');
+					    builder.addText("${address}" +'\n');
+					    builder.addText("${contactPhone}"+'\n');
+					    builder.addText("Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${final}"+'\n');
+					    builder.addCut(builder.CUT_FEED);
+					    var request = builder.toString();
+			            var address = 'http://'+printerIpAddress+'/cgi-bin/epos/service.cgi?devid=local_printer&amp;timeout=10000';     
+			            // Create an ePOS-Print object
+			            var epos = new epson.ePOSPrint(address);
+			            //Send the print document						           
+			            epos.send(request);
+					}else if(printType=== 'all'){
+						 builder.addTextSize(1, 1);	
+						 builder.addText("Table Number " + "${sizeTable}" + "  "+"Order Time"+"${targetTime}"+'\n');
+				         builder.addText("------------------------------------------"+'\n');
+				         builder.addTextSize(2, 2);
+						<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
+					   
+					    builder.addTextAlign(builder.ALIGN_LEFT);
+						builder.addText("${materialsForPrinters [i-1][j-1]['portionName']}"+'\n')
+						builder.addTextAlign(builder.ALIGN_RIGHT);
+						builder.addText("${materialsForPrinters [i-1][j-1]['remark']}"+'\n')
+					    </c:forEach>	
+						builder.addCut(builder.CUT_FEED);
+						 var request = builder.toString();
+				            var address = 'http://'+printerIpAddress+'/cgi-bin/epos/service.cgi?devid=local_printer&amp;timeout=10000';     
+				            // Create an ePOS-Print object
+				            var epos = new epson.ePOSPrint(address);
+				            //Send the print document						           
+				            epos.send(request);
+						
+					}else if(printType=== 'separate'){
+						
+						<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
+						 builder.addTextSize(1, 1);		
+						 builder.addTextAlign(builder.ALIGN_LEFT);
+						 builder.addText("Table Number " + "${sizeTable}" + "  "+"Order Time"+"${targetTime}"+'\n');
+						  builder.addText("------------------------------------------"+'\n');
+					    builder.addTextSize(2, 2);
+					    builder.addTextAlign(builder.ALIGN_LEFT);
+						builder.addText("${materialsForPrinters [i-1][j-1]['portionName']}"+'\n')
+						builder.addTextAlign(builder.ALIGN_RIGHT);
+						builder.addText("${materialsForPrinters [i-1][j-1]['remark']}"+'\n')
+						builder.addCut(builder.CUT_FEED);
+					</c:forEach>	
+					 var request = builder.toString();
+			            var address = 'http://'+printerIpAddress+'/cgi-bin/epos/service.cgi?devid=local_printer&amp;timeout=10000';     
+			            // Create an ePOS-Print object
+			            var epos = new epson.ePOSPrint(address);
+			            //Send the print document						           
+			            epos.send(request);
+					}
+				
+					
+					
+		           
+				</c:if>
+			</c:forEach>
+			
 			var confirmed = confirm("Are you sure to send it to printer?");
 			if(confirmed){
 				$.ajax({
@@ -94,6 +274,7 @@
 			        }
 			    });
 			}
+		
 		}
 		
 		function orderCompleted(mainOrderID) {
