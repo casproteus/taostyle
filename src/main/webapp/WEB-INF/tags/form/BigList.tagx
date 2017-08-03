@@ -140,7 +140,11 @@
 		 }
 		
 		function printMainOrder(mainOrderID, wsUri) {
-			var Printerlist = "${printersMap}";
+			var confirmed = confirm("Are you sure to send it to printer?");
+			if(!confirmed){
+				return;
+			}
+			
 			var printsMap = new MyHashMap();
 			<c:forEach items = "${printersMap}" var = "item">  
 				printsMap.put("${item.key}", "${item.value}");
@@ -148,16 +152,17 @@
 				//<c:out value="${item.value}"/>  
 			</c:forEach>  
 			
-			var Printerlist="${printers}";
 			<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
 				<c:if test="${not empty materialsForPrinters[i-1]}">
-					var printerIpAddress ="${printers[i-1]}";
-					var printType=printsMap.get("${printers[i-1]}");
+				
 				    var builder = new epson.ePOSBuilder();
 		            builder.addTextLang('en');
 		            builder.addTextSmooth(true);
 		            builder.addTextFont(builder.FONT_A);
-					if(printType=== 'togo'){
+
+					var printerIpAddress ="${printers[i-1]}";
+		            var printType=printsMap.get("${printers[i-1]}");
+					if(printType=== 'togo' || printType=== 'all'){
 						 builder.addTextSize(1, 1);	
 				         builder.addText("Table Number " + "${sizeTable}" + "     "+"Order Time "+"${targetTime}"+'\n');
 				         builder.addText("------------------------------------------"+'\n');
@@ -167,38 +172,19 @@
 							builder.addText("${materialsForPrinters [i-1][j-1]['portionName']}"+'\n')
 							builder.addTextAlign(builder.ALIGN_RIGHT);
 							builder.addText("${materialsForPrinters [i-1][j-1]['remark']}"+'\n')
-					    </c:forEach>	
-						builder.addTextSize(1, 1);	
-						builder.addTextAlign(builder.ALIGN_LEFT);
-						builder.addText("------------------------------------------"+'\n');
-					    builder.addText("${address}" +'\n');
-					    builder.addText("${contactPhone}"+'\n');
-					    builder.addText("Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${final}"+'\n');
+					    </c:forEach>
+						
+						if(printType=== 'togo'){
+							builder.addTextSize(1, 1);	
+							builder.addTextAlign(builder.ALIGN_LEFT);
+							builder.addText("------------------------------------------"+'\n');
+						    builder.addText("${address}" +'\n');
+						    builder.addText("${contactPhone}"+'\n');
+						    builder.addText("Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${final}"+'\n');
+						}
+						
 					    builder.addCut(builder.CUT_FEED);
-					    var request = builder.toString();
-			            var address = 'http://'+printerIpAddress+'/cgi-bin/epos/service.cgi?devid=local_printer&amp;timeout=10000';     
-			            // Create an ePOS-Print object
-			            var epos = new epson.ePOSPrint(address);
-			            //Send the print document						           
-			            epos.send(request);
-					}else if(printType=== 'all'){
-						builder.addTextSize(1, 1);	
-						builder.addText("Table Number " + "${sizeTable}" + "  "+"Order Time"+"${targetTime}"+'\n');
-				        builder.addText("------------------------------------------"+'\n');
-				        builder.addTextSize(2, 2);
-						<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">
-						    builder.addTextAlign(builder.ALIGN_LEFT);
-							builder.addText("${materialsForPrinters [i-1][j-1]['portionName']}"+'\n')
-							builder.addTextAlign(builder.ALIGN_RIGHT);
-							builder.addText("${materialsForPrinters [i-1][j-1]['remark']}"+'\n')
-					    </c:forEach>	
-						builder.addCut(builder.CUT_FEED);
-						var request = builder.toString();
-				        var address = 'http://'+printerIpAddress+'/cgi-bin/epos/service.cgi?devid=local_printer&amp;timeout=10000';     
-				        // Create an ePOS-Print object
-				        var epos = new epson.ePOSPrint(address);
-				        //Send the print document						           
-				        epos.send(request);
+					    
 					}else if(printType=== 'separate'){
 						<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
 							builder.addTextSize(1, 1);		
@@ -211,34 +197,31 @@
 							builder.addTextAlign(builder.ALIGN_RIGHT);
 							builder.addText("${materialsForPrinters [i-1][j-1]['remark']}"+'\n')
 							builder.addCut(builder.CUT_FEED);
-						</c:forEach>	
-						var request = builder.toString();
-			            var address = 'http://'+printerIpAddress+'/cgi-bin/epos/service.cgi?devid=local_printer&amp;timeout=10000';     
-			            // Create an ePOS-Print object
-			            var epos = new epson.ePOSPrint(address);
-			            //Send the print document						           
-			            epos.send(request);
+						</c:forEach>
+					}else{
+						continue;
 					}
+					
+		            var address = 'http://'+printerIpAddress+'/cgi-bin/epos/service.cgi?devid=local_printer&amp;timeout=10000';
+		            var epos = new epson.ePOSPrint(address);// Create an ePOS-Print object
+		            epos.send(builder.toString());//Send the print document  
 				</c:if>
 			</c:forEach>
 			
-			var confirmed = confirm("Are you sure to send it to printer?");
-			if(confirmed){
-				$.ajax({
-			    	headers: "Accept=application/json",
-			        type: "POST",
-			        url: "updateAnOrderStatus/"+mainOrderID,
-			        data: "recordStatus=10",
-			        async:false,
-			        success:function(textContent){
-			        	if(textContent == null || textContent.length == 0){
-			        	}else{
-			        		alert( "Please check the connection of internet or cotact the admin.");
-			        	}
-			        	window.location = "../dashboard";
-			        }
-			    });
-			}
+			$.ajax({
+		    	headers: "Accept=application/json",
+		        type: "POST",
+		        url: "updateAnOrderStatus/"+mainOrderID,
+		        data: "recordStatus=10",
+		        async:false,
+		        success:function(textContent){
+		        	if(textContent == null || textContent.length == 0){
+		        	}else{
+		        		alert( "Please check the connection of internet or cotact the admin.");
+		        	}
+		        	window.location = "../dashboard";
+		        }
+		    });
 		}
 		
 		function orderCompleted(mainOrderID) {
