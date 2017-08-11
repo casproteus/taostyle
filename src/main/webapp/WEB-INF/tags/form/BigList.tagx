@@ -148,8 +148,6 @@
 				var printsMap = new MyHashMap();
 				<c:forEach items = "${printersMap}" var = "item">
 					printsMap.put("${item.key}", "${item.value}");
-					//<c:out value="${item.key}"/>  
-					//<c:out value="${item.value}"/>  
 				</c:forEach>
 				
 				<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">

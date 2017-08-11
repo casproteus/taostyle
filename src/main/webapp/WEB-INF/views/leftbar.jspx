@@ -76,9 +76,9 @@
 		<!-- LeftMenuBar -->
 		
 		<div id="hander" class="leftbar" ontouchend="javascript:switchHanderToBarDiv()"
-			style="padding-bottom:${hander_padding}px; padding-top:${hander_padding}px; visibility:hidden; left:-10px;
+			style="padding-bottom:${hander_padding}px; padding-top:${hander_padding}px; visibility:hidden; left:-10px; font-weight:bold; 
 			background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:1000;">
-			>>
+			<b>>></b>
 		</div>
 		<input id="threshold_hiding_leftbar" name="threshold_hiding_leftbar" type="hidden" value="${threshold_hiding_leftbar}"/>
 		<!-- make the selected menu highlighted. -->
@@ -125,7 +125,7 @@
 			
 			function switchHanderToBarDiv(){
 				document.getElementById("hander").style.visibility='hidden';
-				setTimeout("showBarDiv()", 200);
+				setTimeout("showBarDiv()", 500);
 			}
 			
 			function showBarDiv(){
