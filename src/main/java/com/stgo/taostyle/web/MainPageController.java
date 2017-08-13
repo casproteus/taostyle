@@ -26,6 +26,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -891,6 +892,81 @@ public class MainPageController extends BaseController {
         model.addAttribute("mediaUpload", new MediaUpload());
         // return index(model, request);
         return buildPageForMenu(model, request, null);
+    }
+
+    @RequestMapping(value = "/syncJustPrintDb", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> syncJustPrintDb(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam("filepath")
+            String filepath,
+            @RequestParam("submitDate")
+            String submitDate,
+            @RequestBody
+            String strContent) {
+
+        // prepare the header for return;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=UTF-8");
+
+        // get content uploaded for use.
+        byte[] content;
+        try {
+            request.getInputStream();
+            content = strContent.getBytes("UTF-8");
+        } catch (Exception e) {
+            return new ResponseEntity<String>("", headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        if (false) {
+            return new ResponseEntity<String>(strContent, headers, HttpStatus.OK);
+        }
+
+        // get the submitDate ready for use
+        Date date = null;
+        try {
+            Long time = Long.valueOf(submitDate);
+            date = new Date(time);
+        } catch (Exception e) {
+            TaoDebug.error("the submitDate from justprint when synchronizing db is not correct:{}", submitDate);
+        }
+
+        // make sure JustPrint user exist.
+        Person person = Person.findPersonByName("JustPrint");
+        if (person == null) {
+            person = new Person();
+            person.setName("JustPrint");
+            person.setPassword(TaoEncrypt.encryptPassword("asdf"));
+            person.persist();
+        }
+
+        // check if the mediaUpload exists
+        MediaUpload mediaUpload = null;
+        mediaUpload = MediaUpload.findMediaByKeyAndPerson(filepath, person);
+        if (mediaUpload == null) {
+            mediaUpload = new MediaUpload();
+            mediaUpload.setFilepath(filepath);
+            mediaUpload.setPerson(person);
+            mediaUpload.setContent(content);
+            mediaUpload.setSubmitDate(date);
+            mediaUpload.persist();
+        } else {
+            if (date != null && mediaUpload.getSubmitDate().before(date)) { // updating
+                mediaUpload.setContent(content);
+                mediaUpload.setSubmitDate(date);
+                mediaUpload.persist();
+            } else { // downloading
+                String contentFR = null;
+                try {
+                    contentFR = new String(mediaUpload.getContent(), "UTF-8");
+                } catch (Exception e) {
+                    TaoDebug.error("error happened when reading content into a String", e);
+                }
+                return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity<String>("", headers, HttpStatus.OK);
     }
 
     // hard code here, because As we know only the 2.3,4,5 are disigned to display galarry.
