@@ -40,8 +40,13 @@ public class TaoDebug {
             sb.append("<br>!!!Error!!!");
             info(format, arguments);
         }
-        TaoEmail.sendMessage("issueReport@ShareTheGoodOnes.com", format, "info@ShareTheGoodOnes.com",
-                arguments.toString(), null);
+        StringBuilder sb = new StringBuilder();
+        for (Object argument : arguments) {
+            sb.append(argument.toString());
+            sb.append("\n");
+        }
+        TaoEmail.sendMessage("issueReport@ShareTheGoodOnes.com", format, "info@ShareTheGoodOnes.com", sb.toString(),
+                null);
     }
 
     public static void warn(
