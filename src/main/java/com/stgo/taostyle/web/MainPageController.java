@@ -894,6 +894,82 @@ public class MainPageController extends BaseController {
         return buildPageForMenu(model, request, null);
     }
 
+    // ===================for JustPrint Client============================================
+    @RequestMapping(value = "/activeJustPrintAccount", method = RequestMethod.POST, headers = "Accept=application/json")
+    public
+            ResponseEntity<String> activeJustPrintAccount(
+                    @RequestBody
+                    String content) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+
+        Person person = makeSurePersonExist("JustPrint");
+        Customize customize = makeSureSNexist(person);// Customize.findCustomizeByKeyAndPerson(SN, person);
+        String snsValue = customize.getCusValue();
+        String[] SNs = StringUtils.split(snsValue, ',');
+
+        String contentFR = "0";
+        // add the new remark base on content in param: {"username":"asdfas,StoreName"}
+        if (content != null && content.length() > 0) {
+            int p = content.indexOf("\"username\"");
+            if (p > -1) {
+                int startP = p + 12;
+                p = content.indexOf("}");
+                if (p > -1) {
+                    int endP = p - 1;
+                    content = content.substring(startP, endP);
+                    p = content.indexOf(',');
+                    if (p > -1) {
+                        String snStr = content.substring(0, p);
+                        String storeName = content.substring(p + 1);
+
+                        UserAccount userAccount = getAnUserAnyway(person, storeName);
+                        String snInAccount = userAccount.getCel();// SN
+                        if (snInAccount == null) {
+                            for (String sn : SNs) {
+                                if (sn.equals(snStr)) {
+                                    contentFR = userAccount.getTel();
+                                    userAccount.setCel(sn);
+                                    userAccount.setFax(String.valueOf(new Date().getTime()));
+                                    userAccount.persist();
+                                    break;
+                                }
+                            }
+                        } else if (snInAccount.equals(snStr)) {
+                            contentFR = userAccount.getTel();
+                            userAccount.setFax(String.valueOf(new Date().getTime()));
+                            userAccount.persist();
+                        }
+                    }
+                }
+
+            }
+        }
+
+        if (contentFR == null) {
+            contentFR = "34560000000";// 400days=400*1000*3600*24=34,560,000,000
+        }
+        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+    }
+
+    private UserAccount getAnUserAnyway(
+            Person person,
+            String name) {
+        name = name + "*" + person.getId();
+        UserAccount userAccount = UserAccount.findUserAccountByName(name);
+        if (userAccount == null) {
+            userAccount = new UserAccount();
+            userAccount.setPerson(person);
+            userAccount.setLoginname(name);
+            userAccount.setPassword("Byiz2GrdTDE=");
+            userAccount.setTel(null); // Time left
+            userAccount.setFax(null); // registered time.
+            userAccount.setCel(null); // SN
+        }
+        return userAccount;
+    }
+
     @RequestMapping(value = "/syncJustPrintDb", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<String> syncJustPrintDb(
             HttpServletRequest request,
@@ -924,21 +1000,19 @@ public class MainPageController extends BaseController {
 
         // get the submitDate ready for use
         Date date = null;
-        try {
-            Long time = Long.valueOf(submitDate);
-            date = new Date(time);
-        } catch (Exception e) {
-            TaoDebug.error("the submitDate from justprint when synchronizing db is not correct:{}", submitDate);
+        if (submitDate == null || submitDate.length() < 1) {
+            date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super early.
+        } else {
+            try {
+                Long time = Long.valueOf(submitDate);
+                date = new Date(time);
+            } catch (Exception e) {
+                TaoDebug.error("the submitDate from justprint when synchronizing db is not correct:{}", submitDate);
+            }
         }
 
         // make sure JustPrint user exist.
-        Person person = Person.findPersonByName("JustPrint");
-        if (person == null) {
-            person = new Person();
-            person.setName("JustPrint");
-            person.setPassword(TaoEncrypt.encryptPassword("asdf"));
-            person.persist();
-        }
+        Person person = makeSurePersonExist("JustPrint");
 
         // check if the mediaUpload exists
         MediaUpload mediaUpload = null;
@@ -967,6 +1041,32 @@ public class MainPageController extends BaseController {
         }
 
         return new ResponseEntity<String>("", headers, HttpStatus.OK);
+    }
+
+    private Person makeSurePersonExist(
+            String name) {
+        Person person = Person.findPersonByName(name);
+        if (person == null) {
+            person = new Person();
+            person.setName("JustPrint");
+            person.setPassword(TaoEncrypt.encryptPassword("asdf"));
+            person.persist();
+        }
+        return person;
+    }
+
+    private Customize makeSureSNexist(
+            Person person) {
+        Customize customize = Customize.findCustomizeByKeyAndPerson("SNs", person);
+        if (customize == null) {
+            customize = new Customize();
+            customize.setPerson(person);
+            customize.setCusKey("SNs");
+            String SNs = "AFJAIU,RQWEIU,ZXVZXV,IASYDU,WLEJKR,WMENRT,QWKJER,UADSYF,YUSDJF,HJHKQE,asdfas";
+            customize.setCusValue(SNs);
+            customize.persist();
+        }
+        return customize;
     }
 
     // hard code here, because As we know only the 2.3,4,5 are disigned to display galarry.
