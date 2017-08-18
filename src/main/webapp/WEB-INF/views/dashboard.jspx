@@ -99,7 +99,7 @@
 					<table:BigSortable data="${mainOrderList}" id="l_com_stgo_taostyle_domain_MainOrder" path="/showDetailOrder" 
 					selectable="${selectable}" create="false" update="false"  delete="false">
 						<!-- table:column id="c_com_stgo_taostyle_domain_mainorder_id" label="ID" property="id"/-->
-						<table:column id="c_com_stgo_taostyle_domain_mainorder_delieverdate" date="true" dateTimePattern="HH:mm:ss" label="Target" property="delieverdate"/>
+						<table:column id="c_com_stgo_taostyle_domain_mainorder_delieverdate" date="true" dateTimePattern="HH:mm:ss" label="Pending Time" property="delieverdate"/>
 						<table:column id="c_com_stgo_taostyle_domain_mainorder_sizetable" label="Customer" property="sizeTable"/>
 						<table:column id="c_com_stgo_taostyle_domain_mainorder_recordStatus" label="Status" property="recordStatus"/>
 						<table:column id="c_com_stgo_taostyle_domain_mainorder_paycondition" label="Total" property="payCondition"/>
@@ -159,7 +159,6 @@
 	
 		function combineMainOrder() {
 			var chkBoxes = $('#l_com_stgo_taostyle_domain_MainOrder').find('input:checked');
-
 	        if (chkBoxes.length != 2) {
 	        	alert("Please select 2 rows to merge. You have selected " + chkBoxes.length);
 	            return;
@@ -236,6 +235,7 @@
 			    });
 			}
 		}
+		
 	</script>
 	
 	<c:if test="${user_role eq '[ROLE_EMPLOYEE]'}">
@@ -245,6 +245,28 @@
 				window.location = "./dashboard";
 			} 
 			setTimeout('start()', ${(20+refresh_time) * 1000});
+			updateOrderTime();
+			function updateOrderTime(){
+			  if(${displayAsPendingTime}){
+				var currentDate = new Date();
+				var currentHour = currentDate.getHours();
+				var currentMinute = currentDate.getMinutes();
+				var currentSeconds = currentDate.getSeconds();
+
+				var table = document.getElementById('l_com_stgo_taostyle_domain_MainOrder');
+				for (var r = 1,  n = table.rows.length; r &lt; n; r++) {
+					if(table.rows[r].cells[1].innerHTML){
+						var orderTime = table.rows[r].cells[1].innerHTML
+			        	var orderTimeArray = orderTime.split(':');
+			        	var start = parseInt(orderTimeArray[0]) * 3600 + parseInt(orderTimeArray[1]) * 60 + parseInt(orderTimeArray[2]);
+			        	var end = parseInt(currentHour) * 3600 + parseInt(currentMinute) * 60+ parseInt(currentSeconds);
+			         	var elapseMs = end - start;
+					 	var resultMin = Math.ceil(parseInt(elapseMs/60));
+		                table.rows[r].cells[1].innerHTML = resultMin + " m";
+					}
+				}
+			  }
+			}
 		</script>
 	</c:if>
 
