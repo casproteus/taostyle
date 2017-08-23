@@ -18,19 +18,28 @@
 	<c:if test="${'true' == show_status_area}">
 	  <c:if test="${user_role != '[ROLE_PRINTER]'}">
 		<div id="bellArea">
-		  <div id="noticeArea" align="right" style="position: fixed; padding-right:${width_bell_img}px; border-radius:0px; z-index: 1000;
-		   bottom: ${status_y}px; right: 0px; color:#${foreground_leftbar}; background:#${background_leftbar}; opacity:${leftbar_opacity};">
-				<c:set var="visibility" value="${'true' == show_status_total ? 'visible' : 'hidden'}" />
-				<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none; font-size: 12px; visibility:${visibility}"/>
-				<span style="visibility:${visibility}">Items | Total:$</span>
-				<input id="totalPrice"  value="${totalPrice}" style="width: 40px; border-style:none; background:none; font-size: 12px; visibility:${visibility}" />
-				<c:if test="${'true' == show_status_break}" >
-					<br/>
-				</c:if>
+		  <c:set var="topOrBottom" value="${displayCheckOutOnTop ? 'top' : 'bottom'}" />
+		  <div id="noticeArea" align="left" style="height: 50px; position: fixed; 
+		  border-radius:0px; z-index: 1000; ${topOrBottom}: ${status_y}px; right: 0px; color:#${foreground_leftbar}; 
+		  background:#${background_leftbar}; opacity:${statusbar_opacity};">
+				<c:set var="gap" value="${not empty itemNumber and not empty show_status_message ? 0 : 10 }" />
+				<div style="position: fixed; z-index: 1001; ${topOrBottom}: ${status_y + gap}px; right: ${width_bell_img + 20}px;">
+					<c:set var="visibility" value="${'true' == show_status_total ? 'visible' : 'hidden'}" />
+					<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none; font-size: 12px; visibility:${visibility}"/>
+					<span style="visibility:${visibility}">Items | Total:$</span>
+					<input id="totalPrice"  value="${totalPrice}" style="width: 40px; border-style:none; background:none; font-size: 12px; visibility:${visibility}" />
 
-				${show_status_message}
+					<c:if test="${not empty itemNumber and not empty show_status_message}" >
+						<br/>
+					</c:if>
+					<c:if test="${not empty show_status_message}" >
+					<span>
+						${show_status_message}
+					</span>
+					</c:if>
+				</div>
 		  		<c:if test="${'true' == show_status_submit}">
-				 	<div style="position: fixed; z-index: 1001; bottom: ${status_y}px; right: 5px; cursor:pointer">
+				 	<div style="position: fixed; z-index: 1001; ${topOrBottom}: ${status_y}px; right: 5px; cursor:pointer">
 						<a style="font-weight: bold" onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')">
 							<img alt="hide unchecked items" src="getImage/Submit" title="Submit."/>
 						</a>
@@ -40,7 +49,7 @@
 			</div>
 
 		  	<c:if test="${not empty show_status_bell}">
-			  	<div style="position: fixed; z-index: 1001; bottom: ${status_y}px; right: 5px; cursor:pointer">
+			  	<div style="position: fixed; z-index: 1001; ${topOrBottom}: ${status_y}px; right: 5px; cursor:pointer">
 			  		<spring:url value="/showSelection" var="showSelection" /> 
 					<a href="${showSelection}"> 							
 						<img alt="hide unchecked items" src="getImage/bell" title="Show selections and submit."/>
@@ -48,8 +57,18 @@
 					<util:changeImg position="bell" />
 			  	</div>
 		  	</c:if>
-	  	</div>
+		  	
 	  	
+	  	</div>
+	
+		<c:if test="${not empty show_status_category}">
+			<div style="position: fixed; z-index: 1001; ${topOrBottom}: ${status_y + 10}px;
+			 left:15px; cursor:pointer; color:#${foreground_leftbar}"
+			 ontouchend="javascript:switchHanderToBarDiv()"	>
+				${show_status_category}
+		  	</div>
+		</c:if>
+			
 	  	<input id="user_role" type="hidden" value="${user_role}" /> 
 	  	<input id="latitude" type="hidden" value="${latitude}" /> 
 	  	<input id="longitude" type="hidden" value="${longitude}" /> 
@@ -96,10 +115,9 @@
 	               //alert("Error: Position is unavailable!");
 	            }
 	        }
-	         
-			function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
-				var orderedItems = "";
-				/** markup because now we allow cross page selection. //build string of selected producs/services.
+
+        	/** markup because now we allow cross page selection. //build string of selected producs/services.
+	        function cleanUnselectedItems(){
 				for (var j=100; j>=0; j--) {
 					var curGridView = document.getElementById(j + "-gridview");
 					if(curGridView != null){
@@ -141,29 +159,50 @@
 							}
 						}
 					}
-				}*/
+				}
+	        }
+        	*/
+        	
+			function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
+				var orderedItems = "";
 		
 				//we supporse user selected something, then if it's from outside, collect user information.
 				var phoneNumber = "n";
 				var address = "n";
 				var arrive = "n";
-				var location ="n";
+				var location = "n";
+				var name = "n";
 				var geoOutRange = false;
 				if(tableID == null || tableID.length == 0){
 					tableID = "not_on_site"
 					phoneNumber = prompt("Thank you for ordering, please leave your phone number:","");
 					if(phoneNumber == ""){
 						phoneNumber = "did-not-input"
+					}else if(phoneNumber == null){
+						return;
 					}
+					
 					address = prompt("Delever to address:(Leave it empty for picking up in store)","");		
 					if(address == ""){
 						address =  "did-not-input"
+					}else if(address == null){
+						return;
 					}
+					
 					arrive = prompt("Approximate time you would like to have it:","");
 					if(arrive == ""){
 						arrive =  "did-not-input"
+					}else if(arrive == null){
+						return;
 					}
-		
+					
+					name = prompt("Your name please:", "");
+					if(name == ""){
+						name =  "did-not-input"
+					}else{
+						return;
+					}
+					
 					//TODO: send to back end to create a log
 					if(contact_phone == null){
 						alert("Sorry, The company haven't openned online ordering function.");
@@ -174,12 +213,16 @@
 						alert("Sorry, The address is out of service area.");
 						return;
 					}
+				}else{
+					if(false){
+						name = prompt("Your name please:", "");
+						if(name == ""){
+							name =  "did-not-input"
+						}
+					}
 				}
 		
-				var name = prompt("Your name please:", "");
-				if(name == ""){
-					name =  "did-not-input"
-				}
+				
 				orderedItems = orderedItems.substr(1);
 				var source = tableID + "zSTGOz" + name + "zSTGOz" + phoneNumber + "zSTGOz" + address + "zSTGOz" + arrive;
 				
@@ -195,7 +238,7 @@
 		
 			function send(orderedItems, source, latitude, longitude, map_x, map_y, limit_diff, contact_phone){	
 				
-				var isFromOurside = (latitude - map_x) > limit_diff || (longitude - map_y) > limit_diff;
+				var isFromOurside = (latitude.value - map_x) > limit_diff || (longitude.value - map_y) > limit_diff;
 				if(isFromOurside){
 					if(source.indexOf("zSTGOz") > 0){//means the first element is empty (the first element is for tableID)
 						alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");

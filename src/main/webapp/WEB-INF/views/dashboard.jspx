@@ -247,7 +247,7 @@
 			setTimeout('start()', ${(20+refresh_time) * 1000});
 			updateOrderTime();
 			function updateOrderTime(){
-			  if(${displayAsPendingTime}){
+			  if(${dsp_pendingTime}){
 				var currentDate = new Date();
 				var currentHour = currentDate.getHours();
 				var currentMinute = currentDate.getMinutes();

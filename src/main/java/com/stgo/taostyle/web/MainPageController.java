@@ -2122,8 +2122,10 @@ public class MainPageController extends BaseController {
         List<List<String>> visibleStatusList = new ArrayList<List<String>>();
         List<String> groupTitles = new ArrayList<String>();
 
-        HashMap map_key = new HashMap();
-        HashMap map_note = new HashMap();
+        HashMap<String, List<String>> map_key = new HashMap<String, List<String>>();
+        HashMap<String, List<String>> map_note = new HashMap<String, List<String>>();
+
+        // group by the category first
         for (int i = 0; i < imageKeyStrs.length; i++) {
             String imageKeyStr = imageKeyStrs[i];
             String note = notes == null || notes.length <= i ? " " : notes[i]; // "" will be ignored when split, so use
@@ -2142,7 +2144,7 @@ public class MainPageController extends BaseController {
                 list = new ArrayList<String>();
                 map_key.put(menuIdx, list);
             }
-            list.add("service_" + imageKeyStr);// because front end user imageKeyString with "service_", -they need it
+            list.add("service_" + imageKeyStr);// because front end use imageKeyString with "service_", -they need it
                                                // to fetch image.
             // note
             list = (List<String>) map_note.get(menuIdx);
@@ -2152,27 +2154,48 @@ public class MainPageController extends BaseController {
             }
             list.add(note);
         }
-        // to make it in order.
+
+        // to make the category name in order.
         List<String> menusForRef = TaoUtil.fetchAllMenuByType(CC.SERVICE, request, langPrf, person);
         long i = 0;
         StringBuilder sb_key = new StringBuilder(",");
         StringBuilder sb_note = new StringBuilder("");// no need to start with ",", because not used to check if
                                                       // contains some thing.
+
+        boolean groupedSelection = "true".equals(session.getAttribute("dsp_groupedSelection"));
         for (String menuSring : menusForRef) {
             List<String> keys = (List<String>) map_key.get(menuSring);
             if (keys != null) {
-                // imageKeyLists
-                imageKeyLists.add(keys);
-
-                // descriptions
-                TaoUtil.fillInDescriptions(langPrf, person, descriptions, keys);
-
                 // visibleStatusList
+                List<String> tKeys = new ArrayList<String>();
                 List<String> visibleStatus = new ArrayList<String>();
-                for (String item : keys) {
-                    visibleStatus.add("1");
+                if (groupedSelection) {
+                    Map<String, Integer> groupedMenu = new HashMap<String, Integer>();
+                    for (String item : keys) {
+                        Integer number = groupedMenu.get(item);
+                        if (number == null) {
+                            groupedMenu.put(item, Integer.valueOf(1));
+                        } else {
+                            groupedMenu.put(item, Integer.valueOf(number + 1));
+                        }
+                    }
+                    for (Map.Entry<String, Integer> entry : groupedMenu.entrySet()) {
+                        tKeys.add(entry.getKey());
+                        visibleStatus.add(String.valueOf(entry.getValue()));
+                    }
+                } else {
+                    for (String item : keys) {
+                        tKeys.add(item);
+                        visibleStatus.add("1");
+                    }
                 }
                 visibleStatusList.add(visibleStatus);
+
+                // imageKeyLists
+                imageKeyLists.add(tKeys);
+
+                // descriptions
+                TaoUtil.fillInDescriptions(langPrf, person, descriptions, tKeys);
 
                 // features
                 Feature feature = new Feature();
@@ -2214,8 +2237,8 @@ public class MainPageController extends BaseController {
         //
         model.addAttribute("shoppingCartMode", "true");
 
-        model.addAttribute("support_times", "false");
-        model.addAttribute("show_service_cBox", "false");
+        model.addAttribute("support_times", groupedSelection);
+        model.addAttribute("show_service_cBox", groupedSelection);
 
         // left menu bar
         String pKey = (String) session.getAttribute(CC.default_feature_menu);
@@ -2950,6 +2973,12 @@ public class MainPageController extends BaseController {
             if (person.getName().equalsIgnoreCase(tUserName)) {
                 initializeToStyle3(request, person);
             }
+        } else if ("style4".equals(client)) {
+            String tUserName = userContextService.getCurrentUserName();
+            Person person = TaoUtil.getCurPerson(request);
+            if (person.getName().equalsIgnoreCase(tUserName)) {
+                initializeToStyle4(request, person);
+            }
         }
         return null;
     }
@@ -3078,6 +3107,7 @@ public class MainPageController extends BaseController {
             Person person) {
         createACustomize(request, CC.app_ContentManager, "true", person);// when someone is promoted to be a manager,
         // shall we set his name here?
+        createACustomize(request, "dsp_pendingTime", "true", person);
         createACustomize(request, "img_service_h", "720", person);
         createACustomize(request, "img_service_w", "960", person);
         createACustomize(request, "img_service_thum_h", "230", person);
@@ -3114,6 +3144,18 @@ public class MainPageController extends BaseController {
 
         createACustomize(request, "support_times", "true", person);
         createACustomize(request, "threshold_hiding_leftbar", "800", person);
+
+    }
+
+    // it's a super simple style, without menu, nor language bar.
+    private void initializeToStyle4(
+            HttpServletRequest request,
+            Person person) {
+        createACustomize(request, "show_AboveMenu", "", person);
+        createACustomize(request, "show_Menu", "", person);
+        createACustomize(request, "displayCheckOutOnTop", "true", person);
+        createACustomize(request, "status_y", "0", person);
+        createACustomize(request, "show_status_category", "true", person);
 
     }
 

@@ -85,7 +85,11 @@ public class CustomizeController {
         Person person = TaoUtil.getCurPerson(request);
         customize.setPerson(person);
         customize.merge();
-        request.getSession().setAttribute(customize.getCusKey(), customize.getCusValue());
+        String cusKey = customize.getCusKey();
+        if (cusKey.indexOf('_') == 2) {
+            cusKey = cusKey.substring(3);
+        }
+        request.getSession().setAttribute(cusKey, customize.getCusValue());
         return "redirect:/customizes/" + encodeUrlPathSegment(customize.getId().toString(), request);
     }
 
