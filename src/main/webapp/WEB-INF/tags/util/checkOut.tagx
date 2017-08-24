@@ -25,7 +25,7 @@
 		  border-radius:0px; z-index: 1000; ${topOrBottom}: ${status_y}px; right:0px; color:#${foreground_leftbar}; 
 		  background:#${background_leftbar}; opacity:${statusbar_opacity};">
 				<c:set var="visibility" value="${'true' == show_status_total ? 'visible' : 'hidden'}" />
-				<c:if test="${visibility}">
+				<c:if test="${visibility == 'visible'}">
 					<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none; font-size: 12px; visibility:${visibility}"/>
 					<span style="visibility:${visibility}">Items | Total:$</span>
 					<input id="totalPrice"  value="${totalPrice}" style="width: 40px; border-style:none; background:none; font-size: 12px; visibility:${visibility}" />
@@ -197,7 +197,7 @@
 					name = prompt("Your name please:", "");
 					if(name == ""){
 						name =  "did-not-input"
-					}else{
+					}else if(arrive == null){
 						return;
 					}
 					
