@@ -10,7 +10,6 @@
 		<!-- when screen is not too small, occupy 2 cols -->
 		<c:set value="col-sm-2 col-md-2 col-lg-2" var="span" />
 		<c:set value="20px" var="leftmargin" />		
-		<c:set var="hander_padding" value="25" />
 		<c:if test="${not empty show_big_hander}">
 			<c:set var="hander_padding" value="${show_big_hander}" />
 		</c:if>
@@ -113,7 +112,7 @@
 					
 					var noticeArea = document.getElementById("noticeArea");
 					if(noticeArea){
-						noticeArea.style.left="0px";
+						noticeArea.style.left="${status_left}px";
 					}
 				}
 			});

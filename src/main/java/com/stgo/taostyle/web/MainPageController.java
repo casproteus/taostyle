@@ -3153,7 +3153,7 @@ public class MainPageController extends BaseController {
             Person person) {
         createACustomize(request, "show_AboveMenu", "", person);
         createACustomize(request, "show_Menu", "", person);
-        createACustomize(request, "displayCheckOutOnTop", "true", person);
+        createACustomize(request, "dsp_status_OnTop", "true", person);
         createACustomize(request, "status_y", "0", person);
         createACustomize(request, "show_status_category", "true", person);
 
