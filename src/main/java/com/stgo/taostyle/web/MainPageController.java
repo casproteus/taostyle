@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
@@ -2179,7 +2180,7 @@ public class MainPageController extends BaseController {
                             groupedMenu.put(item, Integer.valueOf(number + 1));
                         }
                     }
-                    for (Map.Entry<String, Integer> entry : groupedMenu.entrySet()) {
+                    for (Entry<String, Integer> entry : groupedMenu.entrySet()) {
                         tKeys.add(entry.getKey());
                         visibleStatus.add(String.valueOf(entry.getValue()));
                     }
