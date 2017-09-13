@@ -29,6 +29,8 @@
 		<intercept-url pattern="/resources/**" access="permitAll" />
 		<intercept-url pattern="/login/**" access="permitAll" />
 		<intercept-url pattern="/**" access="permitAll" />
+		
+		<csrf disabled="true" />
 	</http>
 
 	<!-- Configure Authentication mechanism -->

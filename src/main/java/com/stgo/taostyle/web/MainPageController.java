@@ -919,27 +919,27 @@ public class MainPageController extends BaseController {
                 p = content.indexOf("}");
                 if (p > -1) {
                     int endP = p - 1;
-                    content = content.substring(startP, endP);
+                    content = content.substring(startP, endP);	//get out "asdfas,StoreName"
                     p = content.indexOf(',');
                     if (p > -1) {
-                        String snStr = content.substring(0, p);
-                        String storeName = content.substring(p + 1);
+                        String snStr = content.substring(0, p);			//get out sn
+                        String storeName = content.substring(p + 1);	//get out stre name
 
-                        UserAccount userAccount = getAnUserAnyway(person, storeName);
+                        UserAccount userAccount = getAnUserAnyway(person, storeName);	//get out the userAccout of person JustPrint
                         String snInAccount = userAccount.getCel();// SN
                         if (snInAccount == null) {
                             for (String sn : SNs) {
                                 if (sn.equals(snStr)) {
-                                    contentFR = userAccount.getTel();
-                                    userAccount.setCel(sn);
-                                    userAccount.setFax(String.valueOf(new Date().getTime()));
+                                    contentFR = userAccount.getTel();					//left time
+                                    userAccount.setCel(sn);								//activate code
+                                    userAccount.setFax(String.valueOf(new Date().getTime()));	//activated time
                                     userAccount.persist();
                                     break;
                                 }
                             }
                         } else if (snInAccount.equals(snStr)) {
-                            contentFR = userAccount.getTel();
-                            userAccount.setFax(String.valueOf(new Date().getTime()));
+                            contentFR = userAccount.getTel();							//left time
+                            userAccount.setFax(String.valueOf(new Date().getTime()));	//activate time
                             userAccount.persist();
                         }
                     }
