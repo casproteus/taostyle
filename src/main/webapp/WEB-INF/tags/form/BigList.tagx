@@ -17,6 +17,8 @@
 	<spring:url value="/resources/js/printer/CustomerDisplayDevice.js" var="epson_device" />
 	<script type="text/javascript" src="${epson_device}" ><!-- required for FF3 and Opera --></script>
 
+   <spring:url value="/resources/js/printer/printerlibs.js" var="sunson_device" />
+	<script type="text/javascript" src="${sunson_device}" ><!-- required for FF3 and Opera --></script>
 
 	<jsp:directive.attribute name="id" type="java.lang.String"
 		required="true" rtexprvalue="true"
@@ -152,74 +154,66 @@
 				
 				<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
 					<c:if test="${not empty materialsForPrinters[i-1]}">
-					
-					    var builder = new epson.ePOSBuilder();
-			            builder.addTextLang('en');
-			            builder.addTextSmooth(true);
-			            builder.addTextFont(builder.FONT_A);
-	
+					var io = createWebSocketIO();   
+					io.onopen=function(e){
+	                    	POS_Reset(io);
+	    					
+	    					POS_Beep(io, 0, 0);
+	                   
 			            var printType=printsMap.get("${printers[i-1]}");
 						if(printType=== 'togo' || printType=== 'all'){
-							 builder.addTextSize(1, 1);	
-					         builder.addText("Table Number " + "${sizeTable}" + "     "+"Order Time "+"${targetTime}"+'\n');
-					         builder.addText("------------------------------------------"+'\n');
-					         builder.addTextSize(2, 2);
-							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
-						        builder.addTextAlign(builder.ALIGN_LEFT);
-								builder.addText("${materialsForPrinters [i-1][j-1]['portionName']}"+'\n')
-								builder.addTextAlign(builder.ALIGN_RIGHT);
-								builder.addText("${materialsForPrinters [i-1][j-1]['remark']}"+'\n')
+					       POS_TextOut(io,"Table Number " + "${sizeTable}" + "     "+"Order Time "+"${targetTime}"+'\n',0,0,0,0,0);
+					       POS_TextOut(io,"------------------------------------------"+'\n',0,0,0,0,0);
+							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">									
+								  POS_TextOut(io,"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
+								  POS_TextOut(io,"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
 						    </c:forEach>
 							
 							if(printType=== 'togo'){
-								builder.addTextSize(1, 1);	
-								builder.addTextAlign(builder.ALIGN_LEFT);
-								builder.addText("------------------------------------------"+'\n');
-							    builder.addText("${address}" +'\n');
-							    builder.addText("${contactPhone}"+'\n');
-							    builder.addText("Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${final}"+'\n');
+								POS_TextOut(io,"${address}" +'\n',0,0,0,1,0);
+								POS_TextOut(io,"${contactPhone}"+'\n',0,0,0,1,0);
+								POS_TextOut(io,"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${final}"+'\n',0,0,0,1,0);
 							}
 							
-						    builder.addCut(builder.CUT_FEED);
+							POS_FeedAndCutPaper(io);
 						    
 						}else if(printType=== 'separate'){
 							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
-								builder.addTextSize(1, 1);		
-								builder.addTextAlign(builder.ALIGN_LEFT);
-								builder.addText("Table Number " + "${sizeTable}" + "  "+"Order Time"+"${targetTime}"+'\n');
-								builder.addText("------------------------------------------"+'\n');
-							    builder.addTextSize(2, 2);
-							    builder.addTextAlign(builder.ALIGN_LEFT);
-								builder.addText("${materialsForPrinters [i-1][j-1]['portionName']}"+'\n')
-								builder.addTextAlign(builder.ALIGN_RIGHT);
-								builder.addText("${materialsForPrinters [i-1][j-1]['remark']}"+'\n')
-								builder.addCut(builder.CUT_FEED);
+								
+								POS_TextOut(io,"Table Number " + "${sizeTable}" + "  "+"Order Time"+"${targetTime}"+'\n',0,0,0,0,0);
+								POS_TextOut(io,"------------------------------------------"+'\n',0,0,0,0,0);
+								POS_TextOut(io,"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
+								POS_TextOut(io,"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
+								POS_FeedAndCutPaper(io);
 							</c:forEach>
 						}else{
 							alert("Error: the printer type is not set correctly, please contact info@ShareTheGoodOnes for correct configuration.");
-						}
-	
-						var printerIpAddress ="${printers[i-1]}";
-			            var address = 'http://'+printerIpAddress+'/cgi-bin/epos/service.cgi?devid=local_printer&amp;timeout=10000';
-			            var ePrinter = new epson.ePOSPrint(address);// Create an ePOS-Print object
-			            ePrinter.send(builder.toString());//Send the print document  
+						}	
+						  io.close();
+	                    }
+	                    io.onerror= function(e){
+	                    	console.log(e)
+	    				}
+	                    var printerIpAddress ="${printers[i-1]}";
+	                    io.open(printerIpAddress, 8080);
+	                  
 					</c:if>
 				</c:forEach>
 			</c:if>
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateAnOrderStatus/"+mainOrderID,
-		        data: "recordStatus=10",
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		        	}
-		        	window.location = "../dashboard";
-		        }
-		    });
+		//	$.ajax({
+		//    	headers: "Accept=application/json",
+		//        type: "POST",
+		//        url: "updateAnOrderStatus/"+mainOrderID,
+		//       data: "recordStatus=10",
+		//        async:false,
+		//        success:function(textContent){
+		//        	if(textContent == null || textContent.length == 0){
+		//        	}else{
+		//        		alert( "Please check the connection of internet or cotact the admin.");
+		//       	}
+		//        	window.location = "../dashboard";
+		//        }
+		//    });
 		}
 		
 		function orderCompleted(mainOrderID) {
