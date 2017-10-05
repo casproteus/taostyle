@@ -212,12 +212,12 @@
 						return;
 					}
 				}else{
-					if(false){
+					<c:if test="${style_askName eq 'always'}">
 						name = prompt("Your name please:", "");
 						if(name == ""){
-							name =  "did-not-input"
+							name =  "did-not-input";
 						}
-					}
+					</c:if>
 				}
 		
 				

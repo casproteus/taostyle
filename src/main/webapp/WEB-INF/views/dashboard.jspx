@@ -240,6 +240,10 @@
 	
 	<c:if test="${user_role eq '[ROLE_EMPLOYEE]'}">
 		<script type="text/javascript">
+		  <c:if test="${style_refresh eq 'ajax'}">
+			setTimeout('update()', ${(20+refresh_time) * 1000});
+		  </c:if>
+		  <c:if test="${style_refresh ne 'ajax'}">
 			<![CDATA[
 		        "use strict";
 
@@ -269,9 +273,17 @@
 
 		        Chat.initialize = function() {
 		            if (window.location.protocol == 'http:') {
-		                Chat.connect('ws://' + window.location.host + '/websocket/refreshNotice');
+		            	if(window.location.host == 'localhost'){
+			                Chat.connect('ws://' + window.location.host + '/taostyle/websocket/refreshNotice');
+		            	}else{
+			                Chat.connect('ws://' + window.location.host + '/websocket/refreshNotice');
+		            	}
 		            } else {
-		                Chat.connect('wss://' + window.location.host + '/websocket/refreshNotice');
+		            	if(window.location.host == 'localhost'){
+			                Chat.connect('wss://' + window.location.host + '/taostyle/websocket/refreshNotice');
+		            	}else{
+		                	Chat.connect('wss://' + window.location.host + '/websocket/refreshNotice');
+		            	}
 		            }
 		        };
 
@@ -282,15 +294,14 @@
 
 		        Chat.initialize();
 
-		    ]]>
-			
+		      ]]>
+			</c:if>
 			//self refresh.
 			function update(){
 				window.location = "./dashboard";
 			}
 			
-			//setTimeout('update()', ${(20+refresh_time) * 1000});
-			
+			//replace the deliever time to how many minuts l
 			updateOrderTime();
 			function updateOrderTime(){
 			  if(${dsp_pendingTime}){
