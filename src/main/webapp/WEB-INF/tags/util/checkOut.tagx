@@ -238,7 +238,7 @@
 				
 				var isFromOurside = (latitude.value - map_x) > limit_diff || (longitude.value - map_y) > limit_diff;
 				if(isFromOurside){
-					if(source.indexOf("zSTGOz") > 0){//means the first element is empty (the first element is for tableID)
+					if(source.indexOf("not_on_site") != 0){//means the first element is empty (the first element is for tableID)
 						alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");
 						return;
 					}
