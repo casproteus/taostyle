@@ -164,7 +164,7 @@
 			function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
 				var orderedItems = "";
 		
-				//we supporse user selected something, then if it's from outside, collect user information.
+				//we suppouse user selected something, then if it's from outside, collect user information.
 				var phoneNumber = "n";
 				var address = "n";
 				var arrive = "n";
