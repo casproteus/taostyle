@@ -161,7 +161,7 @@
 	        }
         	*/
         	
-			function cleanItemsAndSubmit(tableID, contact_phone, map_x, map_y, limit_diff, isAboveEmployee) {
+			function cleanItemsAndSubmit(tableID, contact_phone, MAP_POS_X2, MAP_POS_Y2, limit_location_diff, isAboveEmployee) {
 				var orderedItems = "";
 		
 				//we suppouse user selected something, then if it's from outside, collect user information.
@@ -225,8 +225,8 @@
 				var source = tableID + "zSTGOz" + name + "zSTGOz" + phoneNumber + "zSTGOz" + address + "zSTGOz" + arrive;
 				
 				//no need to wait for 6 seconds, because I let the geo watch start as soon as page loaded.
-				//setTimeout("send('" + orderedItems + "','" + source + "',latitude,longitude,'" + map_x + "','" + map_y + "','" + limit_diff +"','" + contact_phone + "')",6000);
-				send(orderedItems,source,latitude,longitude,map_x ,map_y,limit_diff,contact_phone);
+				//setTimeout("send('" + orderedItems + "','" + source + "',latitude,longitude,'" + MAP_POS_X2 + "','" + MAP_POS_Y2 + "','" + limit_location_diff +"','" + contact_phone + "')",6000);
+				send(orderedItems,source,latitude,longitude, MAP_POS_X2, MAP_POS_Y2,limit_location_diff,contact_phone);
 				//hide bell
 				if(isAboveEmployee == '' || isAboveEmployee == 'false'){ 
 					obj = document.getElementById("bellArea");
@@ -234,10 +234,10 @@
 		        }
 			}
 		
-			function send(orderedItems, source, latitude, longitude, map_x, map_y, limit_diff, contact_phone){	
+			function send(orderedItems, source, latitude, longitude, MAP_POS_X2, MAP_POS_Y2, limit_location_diff, contact_phone){	
 				
-				var isFromOurside = (latitude.value - map_x) > limit_diff || (longitude.value - map_y) > limit_diff;
-				if(isFromOurside){
+				var isFromOutside = Math.abs(latitude.value - MAP_POS_X2) > limit_location_diff || Math.abs(longitude.value - MAP_POS_Y2) > limit_location_diff;
+				if(isFromOutside){
 					if(source.indexOf("not_on_site") != 0){//means the first element is empty (the first element is for tableID)
 						alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");
 						return;
