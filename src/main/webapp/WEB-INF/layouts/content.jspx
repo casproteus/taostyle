@@ -10,15 +10,13 @@
 <jsp:directive.page pageEncoding="UTF-8" />
 
 <head>
-<meta name="google-site-verification" content="krCjecjKCEH5vm3gw9EkIamJ3DNwy3YROHGQe8ty-ks" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="X-UA-Compatible" content="IE=10" />
-
-<util:load-headers />
-
-<title><spring:message code="welcome_titlepane"
-		arguments="${app_name}" /></title>
-
+	<meta name="google-site-verification" content="krCjecjKCEH5vm3gw9EkIamJ3DNwy3YROHGQe8ty-ks" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=10" />
+	
+	<util:load-headers />
+	
+	<title><spring:message code="welcome_titlepane" arguments="${app_name}" /></title>
 </head>
 
 <body style="background-color: #${background_app}">
