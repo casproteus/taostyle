@@ -3153,8 +3153,7 @@ public class MainPageController extends BaseController {
         }
 
         // footer
-        String footerContent = "© 2017 " + person.getName()
-                + ". powered by <a ref='http://www.shareTheGoodOnes.com/for_demo'>ShareTheGoodOnes.com</a>";
+        String footerContent = "© 2017 " + person.getName();
         generateTextContent("en_footer_copyright", footerContent, person);
         generateTextContent("fr_footer_copyright", footerContent, person);
         generateTextContent("zh_footer_copyright", footerContent, person);

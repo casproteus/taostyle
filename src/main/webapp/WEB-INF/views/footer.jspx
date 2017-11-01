@@ -138,7 +138,9 @@
 				</a>
 			</span>
 		</c:if>
-		
+		<c:if test="${'false' != show_stgo_adv and not fn:containsIgnoreCase(footer_copyright, 'ShareTheGoodOnes')}">
+			<div style="margin-left:30px;"><a ref='http://www.shareTheGoodOnes.com/for_demo'>Powered by ShareTheGoodOnes.com</a></div>
+		</c:if>
 		<script type="text/javascript">
 		function showUpload() {
 			$('#windowTitleDialog').modal('show');
