@@ -610,7 +610,7 @@ public class MainPageController extends BaseController {
                 TaoDebug.error("tax not set yet!", request);
             }
             model.addAttribute("tax", taxValue);
-            model.addAttribute("final", totalPrice + taxValue);
+            model.addAttribute("endPrice", totalPrice + taxValue);
             if (currentUser != null) {
                 model.addAttribute("printStyle", currentUser.getFax());
             }
@@ -3259,6 +3259,7 @@ public class MainPageController extends BaseController {
         createACustomize(request, "support_subMenu", "true", person);
         createACustomize(request, "leftbar_fixed", "true", person);
         createACustomize(request, "leftbar_item_padding", "20", person);
+        createACustomize(request, "background_leftbar", "78603D", person);
 
         createACustomize(request, "support_times", "true", person);
         createACustomize(request, "threshold_hiding_leftbar", "800", person);
@@ -3273,8 +3274,8 @@ public class MainPageController extends BaseController {
         createACustomize(request, "show_Menu", "", person);
         createACustomize(request, "dsp_status_OnTop", "true", person);
         createACustomize(request, "status_y", "0", person);
-        createACustomize(request, "show_status_category", "true", person);
-
+        createACustomize(request, "show_status_category", "MENU", person);
+        createACustomize(request, "statusbar_border-radius", "0", person);
     }
 
     private void createACustomize(

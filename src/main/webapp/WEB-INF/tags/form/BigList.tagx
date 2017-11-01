@@ -151,7 +151,6 @@
 				<c:forEach items = "${printersMap}" var = "item">
 					printsMap.put("${item.key}", "${item.value}");
 				</c:forEach>
-				
 				<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
 					<c:if test="${not empty materialsForPrinters[i-1]}">
 					var io = createWebSocketIO();   
@@ -172,7 +171,7 @@
 							if(printType=== 'togo'){
 								POS_TextOut(io,"${address}" +'\n',0,0,0,1,0);
 								POS_TextOut(io,"${contactPhone}"+'\n',0,0,0,1,0);
-								POS_TextOut(io,"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${final}"+'\n',0,0,0,1,0);
+								POS_TextOut(io,"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${endPrice}"+'\n',0,0,0,1,0);
 							}
 							
 							POS_FeedAndCutPaper(io);
@@ -200,20 +199,20 @@
 					</c:if>
 				</c:forEach>
 			</c:if>
-		//	$.ajax({
-		//    	headers: "Accept=application/json",
-		//        type: "POST",
-		//        url: "updateAnOrderStatus/"+mainOrderID,
-		//       data: "recordStatus=10",
-		//        async:false,
-		//        success:function(textContent){
-		//        	if(textContent == null || textContent.length == 0){
-		//        	}else{
-		//        		alert( "Please check the connection of internet or cotact the admin.");
-		//       	}
-		//        	window.location = "../dashboard";
-		//        }
-		//    });
+			$.ajax({
+		    	headers: "Accept=application/json",
+		        type: "POST",
+		        url: "updateAnOrderStatus/"+mainOrderID,
+		       data: "recordStatus=10",
+		        async:false,
+		        success:function(textContent){
+		        	if(textContent == null || textContent.length == 0){
+		        	}else{
+		        		alert( "Please check the connection of internet or cotact the admin.");
+		       	}
+		        	window.location = "../dashboard";
+		        }
+		    });
 		}
 		
 		function orderCompleted(mainOrderID) {

@@ -20,9 +20,10 @@
 		<div id="bellArea">
 		  <c:set var="topOrBottom" value="${dsp_status_OnTop ? 'top' : 'bottom'}" />
 		  <c:set var="gap" value="${not empty itemNumber and not empty show_status_message ? 0 : 20 }" />
+		  
 		  <div id="noticeArea" align="right" style="height: 50px; position: fixed; 
 		  padding-top:${gap}px; padding-right:${width_bell_img}px; padding-left:5px;
-		  border-radius:0px; z-index: 1000; ${topOrBottom}: ${status_y}px; right:0px; color:#${foreground_leftbar}; 
+		  border-radius:${statusbar_border-radius}px; z-index: 1000; ${topOrBottom}: ${status_y}px; right:0px; color:#${foreground_leftbar}; 
 		  background:#${background_leftbar}; opacity:${statusbar_opacity};">
 				<c:set var="visibility" value="${'true' == show_status_total ? 'visible' : 'hidden'}" />
 				<c:if test="${visibility == 'visible'}">
@@ -55,7 +56,6 @@
 					<util:changeImg position="bell" />
 			  	</div>
 		  	</c:if>
-		  	
 	  	
 	  	</div>
 	

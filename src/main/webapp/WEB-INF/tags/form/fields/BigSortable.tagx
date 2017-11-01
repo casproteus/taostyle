@@ -43,9 +43,9 @@
 	<jsp:directive.attribute name="tax" type="java.lang.String"
 		required="false" rtexprvalue="true"
 		description="Include 'tax' into table (default false)" />
-	<jsp:directive.attribute name="final" type="java.lang.Float"
+	<jsp:directive.attribute name="endPrice" type="java.lang.Float"
 		required="false" rtexprvalue="true"
-		description="Include 'final' into table (default false)" />
+		description="Include 'endPrice' into table" />
 	<jsp:directive.attribute name="render" type="java.lang.Boolean"
 		required="false" rtexprvalue="true"
 		description="Indicate if the contents of this tag and all enclosed tags should be rendered (default 'true')" />
@@ -273,7 +273,7 @@
 					<c:if test="${not empty total}">
 						Total:${total}
 						<c:if test="${not empty tax}">
-						 	+ Tax:${tax} = $${final}
+						 	+ Tax:${tax} = $${endPrice}
 						</c:if>
 					</c:if>
 				</td>
