@@ -3240,9 +3240,9 @@ public class MainPageController extends BaseController {
         createACustomize(request, "show_status_bell", "true", person);
         createACustomize(request, "show_status_break", "true", person);
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
-        createACustomize(request, "show_status_message",
+        createACustomize(request, "en_show_status_message1",
                 (String) request.getSession().getAttribute(langPrf + CC.show_status_message1), person);
-        createACustomize(request, "show_status_total", "true", person);
+        createACustomize(request, "show_status_total", "false", person);
 
         createACustomize(request, "status_y", "50", person);
     }
@@ -3260,8 +3260,9 @@ public class MainPageController extends BaseController {
         createACustomize(request, "leftbar_fixed", "true", person);
         createACustomize(request, "leftbar_item_padding", "20", person);
         createACustomize(request, "background_leftbar", "78603D", person);
+        createACustomize(request, "statusbar_border-radius", "10", person);
 
-        createACustomize(request, "support_times", "true", person);
+        createACustomize(request, "support_times", "false", person);
         createACustomize(request, "threshold_hiding_leftbar", "800", person);
 
     }
