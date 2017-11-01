@@ -9,7 +9,7 @@
 	<c:if test="${not empty subMenu}">
 		<!-- when screen is not too small, occupy 2 cols -->
 		<c:set value="col-sm-2 col-md-2 col-lg-2" var="span" />
-		<c:set value="20px" var="leftmargin" />		
+		
 		<c:if test="${not empty show_big_hander}">
 			<c:set var="hander_padding" value="${show_big_hander}" />
 		</c:if>
@@ -113,6 +113,9 @@
 					var noticeArea = document.getElementById("noticeArea");
 					if(noticeArea){
 						noticeArea.style.left="${status_left}px";
+						if(${status_left} != 0){
+							// this line has no effect, is it because the .radius are not the right property? noticeArea.style.radius="5px";
+						}
 					}
 				}
 			});
