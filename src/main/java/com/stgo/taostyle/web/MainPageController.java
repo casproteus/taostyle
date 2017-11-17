@@ -977,6 +977,51 @@ public class MainPageController extends BaseController {
         return userAccount;
     }
 
+    @RequestMapping(value = "/security", method = RequestMethod.GET, headers = "Accept=application/json")
+    public ResponseEntity<String> security(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam("version")
+            final String version,
+            @RequestParam("label")
+            final String label,
+            @RequestParam("message")
+            final String message,
+            @RequestParam("time") Date time) {
+
+        // prepare the header for return;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=UTF-8");
+
+        // get the submitDate ready for use
+        Date date = null;
+        if (time == null) {
+            date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super early.
+        } else {
+            date = time;
+        }
+
+        // make sure JustPrint user exist.
+        Person person = makeSurePersonExist("JustPrint");
+
+        // check if the mediaUpload exists
+        MediaUpload mediaUpload = null;
+        mediaUpload = MediaUpload.findMediaByKeyAndPerson("system_security_monitor", person);
+        if (mediaUpload != null) {
+            if (date != null && mediaUpload.getSubmitDate().after(date)) { // downloading
+                String contentFR = null;
+                try {
+                    contentFR = new String(mediaUpload.getContent(), "UTF-8");
+                } catch (Exception e) {
+                    TaoDebug.error("error happened when reading content into a String", e);
+                }
+                return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity<String>("", headers, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/syncJustPrintDb", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<String> syncJustPrintDb(
             HttpServletRequest request,
