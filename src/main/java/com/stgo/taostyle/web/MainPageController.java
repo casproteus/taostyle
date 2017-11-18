@@ -977,6 +977,18 @@ public class MainPageController extends BaseController {
         return userAccount;
     }
 
+    /**
+     * 
+     * @param request
+     * @param response
+     * @param version
+     * @param personName
+     *            when client side is running as server, it will use person name as label when communicating with test
+     *            server.
+     * @param message
+     * @param time
+     * @return
+     */
     @RequestMapping(value = "/security", method = RequestMethod.GET, headers = "Accept=application/json")
     public ResponseEntity<String> security(
             HttpServletRequest request,
@@ -984,10 +996,10 @@ public class MainPageController extends BaseController {
             @RequestParam("version")
             final String version,
             @RequestParam("label")
-            final String label,
+            final String personName,
             @RequestParam("message")
             final String message,
-            @RequestParam("time") Date time) {
+            @RequestParam("time") Long time) {
 
         // prepare the header for return;
         HttpHeaders headers = new HttpHeaders();
@@ -998,11 +1010,11 @@ public class MainPageController extends BaseController {
         if (time == null) {
             date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super early.
         } else {
-            date = time;
+            date = new Date(time);
         }
 
         // make sure JustPrint user exist.
-        Person person = makeSurePersonExist("JustPrint");
+        Person person = makeSurePersonExist(personName);
 
         // check if the mediaUpload exists
         MediaUpload mediaUpload = null;
