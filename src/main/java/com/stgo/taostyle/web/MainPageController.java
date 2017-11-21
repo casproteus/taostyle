@@ -1002,12 +1002,12 @@ public class MainPageController extends BaseController {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam("version")
-            final String version,
+            final Long version,
             @RequestParam("label")
             final String personName,
             @RequestParam("message")
             final String message,
-            @RequestParam("time") Long time) {
+            @RequestParam("time") String time) {
 
         // prepare the header for return;
         HttpHeaders headers = new HttpHeaders();
@@ -1015,10 +1015,10 @@ public class MainPageController extends BaseController {
 
         // get the submitDate ready for use
         Date date = null;
-        if (time == null) {
+        if (version == null) {
             date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super early.
         } else {
-            date = new Date(time);
+            date = new Date(version);
         }
 
         // make sure JustPrint user exist.
@@ -1029,7 +1029,6 @@ public class MainPageController extends BaseController {
         mediaUpload = MediaUpload.findMediaByKeyAndPerson("system_security_monitor", person);
         if (mediaUpload != null) {
             if (date != null && mediaUpload.getSubmitDate().after(date)) { // downloading
-                String contentFR = null;
                 try {
                     InputStream inputStream = new ByteArrayInputStream(mediaUpload.getContent());
                     InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
@@ -1038,7 +1037,6 @@ public class MainPageController extends BaseController {
                 } catch (Exception e) {
                     TaoDebug.error("error happened when reading content into a String", e);
                 }
-                return null;// new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
             }
         }
 
