@@ -1,6 +1,8 @@
 package com.stgo.taostyle.web;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,9 +20,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -989,7 +994,10 @@ public class MainPageController extends BaseController {
      * @param time
      * @return
      */
-    @RequestMapping(value = "/security", method = RequestMethod.GET, headers = "Accept=application/json")
+    @RequestMapping(value = "/security")
+    @ResponseBody
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML, MediaType.TEXT_XML, "application/zip",
+            MediaType.APPLICATION_OCTET_STREAM })
     public ResponseEntity<String> security(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -1023,11 +1031,14 @@ public class MainPageController extends BaseController {
             if (date != null && mediaUpload.getSubmitDate().after(date)) { // downloading
                 String contentFR = null;
                 try {
-                    contentFR = new String(mediaUpload.getContent(), "UTF-8");
+                    InputStream inputStream = new ByteArrayInputStream(mediaUpload.getContent());
+                    InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
+                    headers.setContentLength(inputStream.available());
+                    return new ResponseEntity(inputStreamResource, headers, HttpStatus.OK);
                 } catch (Exception e) {
                     TaoDebug.error("error happened when reading content into a String", e);
                 }
-                return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+                return null;// new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
             }
         }
 
@@ -1078,6 +1089,7 @@ public class MainPageController extends BaseController {
         // check if the mediaUpload exists
         MediaUpload mediaUpload = null;
         mediaUpload = MediaUpload.findMediaByKeyAndPerson(filepath, person);
+
         if (mediaUpload == null) {
             mediaUpload = new MediaUpload();
             mediaUpload.setFilepath(filepath);
