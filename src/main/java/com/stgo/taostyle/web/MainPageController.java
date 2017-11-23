@@ -1002,7 +1002,7 @@ public class MainPageController extends BaseController {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam("version")
-            final Long version,
+            final String version,
             @RequestParam("label")
             final String personName,
             @RequestParam("message")
@@ -1013,16 +1013,36 @@ public class MainPageController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=UTF-8");
 
+        // make sure JustPrint user exist.
+        Person person = makeSurePersonExist(personName);
+
         // get the submitDate ready for use
         Date date = null;
         if (version == null) {
             date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super early.
         } else {
-            date = new Date(version);
+            try {
+                Long tt = Long.valueOf(version);
+                date = new Date(tt);
+            } catch (Exception e) {
+                // version is not time(number), then it must be Alarm, we should send email out.
+                try {
+                    Long tt = Long.valueOf(version);
+                    date = new Date(tt);
+                } catch (Exception ee) {
+                    // version is not time(number), then it must be Alarm, we should send email out.
+                    String managerEmail = person.getPassword(); // we use the email as the account's password.
+                    if (managerEmail != null) {
+                        try {
+                            TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail, message,
+                                    null);
+                        } catch (Exception eee) {
+                            System.out.println("Exception when sending email to :" + managerEmail);
+                        }
+                    }
+                }
+            }
         }
-
-        // make sure JustPrint user exist.
-        Person person = makeSurePersonExist(personName);
 
         // check if the mediaUpload exists
         MediaUpload mediaUpload = null;
@@ -1119,8 +1139,8 @@ public class MainPageController extends BaseController {
         Person person = Person.findPersonByName(name);
         if (person == null) {
             person = new Person();
-            person.setName("JustPrint");
-            person.setPassword(TaoEncrypt.encryptPassword("asdf"));
+            person.setName(name);
+            person.setPassword(TaoEncrypt.encryptPassword("info@sharethegoodones.com"));
             person.persist();
         }
         return person;
