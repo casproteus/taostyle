@@ -72,6 +72,8 @@ import flexjson.JSONSerializer;
 @Controller
 public class MainPageController extends BaseController {
 
+    public static String ALARM = "ALARM_";
+
     @Inject
     private UserContextService userContextService;
 
@@ -1003,8 +1005,10 @@ public class MainPageController extends BaseController {
             HttpServletResponse response,
             @RequestParam("version")
             final String version,
-            @RequestParam("label")
+            @RequestParam("hostId")
             final String personName,
+            @RequestParam("label")
+            final String label,
             @RequestParam("message")
             final String message,
             @RequestParam("time") String time) {
@@ -1030,14 +1034,16 @@ public class MainPageController extends BaseController {
                     Long tt = Long.valueOf(version);
                     date = new Date(tt);
                 } catch (Exception ee) {
-                    // version is not time(number), then it must be Alarm, we should send email out.
-                    String managerEmail = person.getPassword(); // we use the email as the account's password.
-                    if (managerEmail != null) {
-                        try {
-                            TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail, message,
-                                    null);
-                        } catch (Exception eee) {
-                            System.out.println("Exception when sending email to :" + managerEmail);
+                    if (needToSendEmail(label)) {
+                        // version is not time(number), then it must be Alarm, we should send email out.
+                        String managerEmail = person.getPassword(); // we use the email as the account's password.
+                        if (managerEmail != null) {
+                            try {
+                                TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail,
+                                        message, null);
+                            } catch (Exception eee) {
+                                System.out.println("Exception when sending email to :" + managerEmail);
+                            }
                         }
                     }
                 }
@@ -1061,6 +1067,11 @@ public class MainPageController extends BaseController {
         }
 
         return new ResponseEntity<String>("", headers, HttpStatus.OK);
+    }
+
+    private boolean needToSendEmail(
+            String label) {
+        return label.contains(ALARM);
     }
 
     @RequestMapping(value = "/syncJustPrintDb", method = RequestMethod.POST, headers = "Accept=application/json")
