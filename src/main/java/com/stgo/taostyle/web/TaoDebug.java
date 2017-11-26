@@ -68,7 +68,7 @@ public class TaoDebug {
             String url = request.getRequestURL().toString();
             String queryString = request.getQueryString();
             if (StringUtils.isNotBlank(queryString)) {
-                url = url + queryString;
+                url = url + "?" + queryString;
             }
             Object menuIdx = request.getSession().getAttribute(CC.menuIdx);
             info(template, args, person, url, menuIdx);

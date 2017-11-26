@@ -239,8 +239,10 @@
 				var isFromOutside = Math.abs(latitude.value - MAP_POS_X2) > limit_location_diff || Math.abs(longitude.value - MAP_POS_Y2) > limit_location_diff;
 				if(isFromOutside){
 					if(source.indexOf("not_on_site") != 0){//means the first element is empty (the first element is for tableID)
-						alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");
-						return;
+						if(user_role.value == ''){
+							alert("Sorry, the QRCode you are using is only for onsite order. Please call us or use the qrcode on webpage to order online.");
+							return;
+						}
 					}
 				}
 				if(orderedItems.length == 0){
