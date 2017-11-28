@@ -1037,7 +1037,7 @@ public class MainPageController extends BaseController {
                     if (needToSendEmail(label)) {
                         // version is not time(number), then it must be Alarm, we should send email out.
                         String managerEmail = person.getPassword(); // we use the email as the account's password.
-                        if (managerEmail != null) {
+                        if (managerEmail != null && managerEmail.contains("@") && managerEmail.contains(".")) {
                             try {
                                 TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail,
                                         message, null);
@@ -1147,12 +1147,26 @@ public class MainPageController extends BaseController {
 
     private Person makeSurePersonExist(
             String name) {
+        name = name.replace(".", "_");
         Person person = Person.findPersonByName(name);
         if (person == null) {
             person = new Person();
             person.setName(name);
-            person.setPassword(TaoEncrypt.encryptPassword("info@sharethegoodones.com"));
+            person.setPassword(TaoEncrypt.encryptPassword("asdf"));
             person.persist();
+
+            UserAccount userAccount = new UserAccount();
+            userAccount.setPerson(person);
+            userAccount.setLoginname("system*" + person.getId());
+            userAccount.setPassword(TaoEncrypt.encryptPassword("asdf"));
+            userAccount.setSecuritylevel("ROLE_EMPLOYEE");
+            userAccount.persist();
+
+            Customize customize = new Customize();
+            customize.setPerson(person);
+            customize.setCusKey("app_ContentManager");
+            customize.setCusValue("system");
+            customize.persist();
         }
         return person;
     }

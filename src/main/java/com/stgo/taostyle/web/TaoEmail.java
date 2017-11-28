@@ -1,5 +1,8 @@
 package com.stgo.taostyle.web;
 
+import java.util.Date;
+import java.util.HashMap;
+
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
 
@@ -41,13 +44,10 @@ public class TaoEmail {
             sendMessage(request.getParameter("email"), "JOB APPLICATION", managerEmail.toString(), emailContent + link,
                     content);
         } catch (Exception emailException) {
-            sendMessage(
-                    "tao@sharethegoodones.com",
-                    "JOB APPLICATION",
-                    managerEmail.toString(),
-                    request.getParameter("email")
-                            + " wanted to send you an application, but failed(could because the email address was not acceptable by the mail server, folowing is the basic infomation:<br/>"
-                            + emailContent + link, content);
+            sendMessage("tao@sharethegoodones.com", "JOB APPLICATION", managerEmail.toString(), request
+                    .getParameter("email")
+                    + " wanted to send you an application, but failed(could because the email address was not acceptable by the mail server, folowing is the basic infomation:<br/>"
+                    + emailContent + link, content);
         }
     }
 
@@ -56,9 +56,8 @@ public class TaoEmail {
             Person person) {
 
         Object contentManager = request.getSession().getAttribute(CC.app_ContentManager);
-        StringBuilder tSB =
-                new StringBuilder("<b>Hi, " + contentManager != null ? contentManager.toString() : ""
-                        + "<br/> An application is delivered into system, following are the infomation:</b><br/>");
+        StringBuilder tSB = new StringBuilder("<b>Hi, " + contentManager != null ? contentManager.toString()
+                : "" + "<br/> An application is delivered into system, following are the infomation:</b><br/>");
         tSB.append("firstname: ").append(request.getParameter("firstname")).append("<br/>").append("middlename: ")
                 .append(request.getParameter("middlename")).append("<br/>").append("lastname: ")
                 .append(request.getParameter("lastname")).append("<br/>").append("phone: ")
@@ -86,12 +85,24 @@ public class TaoEmail {
         return tSB.toString();
     }
 
+    private static HashMap<String, Long> map = new HashMap<String, Long>(); // used for preventing sending to a mail box
+                                                                            // too often.
+
     public static void sendMessage(
             String mailFrom,
             String subject,
             String mailTo,
             String message,
             CommonsMultipartFile attach) {
+        Long lastsend = map.get(mailFrom + mailTo);
+        long now = new Date().getTime();
+        if (lastsend != null) {
+            if (now - lastsend < 600000) { // less than 10 minuts.
+                return;
+            }
+        }
+        map.put(mailFrom + mailTo, now); // it's already more than 10 minutes
+
         MailSender tMailSender =
                 SpringApplicationContext.getApplicationContext().getBean("mailSender", MailSender.class);
         MimeMessage mimeMessage = ((JavaMailSender) tMailSender).createMimeMessage();
