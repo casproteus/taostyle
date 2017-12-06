@@ -94,14 +94,15 @@ public class TaoEmail {
             String mailTo,
             String message,
             CommonsMultipartFile attach) {
-        Long lastsend = map.get(mailFrom + mailTo);
+        Long lastsend = map.get(mailFrom + mailTo + message);
         long now = new Date().getTime();
         if (lastsend != null) {
             if (now - lastsend < 600000) { // less than 10 minuts.
+                System.out.println("*********too often, email will not send out.");
                 return;
             }
         }
-        map.put(mailFrom + mailTo, now); // it's already more than 10 minutes
+        map.put(mailFrom + mailTo + message, now); // it's already more than 10 minutes
 
         MailSender tMailSender =
                 SpringApplicationContext.getApplicationContext().getBean("mailSender", MailSender.class);
@@ -137,9 +138,11 @@ public class TaoEmail {
             helper.setSubject(subject);
             helper.setFrom(mailFrom);
         } catch (Exception e) {
-            System.out.println("Sending email failed!" + mailTo + "|" + subject + "|" + message);
+            System.out.println("*********Sending email failed!" + mailTo + "|" + subject + "|" + message);
         }
+        System.out.println("*********ready to send out email!");
         ((JavaMailSender) tMailSender).send(mimeMessage);
+        System.out.println("*********email send! to:" + mailTo + "|" + subject + "|" + message);
     }
 
     public static boolean isValidEmail(

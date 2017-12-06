@@ -1022,30 +1022,20 @@ public class MainPageController extends BaseController {
 
         // get the submitDate ready for use
         Date date = null;
-        if (version == null) {
+        if (version == null || version.equals("-1")) {
             date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super early.
         } else {
-            try {
-                Long tt = Long.valueOf(version);
-                date = new Date(tt);
-            } catch (Exception e) {
-                // version is not time(number), then it must be Alarm, we should send email out.
+            date = new Date(Long.valueOf(version));
+            if (needToSendEmail(label)) {
                 try {
-                    Long tt = Long.valueOf(version);
-                    date = new Date(tt);
-                } catch (Exception ee) {
-                    if (needToSendEmail(label)) {
-                        // version is not time(number), then it must be Alarm, we should send email out.
-                        String managerEmail = person.getPassword(); // we use the email as the account's password.
-                        if (managerEmail != null && managerEmail.contains("@") && managerEmail.contains(".")) {
-                            try {
-                                TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail,
-                                        message, null);
-                            } catch (Exception eee) {
-                                System.out.println("Exception when sending email to :" + managerEmail);
-                            }
-                        }
+                    // we use the email as the account's password.
+                    String managerEmail = TaoEncrypt.decrypt(person.getPassword(), "dmfsJiaJdwz=", 1);
+                    if (managerEmail != null && managerEmail.contains("@") && managerEmail.contains(".")) {
+                        TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail, message,
+                                null);
                     }
+                } catch (Exception eee) {
+                    System.out.println("Exception when sending email for client :" + personName);
                 }
             }
         }
