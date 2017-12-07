@@ -151,68 +151,69 @@
 				<c:forEach items = "${printersMap}" var = "item">
 					printsMap.put("${item.key}", "${item.value}");
 				</c:forEach>
+				
 				<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
 					<c:if test="${not empty materialsForPrinters[i-1]}">
-					var io = createWebSocketIO();   
-					io.onopen=function(e){
-	                    	POS_Reset(io);
+					var io${i} = createWebSocketIO();   
+					io${i}.onopen=function(e){
+	                    	POS_Reset(io${i});
 	    					
-	    					POS_Beep(io, 0, 0);
+	    					POS_Beep(io${i}, 0, 0);
 	                   
 			            var printType=printsMap.get("${printers[i-1]}");
 						if(printType=== 'togo' || printType=== 'all'){
-					       POS_TextOut(io,"Table Number " + "${sizeTable}" + "     "+"Order Time "+"${targetTime}"+'\n',0,0,0,0,0);
-					       POS_TextOut(io,"------------------------------------------"+'\n',0,0,0,0,0);
+					       POS_TextOut(io${i},"Table Number " + "${sizeTable}" + "     "+"Order Time "+"${targetTime}"+'\n',0,0,0,0,0);
+					       POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
 							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">									
-								  POS_TextOut(io,"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
-								  POS_TextOut(io,"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
+								  POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
+								  POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
 						    </c:forEach>
 							
 							if(printType=== 'togo'){
-								POS_TextOut(io,"${address}" +'\n',0,0,0,1,0);
-								POS_TextOut(io,"${contactPhone}"+'\n',0,0,0,1,0);
-								POS_TextOut(io,"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${endPrice}"+'\n',0,0,0,1,0);
+								POS_TextOut(io${i},"${address}" +'\n',0,0,0,1,0);
+								POS_TextOut(io${i},"${contactPhone}"+'\n',0,0,0,1,0);
+								POS_TextOut(io${i},"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${endPrice}"+'\n',0,0,0,1,0);
 							}
 							
-							POS_FeedAndCutPaper(io);
+							POS_FeedAndCutPaper(io${i});
 						    
 						}else if(printType=== 'separate'){
 							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
 								
-								POS_TextOut(io,"Table Number " + "${sizeTable}" + "  "+"Order Time"+"${targetTime}"+'\n',0,0,0,0,0);
-								POS_TextOut(io,"------------------------------------------"+'\n',0,0,0,0,0);
-								POS_TextOut(io,"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
-								POS_TextOut(io,"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
-								POS_FeedAndCutPaper(io);
+								POS_TextOut(io${i},"Table Number " + "${sizeTable}" + "  "+"Order Time"+"${targetTime}"+'\n',0,0,0,0,0);
+								POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
+								POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
+								POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
+								POS_FeedAndCutPaper(io${i});
 							</c:forEach>
 						}else{
 							alert("Error: the printer type is not set correctly, please contact info@ShareTheGoodOnes for correct configuration.");
 						}	
-						  io.close();
+						io${i}.close();
 	                    }
-	                    io.onerror= function(e){
+					io${i}.onerror= function(e){
 	                    	console.log(e)
 	    				}
 	                    var printerIpAddress ="${printers[i-1]}";
-	                    io.open(printerIpAddress, 8080);
+	                    io${i}.open(printerIpAddress, 8080);
 	                  
 					</c:if>
 				</c:forEach>
 			</c:if>
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateAnOrderStatus/"+mainOrderID,
-		       data: "recordStatus=10",
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		       	}
-		        	window.location = "../dashboard";
-		        }
-		    });
+		//	$.ajax({
+		//    	headers: "Accept=application/json",
+		//        type: "POST",
+		//        url: "updateAnOrderStatus/"+mainOrderID,
+		//       data: "recordStatus=10",
+		//        async:false,
+		//        success:function(textContent){
+		//        	if(textContent == null || textContent.length == 0){
+		//        	}else{
+		//        		alert( "Please check the connection of internet or cotact the admin.");
+		//       	}
+		//        	window.location = "../dashboard";
+		//        }
+		//    });
 		}
 		
 		function orderCompleted(mainOrderID) {

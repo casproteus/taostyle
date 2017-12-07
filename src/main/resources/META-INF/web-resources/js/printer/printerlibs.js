@@ -1,9 +1,12 @@
 // IO Function
 function createWebSocketIO() {
 	var io = new Object();
+	var ws = null;
+	
 	io.ws = null;
 	io.open = function(address, port){
 		ws = new WebSocket('ws://' + address + ':' + port);
+		io.ws = ws;
 		ws.binaryType = "arraybuffer";
 		ws.onopen = io.onopen;
 		ws.onerror = io.onerror;
