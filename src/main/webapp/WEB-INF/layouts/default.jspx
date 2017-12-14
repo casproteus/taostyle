@@ -21,7 +21,7 @@
 		arguments="${app_name}" /></title>
 </head>
 
-<body style="background-color: #${background_app}; color:#${app_fourground}">
+<body style="background-color: #${background_app}; color:#${foreground_app}">
 	<util:changeImg position="bg_1"/>
 	<tiles:insertAttribute name="header" ignore="true" />
 	<div id="main" style="z-index: 1">

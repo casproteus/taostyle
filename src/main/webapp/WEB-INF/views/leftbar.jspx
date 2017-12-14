@@ -138,8 +138,13 @@
 			
 			function showBarDiv(){
 				var barDiv = document.getElementById("barDiv");
-				barDiv.style.visibility='visible';
-				barDiv.style.left = '-10px';
+				if(barDiv.style.visibility == 'visible'){
+					barDiv.style.visibility='hidden';
+					barDiv.style.left = '10px';
+				}else{
+					barDiv.style.visibility='visible';
+					barDiv.style.left = '-10px';
+				}
 			}
 			
 			/**
