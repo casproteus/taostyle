@@ -3141,7 +3141,7 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request,
             String commandStr) {
-        if ("login".equals(commandStr) || "signup".equals(commandStr)) {
+        if ("login".equals(commandStr) || "signup".equals(commandStr) || "printer_debug".equals(commandStr)) {
             return commandStr;
         } else if ("customizes".equals(commandStr)) {
             CustomizeController customizeController = SpringApplicationContext.getApplicationContext()

@@ -211,7 +211,7 @@
 		        	}else{
 		        		alert( "Please check the connection of internet or cotact the admin.");
 		       	}
-		        	window.location = "../dashboard";
+		        	//window.location = "../dashboard";
 		        }
 		    });
 		}

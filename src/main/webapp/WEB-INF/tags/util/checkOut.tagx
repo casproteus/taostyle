@@ -61,7 +61,7 @@
 	
 		<c:if test="${not empty show_status_category}">
 			<div style="position: fixed; z-index: 1001; ${topOrBottom}: ${status_y + 10}px;
-			 left:15px; cursor:pointer; color:#${foreground_leftbar}"
+			 left:15px; cursor:pointer; color:#${foreground_leftbar}; visibility:hidden" id="menu_on_status_bar"
 			 ontouchend="javascript:switchHanderToBarDiv()"	>
 				${show_status_category}
 		  	</div>
