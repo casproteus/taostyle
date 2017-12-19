@@ -109,74 +109,95 @@
     <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 	<script type="text/javascript">
 		function updateStatus(imageKey,featureIdx, user_role,change,curObj) {
-			//selected checkbox
-           	curObj = curObj == null ? document.getElementById("check-" + imageKey) : curObj;
-            //input field
-            var textField = document.getElementById("txt-" + imageKey);
-			var selected = textField ? Number(textField.value) : (curObj.checked ? 1 : 0);
-          	//description
-	        var description = document.getElementById("des-" + imageKey);
-            description.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1; 
-            //image
-            var image = document.getElementById("img-" + imageKey);
-            image.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1;
-            
-            //current num and total
-            if(typeof selectedItem !== 'undefined'){
-	           	var itemNum = Number(selectedItem.value);
-	            var total = Number(totalPrice.value); 
-				//selected price
-	            var text = description.innerText;
-	            var i = text.lastIndexOf('$');
-	            text = text.substring(i+1);
-	            var selectedPrice = Number(text);
-	            //new num and total
-	           	if(change.indexOf('down') == 0){
-	           		selected = selected - Number(change.substring(4));
-	           		textField.value = selected;
-	           		selectedItem.value = itemNum - Number(change.substring(4));
-	           		totalPrice.value = (total - selectedPrice).toFixed(2);
-	           	}else if(change.indexOf('up') == 0){
-	           		selected = selected + Number(change.substring(2));
-	           		textField.value = selected;
-	           		selectedItem.value = itemNum + Number(change.substring(2));
-	           		totalPrice.value = (total + selectedPrice).toFixed(2);
-	           	}else if(change == "check"){
-	           		selected = 1 - selected;
-	           		if(textField){
-	           			textField.value = selected;
-	           		}
-	           		selectedItem.value = itemNum +(curObj.checked ? 1 : -1);
-	               	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);
-	           	}
-            }
-          	//check box
-			var checkBox = document.getElementById("check-" + imageKey);
-			checkBox.style.visibility = selected > 1 ? 'hidden' : 'visible';
-			//increaser,decreaser
-            var textField = document.getElementById("txt-" + imageKey);
-			if(textField){
-           		textField.style.visibility = selected > 1 ? 'visible' : 'hidden'; 
-           		document.getElementById("decreaser-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
-           		document.getElementById("increaser-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
+			if('[ROLE_PRINTER]' == user_role){
+				//if logged in as printer, then ajax to back end.
+			    $.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "updatePrinter/"+imageKey,
+			        data: "featureId=" + featureIdx,
+			        async:false,
+			        success:function(textContent){
+			            var obj = document.getElementById("check-" + imageKey);
+			            var opacity = obj.checked ? 1: 0.1;
+		
+			            var obj = document.getElementById("img-" + imageKey);
+			            obj.style.cssText = "opacity: " + opacity; 
+		
+			            obj = document.getElementById("des-" + imageKey);
+			            obj.style.cssText = "opacity: " + opacity; 
+			        }
+			    });
+			}else{
+				//selected checkbox
+	           	curObj = curObj == null ? document.getElementById("check-" + imageKey) : curObj;
+	            //input field
+	            var textField = document.getElementById("txt-" + imageKey);
+				var selected = textField ? Number(textField.value) : (curObj.checked ? 1 : 0);
+	          	//description
+		        var description = document.getElementById("des-" + imageKey);
+	            description.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1; 
+	            //image
+	            var image = document.getElementById("img-" + imageKey);
+	            image.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1;
+	            
+	            //current num and total
+	            if(typeof selectedItem !== 'undefined'){
+		           	var itemNum = Number(selectedItem.value);
+		            var total = Number(totalPrice.value); 
+					//selected price
+		            var text = description.innerText;
+		            var i = text.lastIndexOf('$');
+		            text = text.substring(i+1);
+		            var selectedPrice = Number(text);
+		            //new num and total
+		           	if(change.indexOf('down') == 0){
+		           		selected = selected - Number(change.substring(4));
+		           		textField.value = selected;
+		           		selectedItem.value = itemNum - Number(change.substring(4));
+		           		totalPrice.value = (total - selectedPrice).toFixed(2);
+		           	}else if(change.indexOf('up') == 0){
+		           		selected = selected + Number(change.substring(2));
+		           		textField.value = selected;
+		           		selectedItem.value = itemNum + Number(change.substring(2));
+		           		totalPrice.value = (total + selectedPrice).toFixed(2);
+		           	}else if(change == "check"){
+		           		selected = 1 - selected;
+		           		if(textField){
+		           			textField.value = selected;
+		           		}
+		           		selectedItem.value = itemNum +(curObj.checked ? 1 : -1);
+		               	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);
+		           	}
+	            }
+	          	//check box
+				var checkBox = document.getElementById("check-" + imageKey);
+				checkBox.style.visibility = selected > 1 ? 'hidden' : 'visible';
+				//increaser,decreaser
+	            var textField = document.getElementById("txt-" + imageKey);
+				if(textField){
+	           		textField.style.visibility = selected > 1 ? 'visible' : 'hidden'; 
+	           		document.getElementById("decreaser-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
+	           		document.getElementById("increaser-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
+				}
+				//note
+				var note = document.getElementById("note-" + imageKey);
+				if(note){
+					note.style.visibility = selected == 1 ? 'visible' : 'hidden'; 
+				}
+				//save a copy into the session. the selectedItems in session is not only helped to displaying page with an "already selected" status, 
+				//but also used to calculate toltal price. when user swith between other web site in sharethegoodones.com, the selectedItem be clean up.
+				$.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "updateSelection/"+imageKey,
+			        data:"change=" + change,
+			        async:true,
+			        success:function(textContent){
+			        	//do nothing.
+			        }
+			    });
 			}
-			//note
-			var note = document.getElementById("note-" + imageKey);
-			if(note){
-				note.style.visibility = selected == 1 ? 'visible' : 'hidden'; 
-			}
-			//save a copy into the session. the selectedItems in session is not only helped to displaying page with an "already selected" status, 
-			//but also used to calculate toltal price. when user swith between other web site in sharethegoodones.com, the selectedItem be clean up.
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateSelection/"+imageKey,
-		        data:"change=" + change,
-		        async:true,
-		        success:function(textContent){
-		        	//do nothing.
-		        }
-		    });
 		}
       </script>
     </c:if>

@@ -23,7 +23,7 @@ import com.stgo.taostyle.domain.Person;
 @RooJpaActiveRecord
 public class TaxonomyMaterial {
 
-    @NotNull
+    // @NotNull
     @ManyToOne
     private MainOrder mainOrder;
 
@@ -45,10 +45,9 @@ public class TaxonomyMaterial {
     public static List<TaxonomyMaterial> findTaxonomyMaterialByLocation(
             String location) {
         EntityManager tEntityManager = entityManager();
-        TypedQuery<TaxonomyMaterial> tQuery =
-                tEntityManager.createQuery(
-                        "SELECT o FROM TaxonomyMaterial AS o WHERE o.location = :location order by o.id desc",
-                        TaxonomyMaterial.class);
+        TypedQuery<TaxonomyMaterial> tQuery = tEntityManager.createQuery(
+                "SELECT o FROM TaxonomyMaterial AS o WHERE o.location = :location order by o.id desc",
+                TaxonomyMaterial.class);
         tQuery = tQuery.setParameter("location", location);
         List<TaxonomyMaterial> taxonomyMaterials = null;
         try {
@@ -65,9 +64,8 @@ public class TaxonomyMaterial {
                     .getResultList();
         } else {
             EntityManager tEntityManager = entityManager();
-            TypedQuery<TaxonomyMaterial> query =
-                    tEntityManager.createQuery("SELECT o FROM TaxonomyMaterial AS o WHERE o.mainOrder = :pKey",
-                            TaxonomyMaterial.class);
+            TypedQuery<TaxonomyMaterial> query = tEntityManager.createQuery(
+                    "SELECT o FROM TaxonomyMaterial AS o WHERE o.mainOrder = :pKey", TaxonomyMaterial.class);
             query = query.setParameter("pKey", mainOrder);
             List<TaxonomyMaterial> taxonomyMaterials = new ArrayList<TaxonomyMaterial>();
             try {
@@ -94,9 +92,8 @@ public class TaxonomyMaterial {
                     .setFirstResult(firstResult).setMaxResults(maxResults).getResultList();
         } else {
             EntityManager tEntityManager = entityManager();
-            TypedQuery<TaxonomyMaterial> tQuery =
-                    tEntityManager.createQuery("SELECT o FROM TaxonomyMaterial AS o WHERE o.mainOrder = :pKey",
-                            TaxonomyMaterial.class);
+            TypedQuery<TaxonomyMaterial> tQuery = tEntityManager.createQuery(
+                    "SELECT o FROM TaxonomyMaterial AS o WHERE o.mainOrder = :pKey", TaxonomyMaterial.class);
             tQuery = tQuery.setParameter("pKey", tMainOrder);
             if (firstResult > -1 && maxResults > 0)
                 tQuery = tQuery.setFirstResult(firstResult).setMaxResults(maxResults);

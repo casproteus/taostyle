@@ -2200,7 +2200,7 @@ public class MainPageController extends BaseController {
     // dashboard==========================================================
 
     @RequestMapping(value = "/showSelection")
-    public String showSelection(
+    public String showFeaturePage(
             Model model,
             HttpServletRequest request) {
         Person person = TaoUtil.getCurPerson(request);
@@ -2547,7 +2547,8 @@ public class MainPageController extends BaseController {
         TaxonomyMaterial taxonomyMaterial = new TaxonomyMaterial();
         taxonomyMaterial.setItemName(request.getRemoteHost());// computer name if not set, then will be ip address
         taxonomyMaterial.setLocation(request.getRemoteAddr());// ip address
-        taxonomyMaterial.setMainOrder(sourcdAndNewMainOrder);
+        // do not use forein key, otherwise the main order can not be cleaned.
+        taxonomyMaterial.setColor(sourcdAndNewMainOrder.getId().toString());
         taxonomyMaterial.setPerson(person);
         taxonomyMaterial.setRemark(request.getRequestURI());// what ordered e.g.
                                                             // /taostyle/thai/createAnOrder/3_2_0_3,3_2_0_1,3_1_0_1

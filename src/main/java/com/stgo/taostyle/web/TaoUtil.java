@@ -61,17 +61,17 @@ public class TaoUtil {
     private static int defaultNumOfMenu = 30;
 
     public static byte[] EMPTY_LINE = new byte[] { -119, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0,
-            7, -48, 0, 0, 0, 1, 8, 6, 0, 0, 0, -122, -3, 53, 125, 0, 0, 0, 4, 103, 65, 77, 65, 0, 0, -79, -114, 124,
-            -5, 81, -109, 0, 0, 0, 32, 99, 72, 82, 77, 0, 0, 122, 37, 0, 0, -128, -125, 0, 0, -7, -1, 0, 0, -128, -24,
-            0, 0, 117, 48, 0, 0, -22, 96, 0, 0, 58, -105, 0, 0, 23, 111, -105, -87, -103, -44, 0, 0, 0, 34, 73, 68, 65,
-            84, 120, -100, -20, -63, 1, 1, 0, 0, 8, -128, -96, -6, 63, -38, -122, 4, 108, 53, 0, 0, 0, 0, 0, 0, 0, -16,
-            -35, 9, 48, 0, -93, 56, 2, -1, 29, 4, -21, -60, 0, 0, 0, 0, 73, 69, 78, 68, -82, 66, 96, -126 };
-    public static byte[] EMPTY_POINT = new byte[] { -119, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0,
-            0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 21, -60, -119, 0, 0, 0, 4, 103, 65, 77, 65, 0, 0, -79, -114, 124,
-            -5, 81, -109, 0, 0, 0, 32, 99, 72, 82, 77, 0, 0, 122, 37, 0, 0, -128, -125, 0, 0, -7, -1, 0, 0, -128, -24,
-            0, 0, 117, 48, 0, 0, -22, 96, 0, 0, 58, -105, 0, 0, 23, 111, -105, -87, -103, -44, 0, 0, 0, 16, 73, 68, 65,
-            84, 120, -100, 98, -8, -1, -1, 63, 3, 64, -128, 1, 0, 8, -4, 2, -2, 51, -93, -30, -103, 0, 0, 0, 0, 73, 69,
-            78, 68, -82, 66, 96, -126 };
+            7, -48, 0, 0, 0, 1, 8, 6, 0, 0, 0, -122, -3, 53, 125, 0, 0, 0, 4, 103, 65, 77, 65, 0, 0, -79, -114, 124, -5,
+            81, -109, 0, 0, 0, 32, 99, 72, 82, 77, 0, 0, 122, 37, 0, 0, -128, -125, 0, 0, -7, -1, 0, 0, -128, -24, 0, 0,
+            117, 48, 0, 0, -22, 96, 0, 0, 58, -105, 0, 0, 23, 111, -105, -87, -103, -44, 0, 0, 0, 34, 73, 68, 65, 84,
+            120, -100, -20, -63, 1, 1, 0, 0, 8, -128, -96, -6, 63, -38, -122, 4, 108, 53, 0, 0, 0, 0, 0, 0, 0, -16, -35,
+            9, 48, 0, -93, 56, 2, -1, 29, 4, -21, -60, 0, 0, 0, 0, 73, 69, 78, 68, -82, 66, 96, -126 };
+    public static byte[] EMPTY_POINT = new byte[] { -119, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0,
+            0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 21, -60, -119, 0, 0, 0, 4, 103, 65, 77, 65, 0, 0, -79, -114, 124, -5,
+            81, -109, 0, 0, 0, 32, 99, 72, 82, 77, 0, 0, 122, 37, 0, 0, -128, -125, 0, 0, -7, -1, 0, 0, -128, -24, 0, 0,
+            117, 48, 0, 0, -22, 96, 0, 0, 58, -105, 0, 0, 23, 111, -105, -87, -103, -44, 0, 0, 0, 16, 73, 68, 65, 84,
+            120, -100, 98, -8, -1, -1, 63, 3, 64, -128, 1, 0, 8, -4, 2, -2, 51, -93, -30, -103, 0, 0, 0, 0, 73, 69, 78,
+            68, -82, 66, 96, -126 };
 
     public static boolean switchClient(
             HttpServletRequest request,
@@ -174,9 +174,8 @@ public class TaoUtil {
 
     public static String getLangPrfWithDefault(
             HttpServletRequest request) {
-        Object lang =
-                request.getParameter(CC.LANG) != null ? request.getParameter(CC.LANG) : request.getSession()
-                        .getAttribute(CC.LANG);
+        Object lang = request.getParameter(CC.LANG) != null ? request.getParameter(CC.LANG)
+                : request.getSession().getAttribute(CC.LANG);
 
         if (lang == null) {
             return getDefalutLang(request) + "_";
@@ -244,20 +243,20 @@ public class TaoUtil {
                 returnPath = "/generalProductPage";
                 break;
             case CC.SERVICE:
-                TaoDebug.info("start to initServiceSubPage for: submenu_{}, for client: {}", subIdx, request
-                        .getSession().getAttribute(CC.CLIENT));
+                TaoDebug.info("start to initServiceSubPage for: submenu_{}, for client: {}", subIdx,
+                        request.getSession().getAttribute(CC.CLIENT));
                 menuIdx = initServiceSubPage(request, model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/generalServicePage";
                 break;
             case CC.LOCATION:
-                TaoDebug.info("start to initServiceSubPage for: submenu_{}, for client: {}", subIdx, request
-                        .getSession().getAttribute(CC.CLIENT));
+                TaoDebug.info("start to initServiceSubPage for: submenu_{}, for client: {}", subIdx,
+                        request.getSession().getAttribute(CC.CLIENT));
                 menuIdx = initLocationPage(request.getSession(), model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/contactus";
                 break;
             default:
-                TaoDebug.info("start to initModelUiForMainPage for: SUBmenu:{}, for client: {}", subIdx, request
-                        .getSession().getAttribute(CC.CLIENT));
+                TaoDebug.info("start to initModelUiForMainPage for: SUBmenu:{}, for client: {}", subIdx,
+                        request.getSession().getAttribute(CC.CLIENT));
                 menuIdx = initModelUiForMainPage(request, model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "index";
         }
@@ -664,21 +663,50 @@ public class TaoUtil {
         // the selection status
         HttpSession session = request.getSession();
         if (!isAboveManager(session)) {
-            String selectedItems = (String) session.getAttribute(CC.selectedItems);
-            if (selectedItems != null) {
-                List<String> visibleStatusList = new ArrayList<String>();
+            List<String> visibleStatus = new ArrayList<String>();
+            if (isPrinter(session)) {
+                List<String> imageKeys = MediaUpload.listAllMediaUploadsKeyByKeyAndPerson(key, person);
+                imageKeys = TaoImage.stripThumOrderAndValidate(imageKeys);
+
                 boolean isEmpty = true;
-                for (int i = 1; i <= serviceAmount; i++) {
-                    String item = "," + menuIdx + "_" + i + ",";
-                    int number = countStr(item, selectedItems);
-                    if (number > 0) {
-                        isEmpty = false;
-                        visibleStatusList.add(String.valueOf(number));
+                UserAccount userAccount = (UserAccount) session.getAttribute(CC.currentUser);
+                String nameStrInService = "," + TaoEncrypt.stripUserName(userAccount.getLoginname()) + ",";
+
+                for (String item : imageKeys) {
+                    if (item.startsWith("service_")) {
+                        item = item.substring(8);
+                    }
+                    Service service = Service.findServiceByCatalogAndPerson(item, person);
+                    if (service != null && service.getC3() != null) {
+                        if (service.getC3().contains(nameStrInService)) {
+                            isEmpty = false;
+                            visibleStatus.add("1");
+                        } else {
+                            visibleStatus.add(null);
+                        }
                     } else {
-                        visibleStatusList.add(null);
+                        visibleStatus.add(null);
                     }
                 }
-                model.addAttribute("visibleStatusList", isEmpty ? null : visibleStatusList);
+
+                model.addAttribute("visibleStatusList", isEmpty ? null : visibleStatus);
+            } else {
+                String selectedItems = (String) session.getAttribute(CC.selectedItems);
+                if (selectedItems != null) {
+                    List<String> visibleStatusList = new ArrayList<String>();
+                    boolean isEmpty = true;
+                    for (int i = 1; i <= serviceAmount; i++) {
+                        String item = "," + menuIdx + "_" + i + ",";
+                        int number = countStr(item, selectedItems);
+                        if (number > 0) {
+                            isEmpty = false;
+                            visibleStatusList.add(String.valueOf(number));
+                        } else {
+                            visibleStatusList.add(null);
+                        }
+                    }
+                    model.addAttribute("visibleStatusList", isEmpty ? null : visibleStatusList);
+                }
             }
         }
 
@@ -770,9 +798,8 @@ public class TaoUtil {
             Person person,
             String langPrf) {
         int biggestNumber = 0;
-        String slide_superBig =
-                TaoUtil.isLangPrfNeededForMedia(request, "slide_superBig") ? langPrf + "slide_superBig"
-                        : "slide_superBig";
+        String slide_superBig = TaoUtil.isLangPrfNeededForMedia(request, "slide_superBig") ? langPrf + "slide_superBig"
+                : "slide_superBig";
         List<MediaUpload> mediaUploads = MediaUpload.listAllMediaUploadsByKeyAndPerson(slide_superBig, person);
         for (MediaUpload mediaUpload : mediaUploads) {
             String filePath = mediaUpload.getFilepath();
@@ -871,7 +898,8 @@ public class TaoUtil {
      * leftMenuText_n_1~leftMenuText_n_10. for building the link to url, it need menuIdx which will be set into the
      * model by relevant controller.
      * 
-     * @param: pKey are supposed to be like "menu_[n]_" .
+     * @param: pKey
+     *             are supposed to be like "menu_[n]_" .
      */
     private static void initLeftMenuBar(
             Model model,
@@ -1047,7 +1075,7 @@ public class TaoUtil {
             return "";
         }
         String html = description.substring(0, description.indexOf(moneyLetter));
-        return trimContentFromHTML(html).trim();
+        return trimContentFromHTML(html);
     }
 
     public static String fetchProductPrice(
@@ -1057,9 +1085,10 @@ public class TaoUtil {
             return "";
         }
         String html = description.substring(description.lastIndexOf(moneyLetter) + 1);
-        return trimContentFromHTML(html).trim();
+        return trimContentFromHTML(html);
     }
 
+    // return the trimed content from html format text.
     public static String trimContentFromHTML(
             String html) {
         StringBuilder sb = new StringBuilder();
@@ -1074,7 +1103,15 @@ public class TaoUtil {
             }
         }
 
-        return sb.toString() + html;
+        html = sb.toString() + html;
+        while (html.startsWith("&nbsp;")) {
+            html = html.substring(6).trim();
+        }
+        while (html.endsWith("&nbsp;")) {
+            html = html.substring(0, html.length() - 6).trim();
+        }
+
+        return html;
     }
 
     public static String formateDate(

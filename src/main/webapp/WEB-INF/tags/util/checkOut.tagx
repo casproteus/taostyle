@@ -27,9 +27,9 @@
 		  background:#${background_leftbar}; opacity:${statusbar_opacity};">
 				<c:set var="visibility" value="${'true' == show_status_total ? 'visible' : 'hidden'}" />
 				<c:if test="${visibility == 'visible'}">
-					<input id="selectedItem" value="${itemNumber}" style="width: 15px; border-style:none; background:none; font-size: 12px; visibility:${visibility}"/>
+					<input id="selectedItem" value="${itemNumber}" style="width: 20px; border-style:none; background:none; font-size: 12px; visibility:${visibility}"/>
 					<span style="visibility:${visibility}">Items | Total:$</span>
-					<input id="totalPrice"  value="${totalPrice}" style="width: 40px; border-style:none; background:none; font-size: 12px; visibility:${visibility}" />
+					<input id="totalPrice"  value="${totalPrice}" style="width: 50px; border-style:none; background:none; font-size: 12px; visibility:${visibility}" />
 				</c:if>
 				<c:if test="${not empty itemNumber and not empty show_status_message}" >
 					<br/>
