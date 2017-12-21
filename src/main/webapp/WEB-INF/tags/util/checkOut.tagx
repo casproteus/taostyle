@@ -187,7 +187,8 @@
 						return;
 					}
 					
-					arrive = prompt("Approximate time you would like to have it:","");
+					var myDate = new Date();    
+					arrive = prompt("Approximate time you would like to have it:", myDate.getHours() + ":" + myDate.getMinutes());
 					if(arrive == ""){
 						arrive =  "did-not-input"
 					}else if(arrive == null){
