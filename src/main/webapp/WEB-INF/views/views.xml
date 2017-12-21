@@ -89,4 +89,10 @@
 		<put-attribute name="body"
 			value="/WEB-INF/views/generalFeaturePage.jspx" />
 	</definition>
+	
+	<!-- debug -->
+	<definition name="printer_debug" extends="default">
+		<put-attribute name="body" value="/WEB-INF/views/printer_debug.jspx" />
+	</definition>
+	
 </tiles-definitions>
