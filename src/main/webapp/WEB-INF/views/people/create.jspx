@@ -31,7 +31,7 @@
 			  <c:otherwise>
 				  <c:forEach var="i" begin="1" end="${limit_table}" step="1">
 					<div class="col-xs-${service_number_xs} col-sm-${service_number_sm} col-md-${service_number_md} col-lg-${service_number_lg}" style="text-align: center;">
-						<img src="getImage/piece01" alt="QRCode" />
+						<img src="getImage/QRCode_temp_${i}" alt="QRCode" />
 				        <div align="center">${i}</div> 
 					</div>
 				  </c:forEach>
