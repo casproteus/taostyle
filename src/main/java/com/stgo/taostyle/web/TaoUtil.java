@@ -1121,7 +1121,7 @@ public class TaoUtil {
             return null;
         }
         Object dateFormate = request.getSession().getAttribute("DateFormat");
-        String format = dateFormate != null ? dateFormate.toString() : "hh:mm:ss";
+        String format = dateFormate != null ? dateFormate.toString() : "hh:mm";
         SimpleDateFormat df5 = new SimpleDateFormat(format, Locale.getDefault());
         return df5.format(date);
     }

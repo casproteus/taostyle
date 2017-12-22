@@ -162,7 +162,7 @@
 	                   
 			            var printType=printsMap.get("${printers[i-1]}");
 						if(printType=== 'togo' || printType=== 'all'){
-					       POS_TextOut(io${i},"Table Number " + "${sizeTable}" + "     "+"Order Time "+"${targetTime}"+'\n',0,0,0,0,0);
+					       POS_TextOut(io${i}," " + "${sizeTable}" + "         "+"${targetTime}"+'\n',0,1,1,0,0);
 					       POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
 							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">									
 								  POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
@@ -180,7 +180,7 @@
 						}else if(printType=== 'separate'){
 							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
 								
-								POS_TextOut(io${i},"Table Number " + "${sizeTable}" + "  "+"Order Time"+"${targetTime}"+'\n',0,0,0,0,0);
+								POS_TextOut(io${i}," " + "${sizeTable}" +"         "+"${targetTime}"+'\n',0,1,1,0,0);
 								POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
 								POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
 								POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
