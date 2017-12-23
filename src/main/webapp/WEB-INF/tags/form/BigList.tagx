@@ -151,48 +151,50 @@
 				<c:forEach items = "${printersMap}" var = "item">
 					printsMap.put("${item.key}", "${item.value}");
 				</c:forEach>
-				
+				//to print on each printer
 				<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
 					<c:if test="${not empty materialsForPrinters[i-1]}">
-					var io${i} = createWebSocketIO();   
-					io${i}.onopen=function(e){
+						var io${i} = createWebSocketIO();   
+						io${i}.onopen=function(e){
 	                    	POS_Reset(io${i});
-	    					
 	    					POS_Beep(io${i}, 0, 0);
-	                   
-			            var printType=printsMap.get("${printers[i-1]}");
-						if(printType=== 'togo' || printType=== 'all'){
-					       POS_TextOut(io${i}," " + "${sizeTable}" + "         "+"${targetTime}"+'\n',0,1,1,0,0);
-					       POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
-							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">									
-								  POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
-								  POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
-						    </c:forEach>
-							
-							if(printType=== 'togo'){
-								POS_TextOut(io${i},"${address}" +'\n',0,0,0,1,0);
-								POS_TextOut(io${i},"${contactPhone}"+'\n',0,0,0,1,0);
-								POS_TextOut(io${i},"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${endPrice}"+'\n',0,0,0,1,0);
-							}
-							
-							POS_FeedAndCutPaper(io${i});
-						    
-						}else if(printType=== 'separate'){
-							<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
+	                   		//all or togo mode, will put all content into string, then print.
+				            var printType=printsMap.get("${printers[i-1]}");
+							if(printType=== 'togo' || printType=== 'all'){
+						       POS_TextOut(io${i}," " + "${sizeTable}" + "         "+"${targetTime}"+'\n',0,1,1,0,0);
+						       POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
+								<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">									
+									  POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
+									  POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
+							    </c:forEach>
 								
-								POS_TextOut(io${i}," " + "${sizeTable}" +"         "+"${targetTime}"+'\n',0,1,1,0,0);
-								POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
-								POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
-								POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
+								if(printType=== 'togo'){
+									POS_TextOut(io${i},"${address}" +'\n',0,0,0,1,0);
+									POS_TextOut(io${i},"${contactPhone}"+'\n',0,0,0,1,0);
+									POS_TextOut(io${i},"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${endPrice}"+'\n',0,0,0,1,0);
+								}
+								
 								POS_FeedAndCutPaper(io${i});
-							</c:forEach>
-						}else{
-							alert("Error: the printer type is not set correctly, please contact info@ShareTheGoodOnes for correct configuration.");
-						}	
-						io${i}.close();
+							    
+							}else if(printType=== 'separate'){
+								//separate print, will printe "fn:length(materialsForPrinters [i-1])" times.
+								<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
+									
+									POS_TextOut(io${i}," " + "${sizeTable}" +"         "+"${targetTime}"+'\n',0,1,1,0,0);
+									POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
+									POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']}"+'\n',0,1,1,0,0);
+									POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
+									POS_FeedAndCutPaper(io${i});
+								</c:forEach>
+							}else{
+								alert("Error: the printer type is not set correctly, please contact info@ShareTheGoodOnes for correct configuration.");
+							}	
+							io${i}.close();
 	                    }
-					io${i}.onerror= function(e){
-	                    	console.log(e)
+						io${i}.onerror= function(e){
+							alert("Error: the content might not printed correctly, please check the printer or internet connection.");
+	                    	console.log(e);
+	                    	orderNotPrintWell(mainOrderID);
 	    				}
 	                    var printerIpAddress ="${printers[i-1]}";
 	                    io${i}.open(printerIpAddress, 8080);
@@ -200,6 +202,11 @@
 					</c:if>
 				</c:forEach>
 			</c:if>
+			
+			orderPrinted(mainOrderID);
+		}
+		
+		function orderPrinted(mainOrderID){
 			$.ajax({
 		    	headers: "Accept=application/json",
 		        type: "POST",
@@ -210,12 +217,28 @@
 		        	if(textContent == null || textContent.length == 0){
 		        	}else{
 		        		alert( "Please check the connection of internet or cotact the admin.");
-		       	}
+		       		}
+		        	//because when this executed, print job might still in thread (not printed yet), so we can not go back to dashboard.
 		        	//window.location = "../dashboard";
 		        }
 		    });
 		}
 		
+		function orderNotPrintWell(mainOrderID){
+			$.ajax({
+		    	headers: "Accept=application/json",
+		        type: "POST",
+		        url: "updateAnOrderStatus/"+mainOrderID,
+		       data: "recordStatus=0",
+		        async:false,
+		        success:function(textContent){
+		        	if(textContent == null || textContent.length == 0){
+		        	}else{
+		        		alert( "Please check the connection of internet or cotact the admin.");
+		       		}
+		        }
+		    });
+		}
 		function orderCompleted(mainOrderID) {
 			var confirmed = confirm("Are you sure all served?");
 			if(confirmed){
