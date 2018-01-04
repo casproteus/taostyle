@@ -47,6 +47,48 @@ public class TaoUtil {
         return advPerson;
     }
 
+    // to deal with the case like http://tuyi.sharethegoodones.com
+    public static String getAppNameInRequest(
+            HttpServletRequest request) {
+        if (request.getRequestURL() == null) {
+            TaoDebug.warn("request.getRequestURL() menthod returned null!", "");
+            return null;
+        }
+
+        String app_Name = request.getRequestURL().toString().toLowerCase();
+        TaoDebug.info("Client side url got in request is:{}", app_Name);
+        int p = app_Name.indexOf(CC.DOMAIN_NAME);
+        if (p > -1) {
+            app_Name = app_Name.substring(0, p);
+
+            if (app_Name.startsWith("http://")) {
+                app_Name = app_Name.substring(7);
+            }
+            if (app_Name.startsWith("https://")) {
+                app_Name = app_Name.substring(8);
+            }
+            if (!"".equals(app_Name) && !"www.".equals(app_Name) && !"test.".equals(app_Name)) {
+                return app_Name.substring(0, app_Name.length() - 1);
+            }
+        } else {
+            p = app_Name.indexOf(CC.DOMAIN_NAME_2);
+            if (p > -1) {
+                app_Name = app_Name.substring(0, p);
+
+                if (app_Name.startsWith("http://")) {
+                    app_Name = app_Name.substring(7);
+                }
+                if (app_Name.startsWith("https://")) {
+                    app_Name = app_Name.substring(8);
+                }
+                if (!"".equals(app_Name) && !"www.".equals(app_Name) && !"test.".equals(app_Name)) {
+                    return app_Name.toString();
+                }
+            }
+        }
+        return null;
+    }
+
     private static void initializeForAdvPerson(
             Person person) {
         for (CC.customizes obj : CC.customizes.values()) {
@@ -76,6 +118,13 @@ public class TaoUtil {
     public static boolean switchClient(
             HttpServletRequest request,
             String clientName) {
+        // check the case if url is like http://tuyi.sharethegoodones.com
+        String app_name_inRequest = TaoUtil.getAppNameInRequest(request);
+        if (app_name_inRequest != null) {
+            TaoDebug.info("app_name found in request is:{}", app_name_inRequest);
+            clientName = app_name_inRequest;
+        }
+
         TaoDebug.info(request, "start to switchClient to client : {} from current person: {}", clientName);
         Person currentPerson = TaoUtil.getCurPerson(request);
         if (currentPerson != null && currentPerson.getName().equals(clientName)) {
@@ -87,7 +136,7 @@ public class TaoUtil {
                 TaoUtil.reInitSession(request.getSession(), currentPerson);
                 return true;
             } else { // means null in session and null in database.
-                TaoDebug.warn("no such a person in db:{}, will stop swithing", clientName);
+                TaoDebug.warn("no such a person in db:{}, will stop switching", clientName);
             }
         }
         return false;
@@ -1060,6 +1109,7 @@ public class TaoUtil {
             if (app_name != null) {
                 person = Person.findPersonByName(app_name.toString());
             }
+
             if (person == null) {
                 person = TaoUtil.getAdvPerson();
             }

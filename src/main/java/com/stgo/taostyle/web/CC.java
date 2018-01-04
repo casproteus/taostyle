@@ -2,6 +2,8 @@ package com.stgo.taostyle.web;
 
 public interface CC {
     String MaxInactiveInterval = "MaxInactiveInterval";
+    String DOMAIN_NAME = "sharethegoodones.";
+    String DOMAIN_NAME_2 = "yuandaosheji.";
     String ADV_USER = "for_demo";
     String TextContentKey = "posInPage";
     String MediaUploadKey = "filepath";
@@ -11,7 +13,7 @@ public interface CC {
     String ROLE_ADMIN = "ROLE_ADMIN";
     String ROLE_MANAGER = "ROLE_MANAGER";
     String ROLE_PRINTER = "ROLE_PRINTER";
-    
+
     // --------------------------------------
     String HTML = "HTML";
 
@@ -64,12 +66,12 @@ public interface CC {
     String STATUS_MINE_ARE_FULL = "next";
     String STATUS_DELETED = "deleted";
     int STATUS_TO_PRINT = 10;
-    int STATUS_PRINTED =20;
+    int STATUS_PRINTED = 20;
     int LEVEL_FULL = 120;
-    
+
     String APPEND = "append";
     String OVERWRITE = "overwrite";
-    
+
     String singleUploadUri = "mediauploads";
     String multiUploadUri = "gellaryUploads";
     String resetQRCode = "resetQRCode";
@@ -85,7 +87,7 @@ public interface CC {
 
     String cloak = "cloak";
     String SAVED_NAME_STR = "*";
-    
+
     public enum customizes {
         app_ContentManager("tao"),
         app_ManagerEmail("info@ShareTheGoodOnes.com"),
@@ -146,7 +148,7 @@ public interface CC {
         service_number_sm("6"),
         service_number_xs("6"),
         show_QRCode("true"),
-        //show_service_bell("true"),
+        // show_service_bell("true"),
         app_WebsiteAddress("http://www.shareTheGoodOnes.com"),
         app_name("ShareTheGoodOnes"),
         CONTENTTYPE_1("MAINPAGE"),
@@ -161,26 +163,26 @@ public interface CC {
         private customizes(String cusValue) {
             this.cusValue = cusValue;
         }
-        public String getValue(){
+
+        public String getValue() {
             return cusValue;
         }
     };
-    
+
     public enum money {
-        en("$"),
-        fr("$"),
-        zh("￥"),
-        it("$");
+        en("$"), fr("$"), zh("￥"), it("$");
 
         private String moneyLetter;
 
         private money(String moneyLetter) {
             this.moneyLetter = moneyLetter;
         }
-        public String getValue(){
+
+        public String getValue() {
             return moneyLetter;
         }
     };
-    //-------------------------------
+
+    // -------------------------------
     String tableID = "tableID";
 }

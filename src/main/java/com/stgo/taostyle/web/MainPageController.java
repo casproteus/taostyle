@@ -91,14 +91,14 @@ public class MainPageController extends BaseController {
     // ==================================view
     // part=====================================
     /**
-     * Entry 1 normal user normal visiting goes to here.
+     * Entry1 normal user normal visiting goes to here.
      */
     @RequestMapping(value = "/{identity}")
     public String clientComing(
             Model model,
             HttpServletRequest request,
             @PathVariable("identity") String identity) {
-        TaoDebug.info("Entry 1, start to switching user to {}:", identity);
+        TaoDebug.info("Entry1, start to switching user to {}:", identity);
         String returnString = systemCommandCheck(model, request, identity);
         if (returnString != null) {
             TaoDebug.info("it's a system command, returning string : {}", identity);
@@ -137,7 +137,7 @@ public class MainPageController extends BaseController {
     }
 
     /**
-     * Entry 3
+     * Entry3
      * 
      * @param model
      * @param request
@@ -170,6 +170,12 @@ public class MainPageController extends BaseController {
     public String showFromFlashpage(
             Model model,
             HttpServletRequest request) {
+        if (hasNotLoggedIn(request)) {
+            String app_name_inRequest = TaoUtil.getAppNameInRequest(request);
+            if (app_name_inRequest != null) {
+                dirtFlagCommonText = TaoUtil.switchClient(request, app_name_inRequest);
+            }
+        }
         makesureSessionInitialized(request);// if first time visit, session is till empty, then initialise it.
 
         Object flash_1_URL = request.getSession().getAttribute(CC.flash_1_URL);
@@ -222,8 +228,8 @@ public class MainPageController extends BaseController {
             HttpServletRequest request) {
         HttpSession session = request.getSession();
         Object app_name = session.getAttribute(CC.app_name);
+        Person person = TaoUtil.getCurPerson(request);
         if (app_name == null || session.getAttribute(CC.CLIENT) == null) {
-            Person person = TaoUtil.getCurPerson(request);
             TaoDebug.info("start to makesureSessionInitialized, cur person is: {}", person.getName());
             TaoUtil.reInitSession(request.getSession(), person);
         }
@@ -232,8 +238,7 @@ public class MainPageController extends BaseController {
         session.setAttribute(CC.tableID, tableID);
     }
 
-    // ================================user
-    // management==================================
+    // ==============user management==============
     @RequestMapping(value = "/signup", method = RequestMethod.GET)
     public String signupForm(
             Model model,
