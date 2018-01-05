@@ -88,8 +88,7 @@ public class MainPageController extends BaseController {
     // return index(model, request);
     // }
 
-    // ==================================view
-    // part=====================================
+    // ===============view part================
     /**
      * Entry1 normal user normal visiting goes to here.
      */
@@ -104,19 +103,13 @@ public class MainPageController extends BaseController {
             TaoDebug.info("it's a system command, returning string : {}", identity);
             return returnString;
         }
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, identity);
         } else {
             TaoDebug.info("it's in login status, stop switching user: {}", identity);
         }
 
         return showFromFlashpage(model, request);
-    }
-
-    private boolean hasNotLoggedIn(
-            HttpServletRequest request) {
-        Object userRole = request.getSession().getAttribute(CC.user_role);
-        return userRole == null || "".equals(userRole);
     }
 
     /**
@@ -130,7 +123,7 @@ public class MainPageController extends BaseController {
             @PathVariable("client") String client,
             @PathVariable("menuIdxString") String menuIdxString) {
         TaoDebug.info("Entry2, start to showWebPageWithClientInfo client: {}, menuIdxString:{}", client, menuIdxString);
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return buildPageForMenu(model, request, menuIdxString);
@@ -153,7 +146,7 @@ public class MainPageController extends BaseController {
             @PathVariable("systemCommand") String systemCommand) {
 
         TaoDebug.info("Entry3, start to responseSystemCommand client: {}, systemCommand:{}", client, systemCommand);
-        if (hasNotLoggedIn(request))
+        if (TaoUtil.hasNotLoggedIn(request))
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
 
         String returnString = systemCommandCheck(model, request, systemCommand);
@@ -170,7 +163,7 @@ public class MainPageController extends BaseController {
     public String showFromFlashpage(
             Model model,
             HttpServletRequest request) {
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             String app_name_inRequest = TaoUtil.getAppNameInRequest(request);
             if (app_name_inRequest != null) {
                 dirtFlagCommonText = TaoUtil.switchClient(request, app_name_inRequest);
@@ -292,7 +285,7 @@ public class MainPageController extends BaseController {
 
             createACustomize(request, "app_WebsiteAddress", "http://www.shareTheGoodOnes.com/" + person.getName(),
                     person);
-            if (hasNotLoggedIn(request)) {
+            if (TaoUtil.hasNotLoggedIn(request)) {
                 dirtFlagCommonText = TaoUtil.switchClient(request, person.getName());
             }
 
@@ -1986,7 +1979,7 @@ public class MainPageController extends BaseController {
             @PathVariable("imageKey") String imageKey,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return updateFeature(imageKey, request);
@@ -2038,7 +2031,7 @@ public class MainPageController extends BaseController {
             @PathVariable("imageKey") String imageKey,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return updatePrinter(imageKey, request);
@@ -2089,7 +2082,7 @@ public class MainPageController extends BaseController {
             @PathVariable("imageKey") String imageKey,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return updateSelection(imageKey, request);
@@ -2184,7 +2177,7 @@ public class MainPageController extends BaseController {
             @PathVariable(CC.latitude) String latitude,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return updateGeo(latitude, request);
@@ -2376,7 +2369,7 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return createAnOrder(orderedItems, model, request);
@@ -2626,7 +2619,7 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return updateAnOrderStatus(mainOrderID, model, request);
@@ -2690,7 +2683,7 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return combineAnOrder(mainOrderID, model, request);
@@ -2770,7 +2763,7 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return cleanHistoricalMainOrder(model, request);
@@ -2902,7 +2895,7 @@ public class MainPageController extends BaseController {
             @PathVariable("keyStr") String keyStr,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return showJsonByKey(keyStr, request);
@@ -2938,7 +2931,7 @@ public class MainPageController extends BaseController {
             @PathVariable("keyStr") String keyStr,
             HttpServletRequest request) {
 
-        if (hasNotLoggedIn(request)) {
+        if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
         return showNote(keyStr, request);

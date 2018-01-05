@@ -47,6 +47,12 @@ public class TaoUtil {
         return advPerson;
     }
 
+    public static boolean hasNotLoggedIn(
+            HttpServletRequest request) {
+        Object userRole = request.getSession().getAttribute(CC.user_role);
+        return userRole == null || "".equals(userRole);
+    }
+
     // to deal with the case like http://tuyi.sharethegoodones.com
     public static String getAppNameInRequest(
             HttpServletRequest request) {
