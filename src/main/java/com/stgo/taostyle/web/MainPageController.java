@@ -97,16 +97,19 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request,
             @PathVariable("identity") String identity) {
-        TaoDebug.info("Entry1, start to switching user to {}:", identity);
+        HttpSession session = request.getSession();
+        TaoDebug.info(TaoDebug.getSB(session), "Entry1, start to switching user to {}:", identity);
+
         String returnString = systemCommandCheck(model, request, identity);
         if (returnString != null) {
-            TaoDebug.info("it's a system command, returning string : {}", identity);
+            TaoDebug.info(TaoDebug.getSB(session), "it's a system command, returning string : {}", identity);
             return returnString;
         }
+
         if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, identity);
         } else {
-            TaoDebug.info("it's in login status, stop switching user: {}", identity);
+            TaoDebug.info(TaoDebug.getSB(session), "it's in login status, stop switching user: {}", identity);
         }
 
         return showFromFlashpage(model, request);
@@ -122,7 +125,8 @@ public class MainPageController extends BaseController {
             HttpServletRequest request,
             @PathVariable("client") String client,
             @PathVariable("menuIdxString") String menuIdxString) {
-        TaoDebug.info("Entry2, start to showWebPageWithClientInfo client: {}, menuIdxString:{}", client, menuIdxString);
+        TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                "Entry2, start to showWebPageWithClientInfo client: {}, menuIdxString:{}", client, menuIdxString);
         if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
@@ -145,7 +149,8 @@ public class MainPageController extends BaseController {
             @PathVariable("client") String client,
             @PathVariable("systemCommand") String systemCommand) {
 
-        TaoDebug.info("Entry3, start to responseSystemCommand client: {}, systemCommand:{}", client, systemCommand);
+        TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                "Entry3, start to responseSystemCommand client: {}, systemCommand:{}", client, systemCommand);
         if (TaoUtil.hasNotLoggedIn(request))
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
 
@@ -173,7 +178,8 @@ public class MainPageController extends BaseController {
 
         Object flash_1_URL = request.getSession().getAttribute(CC.flash_1_URL);
 
-        TaoDebug.info("Entry4, showFromFlashpage, flash_1_URL is: {}", flash_1_URL);
+        TaoDebug.info(TaoDebug.getSB(request.getSession()), "Entry4, showFromFlashpage, flash_1_URL is: {}",
+                flash_1_URL);
 
         if (flash_1_URL != null && !StringUtils.isBlank(flash_1_URL.toString()))
             return "flashpage";
@@ -221,14 +227,21 @@ public class MainPageController extends BaseController {
             HttpServletRequest request) {
         HttpSession session = request.getSession();
         Object app_name = session.getAttribute(CC.app_name);
+        TaoDebug.info(TaoDebug.getSB(session), "makesureSessionInitialized, app_name insession is: {}", app_name);
         Person person = TaoUtil.getCurPerson(request);
         if (app_name == null || session.getAttribute(CC.CLIENT) == null) {
-            TaoDebug.info("start to makesureSessionInitialized, cur person is: {}", person.getName());
+            TaoDebug.info(TaoDebug.getSB(session), TaoDebug.getSB(session),
+                    "start to makesureSessionInitialized, cur person is: {}", person.getName());
             TaoUtil.reInitSession(request.getSession(), person);
         }
 
+        // if the tableId is set, then add into session. while added a null check, to avoid it will be removed by
+        // unexpected request like sharethegoodones.com/showselection, sharethegoodones.com/favrateico..
         String tableID = request.getParameter("t");
-        session.setAttribute(CC.tableID, tableID);
+        if (tableID != null) {
+            session.setAttribute(CC.tableID, tableID);
+            TaoDebug.info(TaoDebug.getSB(session), "tableId in request is {}.", tableID);
+        }
     }
 
     // ==============user management==============
@@ -861,7 +874,8 @@ public class MainPageController extends BaseController {
         filePath =
                 TaoUtil.isLangPrfNeededForMedia(request, filePath) ? TaoUtil.getLangPrfWithDefault(request) + filePath
                         : filePath;
-        TaoDebug.info("start to findMediaByKeyAndPerson, person : {}, filePath:{}, path:{}", person, filePath,
+        TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                "start to findMediaByKeyAndPerson, person : {}, filePath:{}, path:{}", person, filePath,
                 request.getContextPath());
         MediaUpload tMedia = MediaUpload.findMediaByKeyAndPerson(filePath, person);
         try {
@@ -2135,7 +2149,7 @@ public class MainPageController extends BaseController {
                 times = 1;
             }
         } catch (Exception e) {
-            TaoDebug.warn("non-number parameter 'change':{}", change);
+            TaoDebug.warn(TaoDebug.getSB(request.getSession()), "non-number parameter 'change':{}", change);
         }
         if (isAdd) {
             for (int i = 0; i < times; i++) {
@@ -2204,9 +2218,12 @@ public class MainPageController extends BaseController {
         Person person = TaoUtil.getCurPerson(request);
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
         String menuPRF = langPrf + "menu_";
-        TaoDebug.info("start to initFeatureSubPage for showSelection, for client: {}", person.getName());
 
         HttpSession session = request.getSession();
+        TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                "start to initFeatureSubPage for showSelection, for client: {}, tableID is {}", person.getName(),
+                session.getAttribute(CC.tableID));
+
         String selectedItems = (String) session.getAttribute(CC.selectedItems);
         String[] imageKeyStrs = StringUtils.split(selectedItems, ',');
         String noteOfTheItems = (String) session.getAttribute(CC.noteOfTheItems);
@@ -2350,7 +2367,8 @@ public class MainPageController extends BaseController {
             pKey = pKey.substring(0, p + 1);
         }
 
-        TaoDebug.info("start to initLeftMenuBar, pKey is: {}, pLang is {}", pKey, langPrf);
+        TaoDebug.info(TaoDebug.getSB(session), "start to initLeftMenuBar, pKey is: {}, pLang is {}, tableID is {}",
+                pKey, langPrf, session.getAttribute(CC.tableID));
         List<List<String>> subMenu = TaoUtil.prepareMenuContent(pKey, langPrf, person);
         model.addAttribute("subMenu", subMenu);
         model.addAttribute("topIdx", subMenu);
@@ -2561,6 +2579,7 @@ public class MainPageController extends BaseController {
         session.setAttribute(CC.selectedItems, null);
         session.setAttribute(CC.latitude, null);
         session.setAttribute(CC.longitude, null);
+        session.setAttribute(CC.tableID, null);
 
         // notify the seesions to update
         RefreshNoticeCenter.broadcast("wufangshenming", person.getId().toString());
@@ -3197,6 +3216,8 @@ public class MainPageController extends BaseController {
                 int result = TaoDbUtil.saveToLocalDB(tList);
                 System.out.println("saving to localDB result is :" + result);
             }
+        } else if ("cleanDebugInfo".equals(commandStr)) {
+            TaoDebug.resetSB(request.getSession());
         }
         return null;
     }
@@ -3205,7 +3226,7 @@ public class MainPageController extends BaseController {
             HttpServletRequest request,
             Person person) {
         // ============customizes==================
-        // app_name
+        // app_name(set it with person name as default value)
         createACustomize(request, CC.app_name, person.getName(), person);
         // language
         createACustomize(request, "show_AboveMenu", "true", person);

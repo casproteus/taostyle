@@ -12,7 +12,6 @@ import com.stgo.taostyle.domain.Person;
 public class TaoDebug {
     private static final Logger logger = LoggerFactory.getLogger(TaoDebug.class);
     private static boolean debugFlag;
-    public static StringBuilder sb = new StringBuilder();
 
     public static boolean getDebugFlag() {
         return debugFlag;
@@ -32,30 +31,65 @@ public class TaoDebug {
         }
     }
 
+    public static StringBuilder getSB(
+            HttpSession session) {
+        Object sb = session.getAttribute(CC.SB);
+        if (sb == null) {
+            sb = new StringBuilder();
+            session.setAttribute(CC.SB, sb);
+        }
+        return (StringBuilder) sb;
+    }
+
+    public static void resetSB(
+            HttpSession session) {
+        session.setAttribute(CC.SB, new StringBuilder());
+    }
+
     public static void error(
+            String format,
+            Object... arguments) {
+        logger.error(format, arguments);
+        // if (debugFlag) {
+        // StringBuilder sb = new StringBuilder();
+        // sb.append("<br>!!!Error!!!");
+        // info(sb, format, arguments);
+        // }
+        StringBuilder sbForEmail = new StringBuilder();
+        for (Object argument : arguments) {
+            sbForEmail.append(argument.toString());
+            sbForEmail.append("\n");
+        }
+        TaoEmail.sendMessage("issueReport@ShareTheGoodOnes.com", format, "info@ShareTheGoodOnes.com",
+                sbForEmail.toString(), null);
+    }
+
+    public static void error(
+            StringBuilder sb,
             String format,
             Object... arguments) {
         logger.error(format, arguments);
         if (debugFlag) {
             sb.append("<br>!!!Error!!!");
-            info(format, arguments);
+            info(sb, format, arguments);
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sbForEmail = new StringBuilder();
         for (Object argument : arguments) {
-            sb.append(argument.toString());
-            sb.append("\n");
+            sbForEmail.append(argument.toString());
+            sbForEmail.append("\n");
         }
-        TaoEmail.sendMessage("issueReport@ShareTheGoodOnes.com", format, "info@ShareTheGoodOnes.com", sb.toString(),
-                null);
+        TaoEmail.sendMessage("issueReport@ShareTheGoodOnes.com", format, "info@ShareTheGoodOnes.com",
+                sbForEmail.toString(), null);
     }
 
     public static void warn(
+            StringBuilder sb,
             String format,
             Object... arguments) {
         logger.warn(format, arguments);
         if (debugFlag) {
             sb.append("!!WARN!!");
-            info(format, arguments);
+            info(sb, format, arguments);
         }
     }
 
@@ -71,7 +105,7 @@ public class TaoDebug {
                 url = url + "?" + queryString;
             }
             Object menuIdx = request.getSession().getAttribute(CC.menuIdx);
-            info(template, args, person, url, menuIdx);
+            info(getSB(request.getSession()), template, args, person, url, menuIdx);
         }
     }
 
@@ -81,7 +115,7 @@ public class TaoDebug {
             Object... args) {
         if (debugFlag) {
             Person person = (Person) session.getAttribute(CC.CLIENT);
-            info(template, args, person);
+            info(getSB(session), template, args, person);
         }
     }
 
@@ -92,6 +126,7 @@ public class TaoDebug {
      * @param args
      */
     public static void info(
+            StringBuilder sb,
             Object... args) {
         if (debugFlag) {
             sb.append("-INFO:");

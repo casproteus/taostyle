@@ -23,7 +23,8 @@ public class KeepCurrentUserInSessionLogoutSuccessHandler extends SimpleUrlLogou
             Authentication authentication) throws IOException, ServletException {
         // to make the page stay on the client's web site, instead of displaying for_demo's web site.
         if (authentication == null) {
-            TaoDebug.error("non-null authentication expected when {}", "onLogoutSuccess");
+            TaoDebug.error(TaoDebug.getSB(request.getSession()), "non-null authentication expected when {}",
+                    "onLogoutSuccess");
         } else {
             Person person = Person.findPersonByName(authentication.getName());
             if (person == null) {

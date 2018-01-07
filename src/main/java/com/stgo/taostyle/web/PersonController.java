@@ -50,8 +50,7 @@ public class PersonController {
 
     @RequestMapping(method = RequestMethod.POST, produces = "text/html")
     public String create(
-            @Valid
-            Person person,
+            @Valid Person person,
             BindingResult bindingResult,
             Model uiModel,
             HttpServletRequest httpServletRequest) {
@@ -82,7 +81,8 @@ public class PersonController {
             HttpServletRequest request) {
         Person curPerson = (Person) request.getSession().getAttribute(CC.CLIENT);
         if (curPerson == null || person == null || !curPerson.getName().equals(person.getName())) {
-            TaoDebug.warn("unexpected visit to PersonController, curPerson: {}, client: {}", curPerson, person);
+            TaoDebug.warn(TaoDebug.getSB(request.getSession()),
+                    "unexpected visit to PersonController, curPerson: {}, client: {}", curPerson, person);
             return true;
         }
         return false;
@@ -93,7 +93,8 @@ public class PersonController {
             HttpServletRequest request) {
         Person curPerson = (Person) request.getSession().getAttribute(CC.CLIENT);
         if (curPerson == null || curPerson.getId() != id) {
-            TaoDebug.warn("unexpected visit to PersonController, curPerson: {}, person id: {}", curPerson, id);
+            TaoDebug.warn(TaoDebug.getSB(request.getSession()),
+                    "unexpected visit to PersonController, curPerson: {}, person id: {}", curPerson, id);
             return true;
         }
         return false;
@@ -101,8 +102,7 @@ public class PersonController {
 
     @RequestMapping(value = "/{id}", produces = "text/html")
     public String show(
-            @PathVariable("id")
-            Long id,
+            @PathVariable("id") Long id,
             Model uiModel,
             HttpServletRequest httpServletRequest) {
 
@@ -117,17 +117,13 @@ public class PersonController {
 
     @RequestMapping(produces = "text/html")
     public String list(
-            @RequestParam(value = "page", required = false)
-            Integer page,
-            @RequestParam(value = "size", required = false)
-            Integer size,
-            @RequestParam(value = "sortFieldName", required = false)
-            String sortFieldName,
-            @RequestParam(value = "sortOrder", required = false)
-            String sortOrder,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size,
+            @RequestParam(value = "sortFieldName", required = false) String sortFieldName,
+            @RequestParam(value = "sortOrder", required = false) String sortOrder,
             Model uiModel,
             HttpServletRequest httpServletRequest) {
-        String name = (String) userContextService.getCurrentUserName();
+        String name = userContextService.getCurrentUserName();
         if (!"stgo".equals(name) && !CC.ADV_USER.equals(name)) {
             return "login";
         }
@@ -144,8 +140,8 @@ public class PersonController {
             final int firstResult = page == null ? 0 : (page.intValue() - 1) * sizeNo;
             uiModel.addAttribute("people", Person.findPersonEntries(firstResult, sizeNo, sortFieldName, sortOrder));
             float nrOfPages = (float) Person.countPeople() / sizeNo;
-            uiModel.addAttribute("maxPages", (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1
-                    : nrOfPages));
+            uiModel.addAttribute("maxPages",
+                    (int) ((nrOfPages > (int) nrOfPages || nrOfPages == 0.0) ? nrOfPages + 1 : nrOfPages));
         } else {
             uiModel.addAttribute("people", Person.findAllPeople(sortFieldName, sortOrder));
         }
@@ -154,12 +150,9 @@ public class PersonController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = "text/html")
     public String delete(
-            @PathVariable("id")
-            Long id,
-            @RequestParam(value = "page", required = false)
-            Integer page,
-            @RequestParam(value = "size", required = false)
-            Integer size,
+            @PathVariable("id") Long id,
+            @RequestParam(value = "page", required = false) Integer page,
+            @RequestParam(value = "size", required = false) Integer size,
             Model uiModel,
             HttpServletRequest request) {
 
@@ -226,8 +219,7 @@ public class PersonController {
 
     @RequestMapping(method = RequestMethod.PUT, produces = "text/html")
     public String update(
-            @Valid
-            Person person,
+            @Valid Person person,
             BindingResult bindingResult,
             Model uiModel,
             HttpServletRequest httpServletRequest) {

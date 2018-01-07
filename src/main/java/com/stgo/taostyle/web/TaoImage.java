@@ -80,7 +80,7 @@ public class TaoImage {
     // tType = DEFAULT_IMAGE_TYPE;
     // }
     // model.addAttribute(tKey, tKey + tType);
-    // //System.out.println("tKey:"+ tKey + "  value:" + tKey + tType);
+    // //System.out.println("tKey:"+ tKey + " value:" + tKey + tType);
     // }
     // }
 
@@ -287,9 +287,9 @@ public class TaoImage {
         }
 
         if (isRotateNeeded && request != null) {
-            im =
-                    "right".equalsIgnoreCase((String) request.getSession().getAttribute(CC.rotateDirection)) ? rotate90DX(im)
-                            : rotate90SX(im);
+            im = "right".equalsIgnoreCase((String) request.getSession().getAttribute(CC.rotateDirection))
+                    ? rotate90DX(im)
+                    : rotate90SX(im);
             size[0] = height;
             size[1] = width;
         } else {
@@ -381,7 +381,7 @@ public class TaoImage {
             int logo_w = logo_src.getWidth(null);
             int logo_h = logo_src.getHeight(null);
             if (logo_w > 100) {
-                TaoDebug.warn("logo width is bigger than 100, can not put it on QRCode. the width:{}", logo_w);
+                TaoDebug.error("logo width is bigger than 100, can not put it on QRCode. the width:{}", logo_w);
                 return null;
             }
 
@@ -437,7 +437,7 @@ public class TaoImage {
             return defaultValue;
         }
         if (StringUtils.isBlank(key)) {
-            TaoDebug.warn("Non-null key value expected when {}", "getCustValueWithDefalt");
+            TaoDebug.error("Non-null key value expected when {}", "getCustValueWithDefalt");
             return defaultValue;
         }
         Object userCustomise = request.getSession().getAttribute(key);
@@ -564,7 +564,7 @@ public class TaoImage {
             boolean isThumNeeded,
             Person person) {
         if (imageInsertPosition > countOfExistingImage) {
-            TaoDebug.warn("given position are out of bounds! pos:{}, bounds:{}", imageInsertPosition,
+            TaoDebug.error("given position are out of bounds! pos:{}, bounds:{}", imageInsertPosition,
                     countOfExistingImage);
             return;
         }

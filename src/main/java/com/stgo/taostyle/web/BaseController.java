@@ -27,7 +27,7 @@ public class BaseController {
         Object langInRequest = request.getParameter(CC.LANG); // language in request
         Object langInSession = session.getAttribute(CC.LANG); // language existing
 
-        TaoDebug.info(
+        TaoDebug.info(TaoDebug.getSB(session),
                 "start to makesureCommonTextInitialized, langParameter: {}; tLangExisting: {}, dirtFlagCommonText: {}, client:{}",
                 langInRequest, langInSession, dirtFlagCommonText, person.getName());
 
@@ -57,7 +57,8 @@ public class BaseController {
             String langPrf,
             Person person) {
 
-        TaoDebug.info("start to reinitCommonText, lang is {}, client is: {}", langPrf, person.getName());
+        TaoDebug.info(TaoDebug.getSB(session), "start to reinitCommonText, lang is {}, client is: {}", langPrf,
+                person.getName());
 
         List<List<String>> menuContent = TaoUtil.prepareMenuContent("menu_", langPrf, person);
         session.setAttribute("menuContent", menuContent);

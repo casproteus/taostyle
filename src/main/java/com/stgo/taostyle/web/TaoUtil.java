@@ -57,12 +57,12 @@ public class TaoUtil {
     public static String getAppNameInRequest(
             HttpServletRequest request) {
         if (request.getRequestURL() == null) {
-            TaoDebug.warn("request.getRequestURL() menthod returned null!", "");
+            TaoDebug.warn(TaoDebug.getSB(request.getSession()), "request.getRequestURL() menthod returned null!", "");
             return null;
         }
 
         String app_Name = request.getRequestURL().toString().toLowerCase();
-        TaoDebug.info("Client side url got in request is:{}", app_Name);
+        TaoDebug.info(TaoDebug.getSB(request.getSession()), "Client side url got in request is:{}", app_Name);
         int p = app_Name.indexOf(CC.DOMAIN_NAME);
         if (p > -1) {
             app_Name = app_Name.substring(0, p);
@@ -127,14 +127,14 @@ public class TaoUtil {
         // check the case if url is like http://tuyi.sharethegoodones.com
         String app_name_inRequest = TaoUtil.getAppNameInRequest(request);
         if (app_name_inRequest != null) {
-            TaoDebug.info("app_name found in request is:{}", app_name_inRequest);
+            TaoDebug.info(TaoDebug.getSB(request.getSession()), "app_name found in request is:{}", app_name_inRequest);
             clientName = app_name_inRequest;
         }
 
         TaoDebug.info(request, "start to switchClient to client : {} from current person: {}", clientName);
         Person currentPerson = TaoUtil.getCurPerson(request);
         if (currentPerson != null && currentPerson.getName().equals(clientName)) {
-            TaoDebug.info("stopped switching, because they are same person!");
+            TaoDebug.info(TaoDebug.getSB(request.getSession()), "stopped switching, because they are same person!");
         } else {
             currentPerson = Person.findPersonByName(clientName);
             if (currentPerson != null) {
@@ -142,7 +142,8 @@ public class TaoUtil {
                 TaoUtil.reInitSession(request.getSession(), currentPerson);
                 return true;
             } else { // means null in session and null in database.
-                TaoDebug.warn("no such a person in db:{}, will stop switching", clientName);
+                TaoDebug.warn(TaoDebug.getSB(request.getSession()), "no such a person in db:{}, will stop switching",
+                        clientName);
             }
         }
         return false;
@@ -268,49 +269,57 @@ public class TaoUtil {
             Person person) {
 
         TaoDebug.info(request, "start to initLeftMenuBar for: menu_{}, for person: {}", idx);
-        initLeftMenuBar(model, "menu_" + idx + "_", langPrf, person);
+        initLeftMenuBar(request, model, "menu_" + idx + "_", langPrf, person);
         String menuIdx = null;
         String returnPath = null;
         switch (getContentType(request, idx, subIdx, subSubIdx)) {
             case CC.HTML:
-                TaoDebug.info("start to initHTMLSubPage for: submenu_{}, for client: {}", subIdx, person.getName());
-                menuIdx = initHTMLSubPage(model, langPrf, idx, subIdx, subSubIdx, person);
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initHTMLSubPage for: submenu_{}, for client: {}", subIdx, person.getName());
+                menuIdx = initHTMLSubPage(request, model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/generalHTMLPage";
                 break;
             case CC.GALLERY:
-                TaoDebug.info("start to initGallerySubPage for: submenu_{}, for client: {}", subIdx, person.getName());
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initGallerySubPage for: submenu_{}, for client: {}", subIdx, person.getName());
                 menuIdx = initGallerySubPage(request, model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/generalGalleryPage";
                 break;
             case CC.CATALOG:
-                TaoDebug.info("start to initCatalogSubPage for: submenu_{}, for client: {}", subIdx, person.getName());
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initCatalogSubPage for: submenu_{}, for client: {}", subIdx, person.getName());
                 menuIdx = initCatalogSubPage(model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/generalCatalogPage";
                 break;
             case CC.FEATURE:
-                TaoDebug.info("start to initFeatureSubPage for: submenu_{}, for client: {}", subIdx, person.getName());
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initFeatureSubPage for: submenu_{}, for client: {}", subIdx, person.getName());
                 menuIdx = initFeatureSubPage(request, model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/generalFeaturePage";
                 break;
             case CC.PRODUCT:
-                TaoDebug.info("start to initProductSubPage for: submenu_{}, for client: {}", subIdx, person.getName());
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initProductSubPage for: submenu_{}, for client: {}", subIdx, person.getName());
                 menuIdx = initProductSubPage(model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/generalProductPage";
                 break;
             case CC.SERVICE:
-                TaoDebug.info("start to initServiceSubPage for: submenu_{}, for client: {}", subIdx,
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initServiceSubPage for: submenu_{}, for client: {}", subIdx,
                         request.getSession().getAttribute(CC.CLIENT));
                 menuIdx = initServiceSubPage(request, model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/generalServicePage";
                 break;
             case CC.LOCATION:
-                TaoDebug.info("start to initServiceSubPage for: submenu_{}, for client: {}", subIdx,
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initServiceSubPage for: submenu_{}, for client: {}", subIdx,
                         request.getSession().getAttribute(CC.CLIENT));
                 menuIdx = initLocationPage(request.getSession(), model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/contactus";
                 break;
             default:
-                TaoDebug.info("start to initModelUiForMainPage for: SUBmenu:{}, for client: {}", subIdx,
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initModelUiForMainPage for: SUBmenu:{}, for client: {}", subIdx,
                         request.getSession().getAttribute(CC.CLIENT));
                 menuIdx = initModelUiForMainPage(request, model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "index";
@@ -598,6 +607,7 @@ public class TaoUtil {
 
     // initialise the left bar menu and main content.
     private static String initHTMLSubPage(
+            HttpServletRequest request,
             Model model,
             String langPrf,
             int pMenuIdx,
@@ -608,7 +618,8 @@ public class TaoUtil {
         String menuIdx = completeMenuIdx(pMenuIdx, pSubMenuIdx, pSubSubMenuIdx, langPrf, person);
         String prf2 = "html_" + menuIdx;
 
-        TaoDebug.info("start to initHTMLSubPage, prf2 is {}, langPrf is {}", prf2, langPrf);
+        TaoDebug.info(TaoDebug.getSB(request.getSession()), "start to initHTMLSubPage, prf2 is {}, langPrf is {}", prf2,
+                langPrf);
         initSubpageContent(model, prf2, langPrf, person);
         return menuIdx;
     }
@@ -668,7 +679,8 @@ public class TaoUtil {
         long pictureAmount = MediaUpload.countMediaUploadsByKeyAndPerson(key, person) / 2;
         model.addAttribute("pictureAmount", pictureAmount);
 
-        TaoDebug.info("start to initGallerySubPage, key is {}, pictureAmount is {}", key, pictureAmount);
+        TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                "start to initGallerySubPage, key is {}, pictureAmount is {}", key, pictureAmount);
         return menuIdx;
     }
 
@@ -691,7 +703,8 @@ public class TaoUtil {
         // model.addAttribute("products", tProducts);
         // model.addAttribute("productAmount", tProducts.size());
 
-        // TaoDebug.info("start to initCatalogSubPage, menukey is {}, productAmount is {}", key, tProducts.size());
+        // TaoDebug.info(TaoDebug.getSB(request.getSession()), "start to initCatalogSubPage, menukey is {},
+        // productAmount is {}", key, tProducts.size());
         return menuIdx;
     }
 
@@ -766,7 +779,8 @@ public class TaoUtil {
         }
 
         model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message1));
-        TaoDebug.info("completed initServiceSubPage, menukey is {}, serviceAmount is {}", key, serviceAmount);
+        TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                "completed initServiceSubPage, menukey is {}, serviceAmount is {}", key, serviceAmount);
         return menuIdx;
     }
 
@@ -897,8 +911,8 @@ public class TaoUtil {
             HttpSession session,
             Person person) {
         // clean current configuration
-        TaoDebug.info("start to reInitSession for client : {}", person.getName());
-        if (session.getAttribute(CC.app_name) != null) {
+        TaoDebug.info(TaoDebug.getSB(session), "start to reInitSession for client : {}", person.getName());
+        if (session.getAttribute(CC.CLIENT) != null) {
             cleanSessionAttributes(session);
         }
         // Initialise with advPerson's configuration.
@@ -918,15 +932,12 @@ public class TaoUtil {
         }
         session.setAttribute(CC.CLIENT, person);
         TaoDebug.setDebugFlag((String) session.getAttribute(CC.debugFlag), person);
-        if (TaoDebug.getDebugFlag()) {
-            session.setAttribute(CC.debugInfo, TaoDebug.sb);
-        }
         session.setMaxInactiveInterval(-1);
     }
 
     private static void cleanSessionAttributes(
             HttpSession session) {
-        TaoDebug.info("start to cleanSessionAttributes");
+        TaoDebug.info(TaoDebug.getSB(session), "start to cleanSessionAttributes");
 
         Enumeration<String> enumeration = session.getAttributeNames();
         while (enumeration.hasMoreElements())
@@ -935,7 +946,7 @@ public class TaoUtil {
 
     private static void removeSensitiveDemoConfigurations(
             HttpSession session) {
-        TaoDebug.info("start to removeSensitiveDemoConfigurations.");
+        TaoDebug.info(TaoDebug.getSB(session), "start to removeSensitiveDemoConfigurations.");
         session.removeAttribute(CC.app_ContentManager);
         session.removeAttribute("app_ManagerEmail");
         session.removeAttribute("app_name");
@@ -957,11 +968,13 @@ public class TaoUtil {
      *             are supposed to be like "menu_[n]_" .
      */
     private static void initLeftMenuBar(
+            HttpServletRequest request,
             Model model,
             String pKey,
             String pLanguage,
             Person person) {
-        TaoDebug.info("start to initLeftMenuBar, pKey is: {}, pLang is {}", pKey, pLanguage);
+        TaoDebug.info(TaoDebug.getSB(request.getSession()), "start to initLeftMenuBar, pKey is: {}, pLang is {}", pKey,
+                pLanguage);
         List<List<String>> subMenu = prepareMenuContent(pKey, pLanguage, person);
         model.addAttribute("subMenu", subMenu);
         int indexOfSecondDash = pKey.indexOf('_', 5);
@@ -1110,14 +1123,16 @@ public class TaoUtil {
             HttpServletRequest request) {
         Person person = (Person) request.getSession().getAttribute(CC.CLIENT);
         if (person == null) {
+            // trying to save it back--we normally have a copy of CC.client's value in app_name.
             Object app_name = request.getSession().getAttribute(CC.app_name);
-
             if (app_name != null) {
                 person = Person.findPersonByName(app_name.toString());
             }
-
+            // if the app_name property in session also changed, then have to use adv person :(
             if (person == null) {
-                person = TaoUtil.getAdvPerson();
+                person = TaoUtil.getAdvPerson(); // This could have caused a issue.
+                TaoDebug.warn(TaoDebug.getSB(request.getSession()),
+                        "no name found in both CLIENT and app_name, have to get AdvPerson", "");
             }
             request.getSession().setAttribute(CC.CLIENT, person);
         }

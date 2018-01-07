@@ -1,6 +1,7 @@
 package com.stgo.taostyle.web;
 
 public interface CC {
+    String SB = "debugInfo";
     String MaxInactiveInterval = "MaxInactiveInterval";
     String DOMAIN_NAME = "sharethegoodones.";
     String DOMAIN_NAME_2 = "yuandaosheji.";
