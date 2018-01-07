@@ -26,13 +26,13 @@ public class TaoSecurity {
             }
         }
 
-        // internal visit can be trusted. so employ can visit any time.
+        // internal visit can be trusted. so developer will not be interrupted.
         if (ip.startsWith("192.168.") || ip.startsWith("0:0:0:0:0:0:0:1")) {
             return false;
         }
 
-        // some ip might be set limitation, if not set, each ip can order 3 times a day. if set to 0, then sorry~
-        int limit = 4;
+        // same ip might be set limitation, if not set, each ip can order 3 times a day. if set to 0, then sorry~
+        int limit = 20;
         Object limitation = session.getAttribute(ip);
         if (limitation != null) {
             try {
