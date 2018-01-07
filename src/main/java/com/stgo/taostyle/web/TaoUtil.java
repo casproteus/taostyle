@@ -242,21 +242,38 @@ public class TaoUtil {
 
     public static String getDefalutLang(
             HttpServletRequest request) {
-        Object lang = null;
-        lang = request.getSession().getAttribute(CC.DEFAULT_LANG);
-        if (lang == null && "true".equals(request.getSession().getAttribute("en"))) {
-            lang = "en";
+        HttpSession session = request.getSession();
+        // first get the language setting in client side explorer.
+        Object lang = request.getLocale().getLanguage();
+        // if it's not null and in supported list then return it!
+        if (isLanguageSupported(session, lang)) {
+            return lang.toString();
         }
-        if (lang == null && "true".equals(request.getSession().getAttribute("zh"))) {
-            lang = "zh";
-        }
-        if (lang == null && "true".equals(request.getSession().getAttribute("fr"))) {
-            lang = "fr";
-        }
-        if (lang == null && "true".equals(request.getSession().getAttribute("it"))) {
-            lang = "it";
-        }
+        // if found no language in client side setting. then check if a CC.DEFAULT_LANG setted?
+        lang = session.getAttribute(CC.DEFAULT_LANG);
+
+        // if still null, return "en" as default.
         return lang == null ? "en" : lang.toString();
+    }
+
+    private static boolean isLanguageSupported(
+            HttpSession session,
+            Object lang) {
+        if (lang == null || !(lang instanceof String)) {
+            return false;
+        }
+        // check if it match with any one supported.
+        int i = 1;
+        while (true) {
+            Object supportedLang = session.getAttribute(CC.LANG + i);
+            if (supportedLang == null) {
+                break;
+            } else if (lang.equals(supportedLang)) {
+                return true;
+            }
+            i++;
+        }
+        return false;
     }
 
     public static String initSubPage(
