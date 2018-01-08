@@ -589,7 +589,7 @@ public class MainPageController extends BaseController {
                             if (printersMap != null) {
                                 printersMap.put(printerName, user.getFax());
                             }
-                            // addin materieals
+                            // add in materials
                             List<Material> materialsForPrinter = new ArrayList<>();
                             for (Material material : materials) {
                                 String printersStr = material.getMenFu();
@@ -609,6 +609,7 @@ public class MainPageController extends BaseController {
                 materials = Material.findAllMaterialsByMainOrder(mainOrder);
             }
 
+            addNameOfSpecificLanguage(materials, request.getLocale().getLanguage(), request);
             model.addAttribute("materials", materials);
 
             model.addAttribute("sizeTable",
@@ -638,6 +639,41 @@ public class MainPageController extends BaseController {
             model.addAttribute("materials", null);
         }
         return "printpreview";
+    }
+
+    private void addNameOfSpecificLanguage(
+            List<Material> materials,
+            String lang,
+            HttpServletRequest request) {
+        Person person = TaoUtil.getCurPerson(request);
+        for (Material material : materials) {
+            String location = material.getLocation();
+            // location is a string like 2_0_0_1, what we want is like en_service_2_0_0_1_description
+            if (location == null) {
+                material.setColor(material.getPortionName());
+                TaoDebug.error("location not set for material {}.", material.getId());
+                continue;
+            }
+            location = lang + "_service_" + location + "_description";
+
+            String description = TextContent.findTextByKeyAndPerson(location, person);
+            if (description == null) {
+                material.setColor(material.getPortionName());
+                TaoDebug.error("no description found for key {}.", location);
+                continue;
+            }
+
+            String productName =
+                    TaoUtil.fetchProductName(description, (String) request.getSession().getAttribute("moneyLetter"));
+            if (productName == null) {
+                material.setColor(material.getPortionName());
+                TaoDebug.error("no productName found in TextContent with key {}.", location);
+                continue;
+            }
+
+            // get the name out.
+            material.setColor(productName);
+        }
     }
 
     @RequestMapping(value = "/careerApply", method = RequestMethod.GET)
@@ -771,8 +807,7 @@ public class MainPageController extends BaseController {
         Object need_calculate_price = request.getSession().getAttribute("need_calculate_price");
         if ("true".equals(need_calculate_price) && (posStr.startsWith("service_") || posStr.startsWith("product_"))
                 && posStr.endsWith("_description")) {
-            String langPrf = TaoUtil.getLangPrfWithDefault(request);
-            String moneyLetter = CC.money.valueOf(langPrf.substring(0, 2)).getValue();
+            String moneyLetter = (String) request.getSession().getAttribute("moneyLetter");
 
             String productName = TaoUtil.fetchProductName(description, moneyLetter);
             if (StringUtils.isBlank(productName)) {
@@ -2450,9 +2485,6 @@ public class MainPageController extends BaseController {
             sizeTable = client.getLoginname();
         }
 
-        String langPrf = TaoUtil.getLangPrfWithDefault(request);
-        String moneyLetter = CC.money.valueOf(langPrf.substring(0, 2)).getValue();
-
         MainOrder sourcdAndNewMainOrder = new MainOrder();
         sourcdAndNewMainOrder.setPerson(person);
         sourcdAndNewMainOrder.setClientSideOrderNumber(session.getId());
@@ -2507,11 +2539,21 @@ public class MainPageController extends BaseController {
         // -----------persist the materials-----------------
         float total = 0;
         List<Material> materials = new ArrayList<Material>();
+
+        String langPrf = (String) session.getAttribute("lang_printer") + "_";
+        String moneyLetter = (String) session.getAttribute("moneyLetter");
+
         for (String item : items) {
             String key = langPrf + (item.startsWith("service_") ? item : ("service_" + item)) + "_description";
 
             // todo: should get the infomation from Service table.
             TextContent textContent = TextContent.findContentsByKeyAndPerson(key, person);
+            if (textContent == null) {
+                TaoDebug.error("didn't set lang_printer version of text for key {}!", key);
+                langPrf = TaoUtil.getLangPrfWithDefault(request);
+                key = langPrf + (item.startsWith("service_") ? item : ("service_" + item)) + "_description";
+                textContent = TextContent.findContentsByKeyAndPerson(key, person);
+            }
             String description = textContent != null ? textContent.getContent() : "";
             String productName = TaoUtil.fetchProductName(description, moneyLetter);
             String payCondition = TaoUtil.fetchProductPrice(description, moneyLetter);

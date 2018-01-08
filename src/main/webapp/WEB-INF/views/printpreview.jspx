@@ -26,7 +26,7 @@
 				 mainOrderID="${mainOrderID}" render="${fn:length(materials) gt 0}">
 					<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
 					update="true"  delete="${isEmployee}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}" tax="${tax}"  endPrice="${endPrice}">
-						<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="portionName"/>
+						<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="color"/>
 						<c:if test="${isNotPrinter}">
 							<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>
 						</c:if>
