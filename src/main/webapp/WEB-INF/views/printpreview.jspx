@@ -75,7 +75,7 @@
 			<a id="showHiddenDivs" class="hide" href="#hiddenDivs" data-toggle="modal" />
 		</c:if>
 	</c:if>
-	<c:if test="${user_role == '[ROLE_PRINTER]'}">
+	<c:if test="${user_role == '[ROLE_PRINTER]'}"> <!-- is not used for now, because it asks an extra computer on site. -->
 		<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
 			<div id="plainTextForReceip" class="${span}" align="left" style="margin-left:${leftmargin}">
 				<p align="center"> ${targetTime}  ( ${sizeTable}${contactPhone} ) </p>

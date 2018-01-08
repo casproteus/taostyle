@@ -472,7 +472,8 @@ public class MainPageController extends BaseController {
             String langPrf = TaoUtil.getLangPrfWithDefault(request);
             List<String> quick_notes = TextContent.findAllMatchedContent(langPrf + "quick_note_%", "content", person);
             model.addAttribute("quick_note", quick_notes);
-        } else if (CC.ROLE_PRINTER.equalsIgnoreCase(securityLevel)) {
+        } else if (CC.ROLE_PRINTER.equalsIgnoreCase(securityLevel)) { // not used for now, beuase it ask an extra
+                                                                      // computer on site.
             request.setAttribute("show_footArea", "");
             request.setAttribute("show_foot", "false");
             request.setAttribute("show_AboveMenu", "");
@@ -547,6 +548,7 @@ public class MainPageController extends BaseController {
             UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);
 
             List<Material> materials = null;
+            // the printer as a user asking for material case is not used, because it ask for an extra computer on site.
             if (currentUser != null && CC.ROLE_PRINTER.equals(currentUser.getSecuritylevel())) {
                 String curPrinterName = "," + TaoEncrypt.stripUserName(currentUser.getLoginname()) + ",";
                 String processedPrinters = mainOrder.getColorCard();
@@ -572,7 +574,7 @@ public class MainPageController extends BaseController {
                     return CC.STATUS_MINE_ARE_FULL;
                 }
             } else if (currentUser != null && (CC.ROLE_EMPLOYEE.equals(currentUser.getSecuritylevel())
-                    || CC.ROLE_MANAGER.equals(currentUser.getSecuritylevel()))) {
+                    || CC.ROLE_MANAGER.equals(currentUser.getSecuritylevel()))) { // employee ask for material case.
                 materials = Material.findAllMaterialsByMainOrder(mainOrder);
                 // if the parameter is already initialized, means it's asking for datas needed
                 // by websocket printer.
