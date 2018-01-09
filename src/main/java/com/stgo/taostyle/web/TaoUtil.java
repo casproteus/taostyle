@@ -61,34 +61,34 @@ public class TaoUtil {
             return null;
         }
 
-        String app_Name = request.getRequestURL().toString().toLowerCase();
-        TaoDebug.info(TaoDebug.getSB(request.getSession()), "Client side url got in request is:{}", app_Name);
-        int p = app_Name.indexOf(CC.DOMAIN_NAME);
+        String personName = request.getRequestURL().toString().toLowerCase();
+        TaoDebug.info(TaoDebug.getSB(request.getSession()), "Client side url got in request is:{}", personName);
+        int p = personName.indexOf(CC.DOMAIN_NAME);
         if (p > -1) {
-            app_Name = app_Name.substring(0, p);
+            personName = personName.substring(0, p);
 
-            if (app_Name.startsWith("http://")) {
-                app_Name = app_Name.substring(7);
+            if (personName.startsWith("http://")) {
+                personName = personName.substring(7);
             }
-            if (app_Name.startsWith("https://")) {
-                app_Name = app_Name.substring(8);
+            if (personName.startsWith("https://")) {
+                personName = personName.substring(8);
             }
-            if (!"".equals(app_Name) && !"www.".equals(app_Name) && !"test.".equals(app_Name)) {
-                return app_Name.substring(0, app_Name.length() - 1);
+            if (!"".equals(personName) && !"www.".equals(personName) && !"test.".equals(personName)) {
+                return personName.substring(0, personName.length() - 1);
             }
         } else {
-            p = app_Name.indexOf(CC.DOMAIN_NAME_2);
+            p = personName.indexOf(CC.DOMAIN_NAME_2);
             if (p > -1) {
-                app_Name = app_Name.substring(0, p);
+                personName = personName.substring(0, p);
 
-                if (app_Name.startsWith("http://")) {
-                    app_Name = app_Name.substring(7);
+                if (personName.startsWith("http://")) {
+                    personName = personName.substring(7);
                 }
-                if (app_Name.startsWith("https://")) {
-                    app_Name = app_Name.substring(8);
+                if (personName.startsWith("https://")) {
+                    personName = personName.substring(8);
                 }
-                if (!"".equals(app_Name) && !"www.".equals(app_Name) && !"test.".equals(app_Name)) {
-                    return app_Name.toString();
+                if (!"".equals(personName) && !"www.".equals(personName) && !"test.".equals(personName)) {
+                    return personName.toString();
                 }
             }
         }
@@ -127,7 +127,8 @@ public class TaoUtil {
         // check the case if url is like http://tuyi.sharethegoodones.com
         String app_name_inRequest = TaoUtil.getAppNameInRequest(request);
         if (app_name_inRequest != null) {
-            TaoDebug.info(TaoDebug.getSB(request.getSession()), "app_name found in request is:{}", app_name_inRequest);
+            TaoDebug.info(TaoDebug.getSB(request.getSession()), "person_name found in request is:{}",
+                    app_name_inRequest);
             clientName = app_name_inRequest;
         }
 
@@ -1141,6 +1142,7 @@ public class TaoUtil {
         Person person = (Person) request.getSession().getAttribute(CC.CLIENT);
         if (person == null) {
             // trying to save it back--we normally have a copy of CC.client's value in app_name.
+            // thought some time app_name will be used to save the domain name (when generate QRCode, we use app_name).
             Object app_name = request.getSession().getAttribute(CC.app_name);
             if (app_name != null) {
                 person = Person.findPersonByName(app_name.toString());
