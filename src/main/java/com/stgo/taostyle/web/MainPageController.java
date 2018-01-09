@@ -700,10 +700,10 @@ public class MainPageController extends BaseController {
 
         UserAccount userAccount = UserAccount.findUserAccountByName(TaoEncrypt.enrichName(request, tUserName));
 
-        String content =
-                "<p align='center'><a href='http://localhost/taostyle/dashboard'>" + "check uploaded resume" + "</a>";
+        String content = "<p align='center'><a href='http://www.sharethegoodones.com/"
+                + request.getSession().getAttribute(CC.CLIENT) + "/dashboard'>" + "check uploaded resume" + "</a>";
 
-        TaoEmail.sendMessage("tao@sharethegoodones.com", "Career Application", userAccount.getEmail(),
+        TaoEmail.sendMessage("info@sharethegoodones.com", "Career Application", userAccount.getEmail(),
                 request.getParameter("content") + content, null);
 
         model.addAttribute("notice",

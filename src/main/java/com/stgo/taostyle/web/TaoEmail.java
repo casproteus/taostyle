@@ -44,7 +44,7 @@ public class TaoEmail {
             sendMessage(request.getParameter("email"), "JOB APPLICATION", managerEmail.toString(), emailContent + link,
                     content);
         } catch (Exception emailException) {
-            sendMessage("tao@sharethegoodones.com", "JOB APPLICATION", managerEmail.toString(), request
+            sendMessage("info@sharethegoodones.com", "JOB APPLICATION", managerEmail.toString(), request
                     .getParameter("email")
                     + " wanted to send you an application, but failed(could because the email address was not acceptable by the mail server, folowing is the basic infomation:<br/>"
                     + emailContent + link, content);
