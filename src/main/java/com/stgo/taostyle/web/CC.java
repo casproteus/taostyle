@@ -1,6 +1,8 @@
 package com.stgo.taostyle.web;
 
 public interface CC {
+    int UNLIMITED_UPLOD_SIZE = 100;
+    String UNIQ_SEP = "_S_T_G_O_";
     String SB = "debugInfo";
     String MaxInactiveInterval = "MaxInactiveInterval";
     String DOMAIN_NAME = "sharethegoodones.";
@@ -25,7 +27,7 @@ public interface CC {
     String SERVICE = "SERVICE";
     String LOCATION = "LOCATION";
 
-    String ADMIN = "sharethegoodones";
+    String ADMIN = "sharethegoodones"; // used only for openning a new account (person)
     String CLIENT = "client";
     String debugFlag = "debugFlag";
     String debugInfo = "debugInfo";

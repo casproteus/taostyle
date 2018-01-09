@@ -1722,8 +1722,10 @@ public class MainPageController extends BaseController {
             FileItem tFileItem,
             Person person) {
         if (tFileItem.getSize() > 5000000) {
-            if (person != null && CC.ADMIN.equals(person.getName())) {
-                return null;
+            if (person != null) {
+                if (CC.ADV_USER.equals(person.getName()) || person.getRecordStatus() == CC.UNLIMITED_UPLOD_SIZE) {
+                    return null;
+                }
             }
 
             uiModel.addAttribute("notice",
@@ -3112,7 +3114,8 @@ public class MainPageController extends BaseController {
         if (person == null)
             return null;
 
-        String password = accountInfo.substring(pos + 1);
+        String password = TaoEncrypt.stripURLFriendlyPassword(accountInfo.substring(pos + 1));
+
         if (!person.getPassword().equals(password)) // directly compare with the encrypt password.
             return null;
 
@@ -3182,7 +3185,7 @@ public class MainPageController extends BaseController {
         collection.add(tServicesJsonAryStr);
 
         // textContent
-        List<TextContent> textContents = TextContent.findAllMatchedTextContents("*", null, person);
+        List<TextContent> textContents = TextContent.findAllMatchedTextContents("%", null, person);
         if (textContents == null)
             textContents = new ArrayList<TextContent>();
         String tTextContentJsonAryStr = TextContent.toJsonArray(textContents);
@@ -3240,7 +3243,8 @@ public class MainPageController extends BaseController {
                     : (commandStr.endsWith(".com") ? commandStr + "/" : commandStr + ".com/");
             commandStr = commandStr.endsWith("localhost.com/") ? "bkDB:localhost/taostyle/" : commandStr;
             String url = new StringBuilder("http://").append(commandStr.substring(5)).append("persondbbk/")
-                    .append(person.getName()).append(":").append(person.getPassword()).toString();
+                    .append(person.getName()).append(":")
+                    .append(TaoEncrypt.getURLFriendlyPassword(person.getPassword())).toString();
             // the code following is just send out a request.
 
             ClientConfig config = new DefaultClientConfig();

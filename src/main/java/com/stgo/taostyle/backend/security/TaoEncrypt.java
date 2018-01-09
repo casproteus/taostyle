@@ -179,15 +179,14 @@ public class TaoEncrypt {
     private static Cipher createCipher(
             final String salt,
             final int iterationsNumber,
-            final int mode) throws NoSuchAlgorithmException, IOException, InvalidKeySpecException,
-            NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException,
-            InvalidParameterSpecException {
+            final int mode)
+            throws NoSuchAlgorithmException, IOException, InvalidKeySpecException, NoSuchPaddingException,
+            InvalidKeyException, InvalidAlgorithmParameterException, InvalidParameterSpecException {
         final PBEParameterSpec parameterSpec =
                 new javax.crypto.spec.PBEParameterSpec(encoder.decode(salt), iterationsNumber);
         final SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(TaoEncrypt.SECRET_KEY_FACTORY_ALGORITHM);
-        final SecretKey secretKey =
-                secretKeyFactory
-                        .generateSecret(new javax.crypto.spec.PBEKeySpec(secretGenerationPassword.toCharArray()));
+        final SecretKey secretKey = secretKeyFactory
+                .generateSecret(new javax.crypto.spec.PBEKeySpec(secretGenerationPassword.toCharArray()));
         final Cipher cipher = Cipher.getInstance(TaoEncrypt.CIPHER_TRANSFORMATION);
         cipher.init(mode, secretKey, parameterSpec);
         return cipher;
@@ -229,5 +228,31 @@ public class TaoEncrypt {
             return username;
         }
         return username.substring(0, p);
+    }
+
+    public static String getURLFriendlyPassword(
+            String password) {
+        while (true) {
+            int p = password.indexOf("/");
+            if (p == -1) {
+                break;
+            } else {
+                password = password.substring(0, p) + CC.UNIQ_SEP + password.substring(p + 1);
+            }
+        }
+        return password;
+    }
+
+    public static String stripURLFriendlyPassword(
+            String password) {
+        while (true) {
+            int p = password.indexOf(CC.UNIQ_SEP);
+            if (p < 0) {
+                break;
+            } else {
+                password = password.substring(0, p) + "/" + password.substring(p + CC.UNIQ_SEP.length());
+            }
+        }
+        return password;
     }
 }
