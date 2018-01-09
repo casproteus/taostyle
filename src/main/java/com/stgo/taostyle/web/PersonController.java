@@ -1,7 +1,5 @@
 package com.stgo.taostyle.web;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -19,16 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.stgo.taostyle.backend.security.TaoEncrypt;
 import com.stgo.taostyle.backend.security.UserContextService;
-import com.stgo.taostyle.domain.Customize;
-import com.stgo.taostyle.domain.Feature;
-import com.stgo.taostyle.domain.MediaUpload;
 import com.stgo.taostyle.domain.Person;
-import com.stgo.taostyle.domain.Service;
-import com.stgo.taostyle.domain.TextContent;
-import com.stgo.taostyle.domain.UserAccount;
-import com.stgo.taostyle.domain.orders.MainOrder;
-import com.stgo.taostyle.domain.orders.Material;
-import com.stgo.taostyle.domain.orders.TaxonomyMaterial;
 
 @RequestMapping("/people")
 @Controller
@@ -162,52 +151,7 @@ public class PersonController {
         }
 
         Person person = Person.findPerson(id);
-        List<Customize> customizes = Customize.findAllCustomizesByPerson(person);
-        for (Customize customize : customizes) {
-            customize.remove();
-        }
-
-        List<TextContent> textContents = TextContent.findAllMatchedTextContents("%", null, person);
-        for (TextContent textContent : textContents) {
-            textContent.remove();
-        }
-
-        List<MediaUpload> mediaUploads = MediaUpload.findAllMediaUploadByPerson(person);
-        for (MediaUpload mediaUpload : mediaUploads) {
-            mediaUpload.remove();
-        }
-
-        List<UserAccount> userAccounts = UserAccount.findAllUserAccountsByPerson(person);
-        for (UserAccount userAccount : userAccounts) {
-            mediaUploads = MediaUpload.findMediaByAuthor(userAccount);
-            for (MediaUpload mediaUpload : mediaUploads) {
-                mediaUpload.remove();
-            }
-            userAccount.remove();
-        }
-
-        List<Feature> features = Feature.findAllFeaturesByPerson(person);
-        for (Feature feature : features) {
-            feature.remove();
-        }
-
-        List<Service> services = Service.findServiceByPerson(person);
-        for (Service service : services) {
-            service.remove();
-        }
-
-        List<MainOrder> mainOrders = MainOrder.findMainOrdersByPerson(person, "DESC");
-        for (MainOrder mainOrder : mainOrders) {
-            List<Material> materials = Material.findAllMaterialsByMainOrder(mainOrder);
-            for (Material material : materials) {
-                material.remove();
-            }
-            List<TaxonomyMaterial> taxonomyMaterials = TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(mainOrder);
-            for (TaxonomyMaterial taxonomyMaterial : taxonomyMaterials) {
-                taxonomyMaterial.remove();
-            }
-            mainOrder.remove();
-        }
+        TaoDbUtil.cleanPersonRecords(person);
 
         //
         person.remove();
