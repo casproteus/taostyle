@@ -40,7 +40,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import com.google.gson.JsonObject;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
@@ -3101,7 +3100,7 @@ public class MainPageController extends BaseController {
     // ===========person db bk======================
     @RequestMapping(value = "persondbbk/{accountInfo}", headers = "Accept=application/json")
     @ResponseBody
-    public ResponseEntity<String> personDBBK(
+    public ResponseEntity<String> personDBBKout(
             @PathVariable("accountInfo") String accountInfo,
             HttpServletRequest request) {
         int pos = accountInfo.indexOf(":");
@@ -3237,8 +3236,9 @@ public class MainPageController extends BaseController {
             // current user from www.sharethegoodones.com to this host. it includs all records in table:
             // userAccounts, customizes, features, mainOrders, materials, mediaupload, person, service,
             // taxonomymaterial, textcontents.
-            commandStr = commandStr.endsWith("/") ? commandStr : commandStr + "/";
-            commandStr = commandStr.endsWith("localhost/") ? commandStr + "taostyle/" : commandStr;
+            commandStr = commandStr.endsWith(".com/") ? commandStr
+                    : (commandStr.endsWith(".com") ? commandStr + "/" : commandStr + ".com/");
+            commandStr = commandStr.endsWith("localhost.com/") ? "bkDB:localhost/taostyle/" : commandStr;
             String url = new StringBuilder("http://").append(commandStr.substring(5)).append("persondbbk/")
                     .append(person.getName()).append(":").append(person.getPassword()).toString();
             // the code following is just send out a request.
@@ -3249,15 +3249,13 @@ public class MainPageController extends BaseController {
             WebResource webResource = client.resource(url);
             webResource.accept("application/json"); // other methods in controller.
 
-            JsonObject json = new JsonObject();
-            json.addProperty("tag", "message");
-            ClientResponse response = webResource.type("application/json").post(ClientResponse.class, json.toString());
+            ClientResponse response = webResource.type("application/json").get(ClientResponse.class);
             if (200 == response.getStatus()) {
                 List<String> tList = new JSONDeserializer<List<String>>().use(null, ArrayList.class)
                         .use("values", String.class).deserialize(response.getEntity(String.class));
 
                 // the following code is to update into local db.
-                int result = TaoDbUtil.saveToLocalDB(tList);
+                int result = TaoDbUtil.saveToLocalDB(person, tList);
                 System.out.println("saving to localDB result is :" + result);
             }
         } else if ("cleanDebugInfo".equals(commandStr)) {
