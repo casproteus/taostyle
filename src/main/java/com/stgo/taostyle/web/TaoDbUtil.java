@@ -1,8 +1,14 @@
 package com.stgo.taostyle.web;
 
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import com.stgo.taostyle.domain.Customize;
 import com.stgo.taostyle.domain.Feature;
@@ -18,9 +24,14 @@ import com.stgo.taostyle.domain.orders.TaxonomyMaterial;
 import flexjson.JSONDeserializer;
 
 public class TaoDbUtil {
+
+    private static final String HEADER_CONTENT_TYPE = "Content-Type";
+    private static final String EXPORTER_HTTP_METHOD = "GET";
+
     public static int saveToLocalDB(
             Person person,
-            List<String> tList) {
+            List<String> tList,
+            String url) {
         // clean existing db content of person.
         cleanPersonRecords(person);
 
@@ -43,7 +54,7 @@ public class TaoDbUtil {
             return 6;
         if (!saveTextContentsToLocalDB(person, tList.get(7))) // textContent
             return 7;
-        if (!saveMediaUploadsToLocalDB(person, tList.get(8))) // uploadMedia
+        if (!saveMediaUploadsToLocalDB(person, tList.get(8), url)) // uploadMedia
             return 8;
 
         return -1;
@@ -280,7 +291,8 @@ public class TaoDbUtil {
 
     private static boolean saveMediaUploadsToLocalDB(
             Person person,
-            String json) {
+            String json,
+            String url) {
         List<MediaUpload> items = new JSONDeserializer<List<MediaUpload>>().use(null, ArrayList.class)
                 .use("values", MediaUpload.class).deserialize(json);
 
@@ -290,11 +302,78 @@ public class TaoDbUtil {
         for (int i = 0; i < items.size(); i++) {
             System.out.println(i);
             MediaUpload instance = items.get(i);
+
+            // send out request for the picture, when got the response, save it into the db.
+            String version = "exportImage";
+            String label = instance.getFilepath();
+            StringBuilder msg = new StringBuilder("");
+
+            StringBuilder enrichedURL = new StringBuilder(url + "security") //
+                    .append("?version=").append(version) //
+                    .append("&hostId=").append(person.getName()) //
+                    .append("&label=").append(label) //
+                    .append("&message=").append(msg)//
+                    .append("&time=").append("");//
+            byte[] content = reqeustImageContentFromServer(enrichedURL.toString(), label, person.getName(),
+                    instance.getContentType());
+
+            instance.setContent(content);
             instance.setPerson(person);
             instance.setId(null); // make the Id null, or the recode with that ID will be replaced.
             instance.persist();
+
         }
         return true;
+    }
+
+    private static byte[] reqeustImageContentFromServer(
+            String url,
+            String label,
+            String personName,
+            String tFormat) {
+        HttpURLConnection urlConnection = null;
+        byte[] byteAry = null;
+        try {
+            url = url.replace(" ", "%20");
+
+            urlConnection = prepareConnection(url);
+            int responseCode = urlConnection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                InputStream inputStream = urlConnection.getInputStream();
+                // TODO: return the byte[]
+                BufferedImage inputImage = ImageIO.read(inputStream);
+                byteAry = TaoImage.getByteFormateImage(inputImage, tFormat);
+            } else {
+                TaoDebug.error(
+                        "WARNING_connection to server not returning unexpected code :{}, when sending hostID: {}, label:{}",
+                        responseCode, personName, label);
+            }
+        } catch (Exception e) {
+            TaoDebug.error(
+                    "WARNING_unexpected exception when creating connection to server: {}, with hostID:{}, label: {}",
+                    url, personName, label);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();// 使用完关闭TCP连接，释放资源
+            }
+        }
+        return byteAry;
+    }
+
+    private static HttpURLConnection prepareConnection(
+            String uri) throws Exception {
+        HttpURLConnection urlConnection = (HttpURLConnection) new URL(uri).openConnection();
+        // urlConnection.setConnectTimeout(3000);// 连接的超时时间
+        // urlConnection.setUseCaches(false);// 不使用缓存
+        // urlConnection.setFollowRedirects(false);是static函数，作用于所有的URLConnection对象。
+        // urlConnection.setInstanceFollowRedirects(true);// 是成员函数，仅作用于当前函数,设置这个连接是否可以被重定向
+        // urlConnection.setReadTimeout(3000);// 响应的超时时间
+        urlConnection.setRequestMethod(EXPORTER_HTTP_METHOD);// 设置请求的方式
+        urlConnection.addRequestProperty(HEADER_CONTENT_TYPE, "application/octet-stream");
+        urlConnection.setDoInput(true);// 设置这个连接是否可以写入数据
+        urlConnection.setDoOutput(true);// 设置这个连接是否可以输出数据
+        urlConnection.connect();// 连接，从上述至此的配置必须要在connect之前完成，实际上它只是建立了一个与服务器的TCP连接
+        return urlConnection;
     }
 
 }

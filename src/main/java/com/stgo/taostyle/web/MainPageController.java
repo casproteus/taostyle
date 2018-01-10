@@ -1070,29 +1070,37 @@ public class MainPageController extends BaseController {
 
         // get the submitDate ready for use
         Date date = null;
-        if (version == null || version.equals("-1")) {
-            date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super early.
+
+        MediaUpload mediaUpload = null;
+        if ("exportImage".equals(version)) {
+            mediaUpload = MediaUpload.findMediaByKeyAndPerson(label, person);
         } else {
-            date = new Date(Long.valueOf(version));
-            if (needToSendEmail(label)) {
-                try {
-                    // we use the email as the account's password.
-                    String managerEmail = TaoEncrypt.decrypt(person.getPassword(), "dmfsJiaJdwz=", 1);
-                    if (managerEmail != null && managerEmail.contains("@") && managerEmail.contains(".")) {
-                        TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail, message,
-                                null);
+            if (version == null || version.equals("-1")) {
+                date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super
+                                             // early.
+            } else {
+                date = new Date(Long.valueOf(version));
+                if (needToSendEmail(label)) {
+                    try {
+                        // we use the email as the account's password.
+                        String managerEmail = TaoEncrypt.decrypt(person.getPassword(), "dmfsJiaJdwz=", 1);
+                        if (managerEmail != null && managerEmail.contains("@") && managerEmail.contains(".")) {
+                            TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail, message,
+                                    null);
+                        }
+                    } catch (Exception eee) {
+                        System.out.println("Exception when sending email for client :" + personName);
                     }
-                } catch (Exception eee) {
-                    System.out.println("Exception when sending email for client :" + personName);
                 }
             }
+
+            mediaUpload = MediaUpload.findMediaByKeyAndPerson("system_security_monitor", person);
         }
 
         // check if the mediaUpload exists
-        MediaUpload mediaUpload = null;
-        mediaUpload = MediaUpload.findMediaByKeyAndPerson("system_security_monitor", person);
         if (mediaUpload != null) {
-            if (date != null && mediaUpload.getSubmitDate().after(date)) { // downloading
+            // if it's backing up images, there's no submit date. only submitted document has submit date.
+            if (mediaUpload.getSubmitDate() == null || (date != null && mediaUpload.getSubmitDate().after(date))) { // downloading
                 try {
                     InputStream inputStream = new ByteArrayInputStream(mediaUpload.getContent());
                     InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
@@ -3191,6 +3199,13 @@ public class MainPageController extends BaseController {
         String tTextContentJsonAryStr = TextContent.toJsonArray(textContents);
         collection.add(tTextContentJsonAryStr);
 
+        // mediaUploads
+        List<MediaUpload> mediaUploads = MediaUpload.findAllMediaUploadByPerson(person);
+        if (mediaUploads == null)
+            mediaUploads = new ArrayList<MediaUpload>();
+        String tMediaUploadJsonAryStr = MediaUpload.toJsonArray(mediaUploads);
+        collection.add(tMediaUploadJsonAryStr);
+
         // return
         String jsonStr = new JSONSerializer().exclude("*.class").serialize(collection);
         return new ResponseEntity<String>(jsonStr, headers, HttpStatus.OK);
@@ -3259,7 +3274,7 @@ public class MainPageController extends BaseController {
                         .use("values", String.class).deserialize(response.getEntity(String.class));
 
                 // the following code is to update into local db.
-                int result = TaoDbUtil.saveToLocalDB(person, tList);
+                int result = TaoDbUtil.saveToLocalDB(person, tList, "http://" + commandStr.substring(5));
                 System.out.println("saving to localDB result is :" + result);
             }
         } else if ("cleanDebugInfo".equals(commandStr)) {
