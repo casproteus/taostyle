@@ -397,7 +397,7 @@ public class TaoUtil {
                 refList.add(ref);
                 String menuKey = menuPRF + ref;
                 TextContent textContent = TextContent.findContentsByKeyAndPerson(menuKey, person);
-                menus.add(textContent.getContent());
+                menus.add(textContent == null ? "" : textContent.getContent());
                 List<String> visibleStatus = new ArrayList<String>();
                 if (isAboveManager(session) || isPrinter(session)) {
                     List<String> imageKeys = MediaUpload.listAllMediaUploadsKeyByKeyAndPerson("service_" + ref, person);
@@ -949,7 +949,7 @@ public class TaoUtil {
             }
         }
         session.setAttribute(CC.CLIENT, person);
-        TaoDebug.setDebugFlag((String) session.getAttribute(CC.debugFlag), person);
+        TaoDebug.setDebugFlag(session, (String) session.getAttribute(CC.debugFlag), person);
         session.setMaxInactiveInterval(-1);
     }
 

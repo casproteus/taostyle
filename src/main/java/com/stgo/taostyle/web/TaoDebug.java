@@ -18,11 +18,12 @@ public class TaoDebug {
     }
 
     public static void setDebugFlag(
+            HttpSession session,
             String flag,
             Person person) {
         debugFlag = "true".equalsIgnoreCase(flag);
         if (debugFlag) {
-            StringBuilder tsb = new StringBuilder();
+            StringBuilder tsb = getSB(session);
             tsb.append("-------------Start to debug for ");
             tsb.append(person.getName());
             tsb.append("-------------");
@@ -129,6 +130,9 @@ public class TaoDebug {
             StringBuilder sb,
             Object... args) {
         if (debugFlag) {
+            if (args.length == 0) {
+                args = new String[] { "" };
+            }
             sb.append("-INFO:");
             String template = args[0].toString();
             if (args.length > 1 && args[1] != null && args[1] instanceof String[] && ((String[]) args[1]).length == 3) {

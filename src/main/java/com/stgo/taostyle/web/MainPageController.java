@@ -455,9 +455,8 @@ public class MainPageController extends BaseController {
         String tUserName = userContextService.getCurrentUserName();
         Person person = TaoUtil.getCurPerson(request);
         UserAccount userAccount = UserAccount.findUserAccountByName(TaoEncrypt.enrichName(tUserName, person));
-        // @NOTE: if beautify the name here, then when the following mainOrder.persist()
-        // excuted, useraccount's
-        // loginName will be updated into db. DKW!
+        // @NOTE: if beautify the name here, then when the following mainOrder.persist() excuted,
+        // useraccount's loginName will be updated into db. DKW!
         // userAccount.setLoginname(TaoEncrypt.stripUserName(tUserName));
         model.addAttribute("useraccount", userAccount);
         model.addAttribute("itemId", userAccount.getId());
