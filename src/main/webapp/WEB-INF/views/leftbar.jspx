@@ -51,6 +51,36 @@
 				</c:if>
               </c:forEach>
 			</div>
+			<!-- show language bar on status bar -->
+			<c:if test="${'true' eq show_lang_in_leftbar}">
+				<!-- language bar -->
+				<hr/>
+				<c:if test="${lang1 != null}">
+				    <div style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
+						<util:language locale="${lang1}" />
+					</div>
+				</c:if>
+				<c:if test="${lang2 != null}">
+				    <div style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
+						<util:language locale="${lang2}" />
+					</div>
+				</c:if>
+				<c:if test="${lang3 != null}">
+				    <div style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
+						<util:language locale="${lang3}" />
+					</div>
+				</c:if>
+				<c:if test="${lang4 != null}">
+				    <div style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
+						<util:language locale="${lang4}" />
+					</div>
+				</c:if>
+				<c:if test="${lang5 != null}">
+				    <div style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
+						<util:language locale="${lang5}" />
+					</div>
+				</c:if>
+			</c:if>		
 			<c:if test="${'true' eq show_checkout_in_leftbar}">
 				<hr/>
 				<c:set var="hander_padding" value="${hander_padding + 35}" />
