@@ -540,7 +540,7 @@ public class MainPageController extends BaseController {
             Model model,
             HttpServletRequest request,
             List<String> printers,
-            Map<String, String> printersMap,
+            Map<String, String> printersMap, // inside, will install the printerIP/printStyle
             List<List<Material>> materialsForPrinters) {
         if (mainOrder != null) {
             UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);

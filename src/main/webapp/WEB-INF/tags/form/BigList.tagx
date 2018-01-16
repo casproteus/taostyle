@@ -146,20 +146,23 @@
 			if(!confirmed){
 				return;
 			}
-			<c:if test="${fn:length(fn:split(printers[0], '.')) eq 4}">
+			<c:if test="${fn:length(fn:split(printers[0], '.')) eq 4}">	<!--do a simple check on the name of first printer-->
 				var printsMap = new MyHashMap();
-				<c:forEach items = "${printersMap}" var = "item">
+				<c:forEach items = "${printersMap}" var = "item"> <!-- why do we copy the printerIP and printStyle? can not use${printersMap} directly?-->
 					printsMap.put("${item.key}", "${item.value}");
 				</c:forEach>
 				//to print on each printer
 				<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
 					<c:if test="${not empty materialsForPrinters[i-1]}">
 						var io${i} = createWebSocketIO();   
+						<!--implement the onopen method-->
 						io${i}.onopen=function(e){
+							
 	                    	POS_Reset(io${i});
 	    					POS_Beep(io${i}, 0, 0);
 	                   		//all or togo mode, will put all content into string, then print.
 				            var printType=printsMap.get("${printers[i-1]}");
+	                   		
 							if(printType=== 'togo' || printType=== 'all'){
 						       POS_TextOut(io${i}," " + "${sizeTable}" + "         "+"${targetTime}"+'\n',0,1,1,0,0);
 						       POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
@@ -191,14 +194,16 @@
 							}	
 							io${i}.close();
 	                    }
+						<!--implement the onerror method-->
 						io${i}.onerror= function(e){
 							alert("Error: the content might not printed correctly, please check the printer or internet connection.");
 	                    	console.log(e);
 	                    	orderNotPrintWell(mainOrderID);
 	    				}
+						
 	                    var printerIpAddress ="${printers[i-1]}";
 	                    io${i}.open(printerIpAddress, 8080);
-	                  
+	                  	<!--TODO: ask server to keep an eye on the printer.-->
 					</c:if>
 				</c:forEach>
 			</c:if>
