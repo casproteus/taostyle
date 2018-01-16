@@ -178,7 +178,10 @@
 								}
 								
 								POS_FeedAndCutPaper(io${i});
-							    
+							    //can we assume that if the code here reahed, means the content printed well? what about the outof paper?
+							    var parent = document.getElementById("printAreaForReceip");
+								var child=document.getElementById("${printers[i-1]}");
+								parent.removeChild(child);
 							}else if(printType=== 'separate'){
 								//separate print, will printe "fn:length(materialsForPrinters [i-1])" times.
 								<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
@@ -189,6 +192,9 @@
 									POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
 									POS_FeedAndCutPaper(io${i});
 								</c:forEach>
+								var parent = document.getElementById("printAreaForReceip");
+								var child=document.getElementById("${printers[i-1]}");
+								parent.removeChild(child);
 							}else{
 								alert("Error: the printer type is not set correctly, please contact info@ShareTheGoodOnes for correct configuration.");
 							}	
@@ -203,14 +209,23 @@
 						
 	                    var printerIpAddress ="${printers[i-1]}";
 	                    io${i}.open(printerIpAddress, 8080);
-	                  	<!--TODO: ask server to keep an eye on the printer.-->
+	                    addElementDiv(printerIpAddress);
 					</c:if>
 				</c:forEach>
 			</c:if>
 			
 			orderPrinted(mainOrderID);
 		}
-		
+
+		function addElementDiv(ip) {
+			var parent = document.getElementById("printAreaForReceip");
+			var div = document.createElement("div");
+			div.setAttribute("id", ip);
+			div.style.textAlign = "left";
+			div.innerHTML = "printing to " + ip + "......";
+			parent.appendChild(div);
+		}
+
 		function orderPrinted(mainOrderID){
 			$.ajax({
 		    	headers: "Accept=application/json",
