@@ -44,6 +44,7 @@
 	  <div id="${featureIdx}-gridview" class="gallery ${span}" align="center"
 		style="margin-left:${leftmargin}; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity};">
 		
+		<!-- title of the section -->
 		<div style="margin-bottom: ${show_1_TextObject}px;" align="center">${groupTitles[j]}</div>
 		<util:edit position="feature_${menuIdx}_${j}_groupTitle" content="${groupTitles[j]}" richText="true" />
 		<br/>
@@ -68,6 +69,7 @@
 				  			<c:set var="opacity" value="0.1"/>
 				        </c:if>
 
+						<!-- description and image -->
 						<c:if test="${not empty descriptions[j][i] and not empty showDescriptionsOnTop}" >
 				          	<div id="des-${featureIdx}-${imageIdx}" align="left" style="opacity:${opacity}">${descriptions[j][i]}</div> 
 				        </c:if>
@@ -78,36 +80,45 @@
 				          	<div id="des-${featureIdx}-${imageIdx}" align="left" style="opacity:${opacity}">${descriptions[j][i]}</div> 
 				        </c:if>
 				        
+				        <!-- selection controllers -->
 				        <c:if test="${'true' eq show_service_cBox or isAboveManager eq 'true'}">
+				        	<!-- visibility control -->
 					    	<c:set var="visibility" value="${(empty visibleStatusList[j][i] or visibleStatusList[j][i] eq '1') ? 'visible' : 'hidden'}" />
+					    	
+					    	<!-- check box controller -->
 					    	<c:if test="${!dsp_groupedSelection or !show_status_submit}">
 						    	<c:choose>
 									<c:when test="${not empty visibleStatusList and not empty visibleStatusList[j][i]}">
 										<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}"
-										 style="width:50%; height:20px; visibility:${visibility};" checked="checked" 
-										 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','check')" />
+										 style="width:50%; height:20px; visibility:${visibility};"
+										 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','check')"
+										 checked="checked"  />
 							       	</c:when>
 							        <c:otherwise>
 										<input id="check-${featureIdx}-${imageIdx}" type="checkbox" name="${menuIdx}_${i}"
 										 style="width:50%; height:20px; visibility:${visibility};"
-										 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','check')" />
+										 onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','check')"
+										 />
 							        </c:otherwise>
 						  		</c:choose>
 					  		</c:if>
+					  		
+					  		<!-- + and - controller -->
 					  		<c:if test="${support_times}">
 					  			<span style="border-style:none; font-size: 24px; ">
-						  			<c:set var="aboveTwo" value="${not empty visibleStatusList and not empty visibleStatusList[j][i] and visibleStatusList[j][i] != '1'}" />
+						  			<c:set var="aboveDisTreshold" value="${not empty visibleStatusList and not empty visibleStatusList[j][i] and visibleStatusList[j][i] != '1'}" />
 						  			
-									<a id="decreaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','down1')" style="visibility:${aboveTwo?'visible':'hidden'};"> - </a>
+									<a id="decreaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','down1')" style="visibility:${aboveDisTreshold?'visible':'hidden'};"> - </a>
 						     		
 						     		<input id="txt-${featureIdx}-${imageIdx}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[j][i]} " readonly="readonly" 
-									style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px; visibility:${aboveTwo?'visible':'hidden'}"/>
+									style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px; visibility:${aboveDisTreshold?'visible':'hidden'}"/>
 								 	
 								 	<a id="increaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','up1')"
 								 	 style="visibility:${user_role != '[ROLE_ADMIN]'  and user_role != '[ROLE_MANAGER]' and user_role != '[ROLE_PRINTER]' and not empty visibleStatusList[j][i]? 'visible':'hidden'}">  +   </a>
 							 	</span>
 					    	</c:if>
 					    	
+					    	<!-- note controller -->
 					  		<c:if test="${'true'==support_customer_note}">
 						  		<spring:url value="/resources/images/note.png" var="note_img_url" /> 
 								<img id="note-${featureIdx}-${imageIdx}" alt="note" src="${note_img_url}" style="padding-bottom: 10px;  cursor:pointer; visibility:${not empty visibleStatusList and visibleStatusList[j][i] == '1'?'visible':'hidden'}"  
@@ -121,10 +132,13 @@
 	  </div>
 	 </c:forEach>
 	</c:if>
+	
+	<!-- and remove tool -->
 	<util:addRemoveFeatureGroup allowedLevel="[ROLE_MANAGER]" />
+	<!-- check out tool -->
 	<util:checkOut />
 	
-	<!-- Check Box (manager and above always show, they use it to select product for feature.) -->
+	<!-- java scripts for Check Box (manager and above always show, they use it to select product for feature.) -->
     <c:if test="${not empty show_service_cBox or isAboveManager eq 'true'}">
 	<script type="text/javascript">
       	//the featureIdx could be feature.id or the index of the feature.
