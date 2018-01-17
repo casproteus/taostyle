@@ -646,7 +646,7 @@ public class MainPageController extends BaseController {
         Person person = TaoUtil.getCurPerson(request);
         for (Material material : materials) {
             String location = material.getLocation();
-            // location is a string like 2_0_0_1, what we want is like en_service_2_0_0_1_description
+            // location is the key of the service. like 2_0_0_1, what we want is like en_service_2_0_0_1_description
             if (location == null) {
                 material.setColor(material.getPortionName());
                 TaoDebug.error("location not set for material {}.", material.getId());
@@ -657,7 +657,7 @@ public class MainPageController extends BaseController {
             String description = TextContent.findTextByKeyAndPerson(location, person);
             if (description == null) {
                 material.setColor(material.getPortionName());
-                TaoDebug.error("no description found for key {}.", location);
+                TaoDebug.error("no description found for key {}. in store: {}", location, person.getName());
                 continue;
             }
 
