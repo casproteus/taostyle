@@ -532,9 +532,8 @@ public class MainPageController extends BaseController {
         }
     }
 
-    // TODO: when teh printers array is not null, means it's employee user need the
-    // data for websocket printers! it need
-    // to be implemented.front end is already done.
+    // TODO: when the printers array is not null(it's an initialized empty list; used as a flag to indicate that calling
+    // from showDetailOrder method), means it's employee user need the data for websocket printers!
     private String prepareDetailOrder(
             MainOrder mainOrder,
             Model model,
@@ -552,6 +551,7 @@ public class MainPageController extends BaseController {
                 String processedPrinters = mainOrder.getColorCard();
                 boolean processed = processedPrinters != null && processedPrinters.contains(curPrinterName);
                 materials = Material.findAllMaterialsByMainOrder(mainOrder);
+                // TODO: shall we order it or combine it
                 boolean isAllFull = true;
                 for (int i = materials.size() - 1; i >= 0; i--) {
                     Material material = materials.get(i);
@@ -573,7 +573,10 @@ public class MainPageController extends BaseController {
                 }
             } else if (currentUser != null && (CC.ROLE_EMPLOYEE.equals(currentUser.getSecuritylevel())
                     || CC.ROLE_MANAGER.equals(currentUser.getSecuritylevel()))) { // employee ask for material case.
-                materials = Material.findAllMaterialsByMainOrder(mainOrder);
+                materials = Material.findAllMaterialsByMainOrder(mainOrder); // the list is ordered by location already
+                if ("true".equals(request.getSession().getAttribute(CC.print_need_combine))) {
+                    combineMaterials(materials); // combine the list.
+                }
                 // if the parameter is already initialized, means it's asking for datas needed
                 // by websocket printer.
                 if (printers != null) {
@@ -585,12 +588,13 @@ public class MainPageController extends BaseController {
                             String printerName = TaoEncrypt.stripUserName(user.getLoginname());
                             printers.add(printerName);
                             if (printersMap != null) {
-                                printersMap.put(printerName, user.getFax());
+                                printersMap.put(printerName, user.getFax()); // in fax, print style is stored.
                             }
                             // add in materials
                             List<Material> materialsForPrinter = new ArrayList<>();
                             for (Material material : materials) {
-                                String printersStr = material.getMenFu();
+                                String printersStr = material.getMenFu(); // menfu field can contains many printer
+                                                                          // names.
                                 if (printersStr != null && printersStr.contains(printerName)) {
                                     materialsForPrinter.add(material);
                                 }
@@ -639,6 +643,28 @@ public class MainPageController extends BaseController {
         return "printpreview";
     }
 
+    private List<Material> combineMaterials(
+            List<Material> materials) {
+        // if need to combine material
+        HashMap<String, Material> materialMap = new HashMap<String, Material>();
+        for (int i = materials.size() - 1; i >= 0; i--) {
+            Material material = materials.get(i);
+            String location = material.getLocation();
+            if (materialMap.containsKey(location)) {
+                Material m = materialMap.get(location);
+                int currentNumber = m.getRecordStatus();
+                m.setRecordStatus(currentNumber + 1);
+
+                materials.remove(i);
+            } else {
+                material.setRecordStatus(1); // note: don't save to db, as it's also used in print server mode to
+                                             // save printe status.
+                materialMap.put(location, material);
+            }
+        }
+        return materials;
+    }
+
     private void addNameOfSpecificLanguage(
             List<Material> materials,
             String lang,
@@ -657,7 +683,9 @@ public class MainPageController extends BaseController {
             String description = TextContent.findTextByKeyAndPerson(location, person);
             if (description == null) {
                 material.setColor(material.getPortionName());
-                TaoDebug.error("no description found for key {}. in store: {}", location, person.getName());
+                if ("true".equals(request.getSession().getAttribute("check_lang_text"))) {
+                    TaoDebug.error("no description found for key {}. in store: {}", location, person.getName());
+                }
                 continue;
             }
 
@@ -2172,6 +2200,7 @@ public class MainPageController extends BaseController {
 
         Integer currentItemNumber = (Integer) request.getSession().getAttribute(CC.itemNumber);
         currentItemNumber = currentItemNumber == null ? new Integer(0) : currentItemNumber;
+
         String newItemStr = imageKey.startsWith("service_") ? imageKey.substring(8) + "," : imageKey + ",";
 
         Service service = Service.findServiceByCatalogAndPerson(imageKey, person);
@@ -2435,13 +2464,13 @@ public class MainPageController extends BaseController {
         if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
-        return createAnOrder(orderedItems, model, request);
+        return createMainOrder(orderedItems, model, request);
     }
 
     @RequestMapping(value = "createAnOrder/{orderedItems}", headers = "Accept=application/json",
             method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<String> createAnOrder(
+    public ResponseEntity<String> createMainOrder(
             @PathVariable("orderedItems") String orderedItems,
             Model model,
             HttpServletRequest request) {
@@ -2598,7 +2627,8 @@ public class MainPageController extends BaseController {
         } else {
             sourcdAndNewMainOrder.setPayCondition(moneyLetter + String.valueOf(total)); // actual deal price.
             if ("true".equals(request.getSession().getAttribute("auto_merge_rec"))) {
-                MainOrder existingSameSourceMainOrder = searchSameSourceMainOrder(sourcdAndNewMainOrder, person);
+                MainOrder existingSameSourceMainOrder = searchSameSourceMainOrder(sourcdAndNewMainOrder, person,
+                        session.getAttribute(CC.same_source_limit));
                 if (existingSameSourceMainOrder != null && existingSameSourceMainOrder.getRecordStatus() == 0) {
                     // add the new order into existing one.
                     sourcdAndNewMainOrder =
@@ -2650,34 +2680,30 @@ public class MainPageController extends BaseController {
 
     private MainOrder searchSameSourceMainOrder(
             MainOrder sourcdAndNewMainOrder,
-            Person person) {
+            Person person,
+            Object same_source_limit) {
         List<MainOrder> tList =
                 MainOrder.finMainOrdersBySizeTableAndPerson(sourcdAndNewMainOrder.getSizeTable(), person);
         MainOrder mainOrder = null;
         if (tList != null && tList.size() > 1) {
             mainOrder = tList.get(1);
-        }
 
-        Date now = new Date();
-        int curMin = now.getMinutes();
-        if (mainOrder != null) {
-            Date date = mainOrder.getDelieverdate();
-            if (now.getHours() == date.getHours()) {
-                int min = date.getMinutes();
-                int sec = date.getSeconds();
-                if (min == curMin) {
-                    return mainOrder;
-                } else if (min + 1 == curMin) {
-                    if (now.getSeconds() < date.getSeconds()) {
-                        return mainOrder;
-                    }
-                }
-            } else if (now.getHours() == date.getHours() + 1) {
-                if (curMin == 0 && now.getSeconds() < date.getSeconds()) {
-                    return mainOrder;
-                }
+            long now = new Date().getTime();
+            long date = mainOrder.getDelieverdate().getTime();
+
+            long limit = 60000; // 1 minute.
+            try {
+                limit = Long.valueOf((String) same_source_limit);
+                limit = limit * 1000 * 60;
+            } catch (Exception e) {
+                // do nothing, keep the default value;
+            }
+
+            if (now - date < limit) {
+                return mainOrder;
             }
         }
+
         return null;
     }
 
@@ -3403,6 +3429,7 @@ public class MainPageController extends BaseController {
     private void initializeToStyle2(
             HttpServletRequest request,
             Person person) {
+        initializeToStyle1(request, person);
         createACustomize(request, CC.app_ContentManager, "true", person);// when someone is promoted to be a manager,
         // shall we set his name here?
         createACustomize(request, "dsp_pendingTime", "true", person);
@@ -3426,6 +3453,8 @@ public class MainPageController extends BaseController {
         createACustomize(request, "show_status_total", "false", person);
 
         createACustomize(request, "status_y", "50", person);
+        createACustomize(request, "print_need_combine", "true", person);
+
     }
 
     // it's good for big restaurant: having floating left bar and support multi
@@ -3433,6 +3462,7 @@ public class MainPageController extends BaseController {
     private void initializeToStyle3(
             HttpServletRequest request,
             Person person) {
+        initializeToStyle2(request, person);
         createACustomize(request, "CONTENTTYPE_3_1", "FEATURE", person);
         createACustomize(request, "default_feature_menu", "menu_3_1", person);
 
@@ -3452,7 +3482,7 @@ public class MainPageController extends BaseController {
     private void initializeToStyle4(
             HttpServletRequest request,
             Person person) {
-        createACustomize(request, "show_AboveMenu", "", person);
+        initializeToStyle3(request, person);
         createACustomize(request, "show_Menu", "", person);
         createACustomize(request, "dsp_status_OnTop", "true", person);
         createACustomize(request, "status_y", "0", person);
