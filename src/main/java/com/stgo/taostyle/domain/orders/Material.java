@@ -51,14 +51,12 @@ public class Material {
         EntityManager tEntityManager = entityManager();
         List<Material> materials = new ArrayList<Material>();
         if (mainOrder != null) {
-            TypedQuery<Material> tQuery =
-                    tEntityManager.createQuery(
-                            "SELECT o FROM Material AS o WHERE o.mainOrder = :mainOrder and o.MenFu like :printer",
-                            Material.class);
+            TypedQuery<Material> tQuery = tEntityManager.createQuery(
+                    "SELECT o FROM Material AS o WHERE o.mainOrder = :mainOrder and o.MenFu like :printer",
+                    Material.class);
             tQuery = tQuery.setParameter("mainOrder", mainOrder);
-            tQuery =
-                    tQuery.setParameter("printer",
-                            printer != null ? "%," + TaoEncrypt.stripUserName(printer.getLoginname()) + ",%" : "");
+            tQuery = tQuery.setParameter("printer",
+                    printer != null ? "%," + TaoEncrypt.stripUserName(printer.getLoginname()) + ",%" : "");
             try {
                 materials = tQuery.getResultList();
             } catch (Exception e) {
@@ -97,8 +95,8 @@ public class Material {
         EntityManager tEntityManager = entityManager();
         List<Material> materials = new ArrayList<Material>();
         if (mainOrder != null) {
-            TypedQuery<Material> tQuery =
-                    tEntityManager.createQuery("SELECT o FROM Material AS o WHERE o.mainOrder = :pKey", Material.class);
+            TypedQuery<Material> tQuery = tEntityManager.createQuery(
+                    "SELECT o FROM Material AS o WHERE o.mainOrder = :pKey ORDER BY o.location", Material.class);
             tQuery = tQuery.setParameter("pKey", mainOrder);
             try {
                 materials = tQuery.getResultList();
