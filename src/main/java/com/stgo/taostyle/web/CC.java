@@ -1,7 +1,8 @@
 package com.stgo.taostyle.web;
 
 public interface CC {
-    String same_source_limit = "same_source_limit";
+    String print_auto = "print_auto";
+    String limit_same_source = "limit_same_source";
     String print_need_combine = "print_need_combine";
     int UNLIMITED_UPLOD_SIZE = 100;
     String UNIQ_SEP = "_S_T_G_O_";

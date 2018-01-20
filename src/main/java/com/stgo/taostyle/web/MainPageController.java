@@ -2628,7 +2628,7 @@ public class MainPageController extends BaseController {
             sourcdAndNewMainOrder.setPayCondition(moneyLetter + String.valueOf(total)); // actual deal price.
             if ("true".equals(request.getSession().getAttribute("auto_merge_rec"))) {
                 MainOrder existingSameSourceMainOrder = searchSameSourceMainOrder(sourcdAndNewMainOrder, person,
-                        session.getAttribute(CC.same_source_limit));
+                        session.getAttribute(CC.limit_same_source));
                 if (existingSameSourceMainOrder != null && existingSameSourceMainOrder.getRecordStatus() == 0) {
                     // add the new order into existing one.
                     sourcdAndNewMainOrder =
@@ -2681,7 +2681,7 @@ public class MainPageController extends BaseController {
     private MainOrder searchSameSourceMainOrder(
             MainOrder sourcdAndNewMainOrder,
             Person person,
-            Object same_source_limit) {
+            Object limit_same_source) {
         List<MainOrder> tList =
                 MainOrder.finMainOrdersBySizeTableAndPerson(sourcdAndNewMainOrder.getSizeTable(), person);
         MainOrder mainOrder = null;
@@ -2693,7 +2693,7 @@ public class MainPageController extends BaseController {
 
             long limit = 60000; // 1 minute.
             try {
-                limit = Long.valueOf((String) same_source_limit);
+                limit = Long.valueOf((String) limit_same_source);
                 limit = limit * 1000 * 60;
             } catch (Exception e) {
                 // do nothing, keep the default value;
@@ -2819,7 +2819,8 @@ public class MainPageController extends BaseController {
 
         updateMaterialMainOrderId(materials, mainOrder);
         addjustPayconditionAndLogs(mainOrder, sourceMainOrder);
-        mainOrder.setRecordStatus(mainOrder.getRecordStatus() - 100);
+        sourceMainOrder.setRecordStatus(sourceMainOrder.getRecordStatus() - 100);// TODO make any sense? didn't see it
+                                                                                 // persisted again.
         return mainOrder;
     }
 
@@ -2842,6 +2843,7 @@ public class MainPageController extends BaseController {
         price2 = price2 == null ? "0.00" : price2.substring(1);
 
         float newPrice = Float.valueOf(price) + Float.valueOf(price2);
+        newPrice = (float) (Math.round(newPrice * 100)) / 100;
         mainOrder.setPayCondition("$" + newPrice);
         // disappear itself
         List<TaxonomyMaterial> taxonomyMaterials =

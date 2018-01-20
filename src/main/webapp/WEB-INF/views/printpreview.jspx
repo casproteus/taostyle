@@ -30,6 +30,9 @@
 						<c:if test="${isNotPrinter}">
 							<table:column id="c_com_stgo_taostyle_domain_material_dencity" label="Price" property="dencity"/>
 						</c:if>
+						<c:if test="${print_need_combine}">
+							<table:column id="c_com_stgo_taostyle_domain_material_recordStatus" label="Number" property="recordStatus"/>
+						</c:if>
 						<table:column id="c_com_stgo_taostyle_domain_material_remark" label="Note" property="remark"/>
 					</table:BigSortable>
 					<c:if test="${not empty address}">
