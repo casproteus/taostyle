@@ -267,10 +267,49 @@
 		            };
 
 		            Chat.socket.onmessage = function (message) {
-		                update();
+		            	//if you have another AudioContext class use that one, as some browsers have a limit
+				        var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+		            	
+		            	var notice_sound_duration = 500;
+		            	if('${notice_sound_duration}' != ''){
+		            		notice_sound_duration = '${notice_sound_duration}';
+		            	}
+		            	var notice_sound_freq = 640;
+		            	if('${notice_sound_freq}' != ''){
+		            		notice_sound_freq = '${notice_sound_freq}';
+		            	}
+		            	var notice_sound_type = 'sine';
+		            	if('${notice_sound_type}' != ''){
+		            		notice_sound_type = '${notice_sound_type}';
+		            	}
+		            	
+		            	beep(audioCtx, notice_sound_duration, notice_sound_freq, 1, notice_sound_type, update);
 		            };
 		        });
 
+		        //All arguments are optional:
+		        //duration of the tone in milliseconds. Default is 500
+		        //frequency of the tone in hertz. default is 440
+		        //volume of the tone. Default is 1, off is 0.
+		        //type of tone. Possible values are sine, square, sawtooth, triangle, and custom. Default is sine.
+		        //callback to use on end of tone
+		        function beep(audioCtx, duration, frequency, volume, type, callback) {
+		            var oscillator = audioCtx.createOscillator();
+		            var gainNode = audioCtx.createGain();
+
+		            oscillator.connect(gainNode);
+		            gainNode.connect(audioCtx.destination);
+
+		            if (volume){gainNode.gain.value = volume;};
+		            if (frequency){oscillator.frequency.value = frequency;}
+		            if (type){oscillator.type = type;}
+		            if (callback){oscillator.onended = callback;}
+
+		            oscillator.start();
+		            setTimeout(function(){oscillator.stop()}, (duration ? duration : 500));
+		        };
+		        
+		        
 		        Chat.initialize = function() {
 		            if (window.location.protocol == 'http:') {
 		            	if(window.location.host == 'localhost'){
@@ -296,6 +335,7 @@
 
 		      ]]>
 			</c:if>
+			
 			//self refresh.
 			function update(){
 				window.location = "./dashboard";

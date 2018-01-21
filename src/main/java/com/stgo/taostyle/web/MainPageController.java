@@ -574,7 +574,7 @@ public class MainPageController extends BaseController {
             } else if (currentUser != null && (CC.ROLE_EMPLOYEE.equals(currentUser.getSecuritylevel())
                     || CC.ROLE_MANAGER.equals(currentUser.getSecuritylevel()))) { // employee ask for material case.
                 materials = Material.findAllMaterialsByMainOrder(mainOrder); // the list is ordered by location already
-                if ("true".equals(request.getSession().getAttribute(CC.print_need_combine))) {
+                if ("true".equals(request.getSession().getAttribute(CC.auto_combine_print))) {
                     combineMaterials(materials); // combine the list.
                 }
                 // if the parameter is already initialized, means it's asking for datas needed
@@ -2626,7 +2626,7 @@ public class MainPageController extends BaseController {
             sourcdAndNewMainOrder.persist(); // create a new one to merge.
         } else {
             sourcdAndNewMainOrder.setPayCondition(moneyLetter + String.valueOf(total)); // actual deal price.
-            if ("true".equals(request.getSession().getAttribute("auto_merge_rec"))) {
+            if ("true".equals(request.getSession().getAttribute(CC.auto_combine_rec))) {
                 MainOrder existingSameSourceMainOrder = searchSameSourceMainOrder(sourcdAndNewMainOrder, person,
                         session.getAttribute(CC.limit_same_source));
                 if (existingSameSourceMainOrder != null && existingSameSourceMainOrder.getRecordStatus() == 0) {
@@ -3455,7 +3455,7 @@ public class MainPageController extends BaseController {
         createACustomize(request, "show_status_total", "false", person);
 
         createACustomize(request, "status_y", "50", person);
-        createACustomize(request, "print_need_combine", "true", person);
+        createACustomize(request, "auto_combine_print", "true", person);
 
     }
 

@@ -168,7 +168,7 @@
 						       POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
 								<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">
 								    <c:choose>
-										<c:when test="${not empty print_need_combine}">
+										<c:when test="${not empty auto_combine_print}">
 											POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} "+" X${materialsForPrinters [i-1][j-1]['recordStatus']}" + '\n',0,1,1,0,0);
 										</c:when>
 										<c:otherwise>
@@ -197,7 +197,7 @@
 									POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
 									
 									<c:choose>
-										<c:when test="${not empty print_need_combine}">
+										<c:when test="${not empty auto_combine_print}">
 											POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} "+" X${materialsForPrinters [i-1][j-1]['recordStatus']}" +'\n',0,1,1,0,0);
 										</c:when>
 										<c:otherwise>
