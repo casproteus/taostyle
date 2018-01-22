@@ -227,11 +227,40 @@
 	                    addElementDiv(printerIpAddress);
 					</c:if>
 				</c:forEach>
+				<!-- start a timer to check if the status disppeared, if not beep()!-->
+				<c:if test="${fn:length(printers) gt 0}">
+					setTimeout(function(){ checkstatus(); }, 3000);
+				</c:if>
 			</c:if>
 			
 			orderPrinted(mainOrderID);
 		}
 
+		function checkstatus(){
+			//check last element:
+			var text = document.getElementById("printAreaForReceip").lastElementChild.innerHTML;
+			if(text.startsWith('printing to ')){
+				beep(1000,840);
+				return;
+			}
+			//back to dashboard.
+			window.location = "../dashboard";
+		}
+		
+		function beep(duration, frequency) {
+			var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+            var oscillator = audioCtx.createOscillator();
+            var gainNode = audioCtx.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (frequency){oscillator.frequency.value = frequency;}
+
+            oscillator.start();
+            setTimeout(function(){oscillator.stop()}, (duration ? duration : 500));
+        }
+        
 		function addElementDiv(ip) {
 			var parent = document.getElementById("printAreaForReceip");
 			var div = document.createElement("div");
