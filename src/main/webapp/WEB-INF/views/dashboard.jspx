@@ -301,9 +301,13 @@
 			         	var elapseMs = end - start;
 					 	var resultMin = Math.ceil(parseInt(elapseMs/60));
 		                table.rows[r].cells[1].innerHTML = resultMin + " m";
-		                if(resultMin > 0){
+		                var limit = 1;
+		                if(${not empty limit_same_source}){
+		                	limit = '${limit_same_source}';
+		                }
+                		if("true" == "${auto_print}" ){	//NOTE: this session property might be temperally turned off in back end before send to page is the waiter if not the pointed one.
 		                	if(table.rows[r].cells[3].innerHTML == "0"){	//means the status is 0, not printed yet.
-		                		if("true" == "${auto_print}" ){
+			                	if(resultMin >= limit){
 				                	orderToBePrint = table.rows[r].cells[5].innerHTML;
 				                	var p = orderToBePrint.indexOf(" href=");
 				                	orderToBePrint = orderToBePrint.substring(p+7);
@@ -311,11 +315,11 @@
 				                	orderToBePrint = orderToBePrint.substring(0, p-1);//user -1 is because there's a " before >.
 				                	p = orderToBePrint.lastIndexOf('/');
 				                	orderToBePrint = orderToBePrint.substring(p+1);
-		                		}
+		                		}else{
+				                	//remember the last item which resultMin is 0, will launch up a update base on it's time.
+				                	nearestUpdatTime = limit * 60 * 1000 - elapseMs;
+				                }
 		                	}
-		                }else if(resultMin === 0){
-		                	//remember the last item which resultMin is 0, will launch up a update base on it's time.
-		                	nearestUpdatTime = 60*1000 - elapseMs;
 		                }
 					}
 				}

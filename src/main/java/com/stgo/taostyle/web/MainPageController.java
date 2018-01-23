@@ -502,6 +502,16 @@ public class MainPageController extends BaseController {
         }
         model.addAttribute("mainOrderList", mainOrders);
 
+        // only the waiter who's fax is set as auto_print can execute auto print task.
+        // it's not allowed that two device use same account.
+        if ("true".equals(request.getSession().getAttribute(CC.auto_print))) {
+            UserAccount currentUser = (UserAccount) request.getSession().getAttribute(CC.currentUser);
+            if (currentUser == null || !CC.ROLE_EMPLOYEE.equals(currentUser.getSecuritylevel())
+                    || !CC.auto_print.equals(currentUser.getFax())) {
+                request.getSession().setAttribute(CC.auto_print, "false");
+            }
+        }
+
         return "dashboard";
     }
 
