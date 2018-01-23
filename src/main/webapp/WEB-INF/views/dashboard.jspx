@@ -100,7 +100,7 @@
 					selectable="${selectable}" create="false" update="false"  delete="false">
 						<!-- table:column id="c_com_stgo_taostyle_domain_mainorder_id" label="ID" property="id"/-->
 						<table:column id="c_com_stgo_taostyle_domain_mainorder_delieverdate" date="true" dateTimePattern="HH:mm:ss" label="Pending Time" property="delieverdate"/>
-						<table:column id="c_com_stgo_taostyle_domain_mainorder_sizetable" label="Customer" property="sizeTable"/>
+						<table:column id="c_com_stgo_taostyle_domain_mainorder_sizetable" label="From" property="sizeTable"/>
 						<table:column id="c_com_stgo_taostyle_domain_mainorder_recordStatus" label="Status" property="recordStatus"/>
 						<table:column id="c_com_stgo_taostyle_domain_mainorder_paycondition" label="Total" property="payCondition"/>
 					</table:BigSortable>
@@ -154,90 +154,29 @@
 				<util:changeText position="quick_note_${fn:length(quick_note)+1}" content="" allowedLevel="[ROLE_MANAGER]" />
 			</div>
 		</c:if>
-	</c:if>
-	<script type="text/javascript">
-	
-		function combineMainOrder() {
-			var chkBoxes = $('#l_com_stgo_taostyle_domain_MainOrder').find('input:checked');
-	        if (chkBoxes.length != 2) {
-	        	alert("Please select 2 rows to merge. You have selected " + chkBoxes.length);
-	            return;
-	        }
-	        
-	        var ids = [ ];
-	        $(chkBoxes).each(function() {
-	            ids.push($(this).attr('id'));
-	        }); 
-
-	        $.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "combineAnOrder/"+ids[1],
-		        data: "targetOrder="+ids[0],
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		        	}
-		        	window.location = "./dashboard";
-		        }
-		    });
-		}
-		
-		function cleanOrders(){
-			var chkBoxes = $('#l_com_stgo_taostyle_domain_MainOrder').find('input:checked');
-
-	        if (chkBoxes.length == 0) {
-	        	alert("Please select at least 1 row to do batch clean.");
-	            return;
-	        }
-	        
-	        var confirmed = confirm("Are you sure to remove all selected rows? Currently selected " + chkBoxes.length + " rows.");
-	        if(confirmed){
-		        var ids = [ ];
-		        $(chkBoxes).each(function() {
-		            ids.push($(this).attr('id'));
-		        }); 
-	
-				$.ajax({
-			    	headers: "Accept=application/json",
-			        type: "POST",
-			        url: "updateAnOrderStatus/"+ids,
-			        data: "recordStatus=-1",
-			        async:false,
-			        success:function(textContent){
-			        	if(textContent == null || textContent.length == 0){
-			        	}else{
-			        		alert( "Please check the connection of internet or cotact the admin.");
-			        	}
-			        	window.location = "./dashboard";
-			        }
-			    });
-	        }
-		}
-		
-		function cleanHistoricalMainOrder() {
-			var confirmed = confirm("Are you sure to remove all historical orders?");
-			if(confirmed){
-				$.ajax({
-			    	headers: "Accept=application/json",
-			        type: "POST",
-			        url: "cleanHistoricalMainOrder/",
-			        async:false,
-			        success:function(textContent){
-			        	if(textContent == null || textContent.length == 0){
-			        	}else{
-			        		alert( "Please check the connection of internet or cotact the admin.");
-			        	}
-			        	window.location = "./dashboard";
-			        }
-			    });
+		<script type="text/javascript">
+			//manager clean history of mainorders.
+			function cleanHistoricalMainOrder() {
+				var confirmed = confirm("Are you sure to remove all historical orders?");
+				if(confirmed){
+					$.ajax({
+				    	headers: "Accept=application/json",
+				        type: "POST",
+				        url: "cleanHistoricalMainOrder/",
+				        async:false,
+				        success:function(textContent){
+				        	if(textContent == null || textContent.length == 0){
+				        	}else{
+				        		alert( "Please check the connection of internet or cotact the admin.");
+				        	}
+				        	window.location = "./dashboard";
+				        }
+				    });
+				}
 			}
-		}
-		
-	</script>
-	
+		</script>
+	</c:if>
+
 	<c:if test="${user_role eq '[ROLE_EMPLOYEE]'}">
 		<script type="text/javascript">
 		  <c:if test="${style_refresh eq 'ajax'}">
@@ -341,7 +280,7 @@
 				window.location = "./dashboard";
 			}
 			
-			//replace the deliever time to how many minuts l
+			//replace the deliever time to "minuts passed"
 			updateOrderTime();
 			function updateOrderTime(){
 			  if(${dsp_pendingTime}){
@@ -351,7 +290,9 @@
 				var currentSeconds = currentDate.getSeconds();
 
 				var table = document.getElementById('l_com_stgo_taostyle_domain_MainOrder');
-				for (var r = 1,  n = table.rows.length; r &lt; n; r++) {
+				var orderToBePrint;
+				var nearestUpdatTime;
+				for (var r = 1,  n = table.rows.length - 1; r &lt; n; r++) {
 					if(table.rows[r].cells[1].innerHTML){
 						var orderTime = table.rows[r].cells[1].innerHTML
 			        	var orderTimeArray = orderTime.split(':');
@@ -360,9 +301,92 @@
 			         	var elapseMs = end - start;
 					 	var resultMin = Math.ceil(parseInt(elapseMs/60));
 		                table.rows[r].cells[1].innerHTML = resultMin + " m";
+		                if(resultMin > 0){
+		                	if(table.rows[r].cells[3].innerHTML == "0"){	//means the status is 0, not printed yet.
+		                		if("true" == "${auto_print}" ){
+				                	orderToBePrint = table.rows[r].cells[5].innerHTML;
+				                	var p = orderToBePrint.indexOf(" href=");
+				                	orderToBePrint = orderToBePrint.substring(p+7);
+				                	p = orderToBePrint.indexOf(">");
+				                	orderToBePrint = orderToBePrint.substring(0, p-1);//user -1 is because there's a " before >.
+				                	p = orderToBePrint.lastIndexOf('/');
+				                	orderToBePrint = orderToBePrint.substring(p+1);
+		                		}
+		                	}
+		                }else if(resultMin === 0){
+		                	//remember the last item which resultMin is 0, will launch up a update base on it's time.
+		                	nearestUpdatTime = 60*1000 - elapseMs;
+		                }
 					}
 				}
+				if(orderToBePrint){
+					window.location.href = "./showDetailOrder/"+orderToBePrint;
+				}else if(nearestUpdatTime){
+					setTimeout('update()', nearestUpdatTime);
+				}
 			  }
+			}
+			
+			//manully combine selected main orders.
+			function combineMainOrder() {
+				var chkBoxes = $('#l_com_stgo_taostyle_domain_MainOrder').find('input:checked');
+		        if (chkBoxes.length != 2) {
+		        	alert("Please select 2 rows to merge. You have selected " + chkBoxes.length);
+		            return;
+		        }
+		        
+		        var ids = [ ];
+		        $(chkBoxes).each(function() {
+		            ids.push($(this).attr('id'));
+		        }); 
+
+		        $.ajax({
+			    	headers: "Accept=application/json",
+			        type: "POST",
+			        url: "combineAnOrder/"+ids[1],
+			        data: "targetOrder="+ids[0],
+			        async:false,
+			        success:function(textContent){
+			        	if(textContent == null || textContent.length == 0){
+			        	}else{
+			        		alert( "Please check the connection of internet or cotact the admin.");
+			        	}
+			        	window.location = "./dashboard";
+			        }
+			    });
+			}
+			
+			//Employee clean order from dashboeard
+			function cleanOrders(){
+				var chkBoxes = $('#l_com_stgo_taostyle_domain_MainOrder').find('input:checked');
+
+		        if (chkBoxes.length == 0) {
+		        	alert("Please select at least 1 row to do batch clean.");
+		            return;
+		        }
+		        
+		        var confirmed = confirm("Are you sure to remove all selected rows? Currently selected " + chkBoxes.length + " rows.");
+		        if(confirmed){
+			        var ids = [ ];
+			        $(chkBoxes).each(function() {
+			            ids.push($(this).attr('id'));
+			        }); 
+		
+					$.ajax({
+				    	headers: "Accept=application/json",
+				        type: "POST",
+				        url: "updateAnOrderStatus/"+ids,
+				        data: "recordStatus=-1",
+				        async:false,
+				        success:function(textContent){
+				        	if(textContent == null || textContent.length == 0){
+				        	}else{
+				        		alert( "Please check the connection of internet or cotact the admin.");
+				        	}
+				        	window.location = "./dashboard";
+				        }
+				    });
+		        }
 			}
 		</script>
 	</c:if>

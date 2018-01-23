@@ -45,7 +45,7 @@
 				</page:BigList>
 			</div>
 			
-			<!-- hidden places for each printer -->
+			<!-- hidden places for each printer  it's not used now, because the printer we are using need only the a plain string as content.-->
 			<div id="hiddenDivs" class="gallery modal hide fade in col-xs-12 col-sm-10 col-md-8 col-lg-6"
 			aria-hidden="true" aria-labelledby="windowTitleLabel" role="dialog" tabindex="-1"
 			style="background:#${background_pop}; opacity:${pop_opacity};">

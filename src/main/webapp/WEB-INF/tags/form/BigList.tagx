@@ -72,7 +72,7 @@
 				<img alt="Back" src="${back_img_url}" title="Back to main order page." onclick="javascript:backToMainOrder()" style="cursor:pointer"/>
 				 | 
 				<spring:url value="/resources/images/print.png" var="print_img_url" />
-				<img alt="Print" src="${print_img_url}" title="Send the order to printer." onclick="javascript:printMainOrder('${mainOrderID}', '${wsUri}')" style="cursor:pointer"/>
+				<img alt="Print" src="${print_img_url}" title="Send the order to printer." onclick="javascript:printMainOrder('${mainOrderID}', '')" style="cursor:pointer"/>
 				 | 
 				<spring:url value="/resources/images/money.png" var="money_img_url" />
 				<img alt="Served" src="${money_img_url}" title="Ready for receve money." onclick="javascript:orderCompleted('${mainOrderID}')" style="cursor:pointer"/>
@@ -85,6 +85,10 @@
 		
 		<c:if test="${user_role != '[ROLE_PRINTER]'}">
 		<script type="text/javascript">
+		
+		<c:if test="${auto_print}">
+			printMainOrder('${mainOrderID}', '${auto_print}');
+		</c:if>
 		
 		function backToMainOrder() {
 			window.location = "../dashboard";
@@ -142,9 +146,11 @@
 		 }
 		
 		function printMainOrder(mainOrderID, wsUri) {
-			var confirmed = confirm("Are you sure to send it to printer?");
-			if(!confirmed){
-				return;
+			if(wsUri != 'true'){
+				var confirmed = confirm("Are you sure to send it to printer?");
+				if(!confirmed){
+					return;
+				}
 			}
 			<c:if test="${fn:length(fn:split(printers[0], '.')) eq 4}">	<!--do a simple check on the name of first printer-->
 				var printsMap = new MyHashMap();
@@ -312,6 +318,7 @@
 		        }
 		    });
 		}
+		
 		function orderCompleted(mainOrderID) {
 			var confirmed = confirm("Are you sure all served?");
 			if(confirmed){
