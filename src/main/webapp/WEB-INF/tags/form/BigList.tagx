@@ -240,11 +240,20 @@
 			//check last element:
 			var text = document.getElementById("printAreaForReceip").lastElementChild.innerHTML;
 			if(text.startsWith('printing to ')){
-				beep(1000,840);
+				var warn_sound_duration = 4000;
+            	if('${warn_sound_duration}' != ''){
+            		warn_sound_duration = '${warn_sound_duration}';
+            	}
+            	var warn_sound_freq = 940;
+            	if('${warn_sound_freq}' != ''){
+            		warn_sound_freq = '${warn_sound_freq}';
+            	}
+            	
+				beep(warn_sound_duration, warn_sound_freq);
 				return;
 			}
 			//back to dashboard.
-			window.location = "../dashboard";
+			window.location.href = "../dashboard";
 		}
 		
 		function beep(duration, frequency) {
