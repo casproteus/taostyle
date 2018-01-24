@@ -87,7 +87,7 @@
 		<script type="text/javascript">
 		
 		<c:if test="${auto_print}">
-			printMainOrder('${mainOrderID}', '${auto_print}');
+			setTimeout(function(){ printMainOrder('${mainOrderID}', '${auto_print}'); }, ${auto_print_delay} * 1000);
 		</c:if>
 		
 		function backToMainOrder() {
@@ -145,8 +145,8 @@
 		     }
 		 }
 		
-		function printMainOrder(mainOrderID, wsUri) {
-			if(wsUri != 'true'){
+		function printMainOrder(mainOrderID, isAutoPrinting) {
+			if(isAutoPrinting != 'true'){
 				var confirmed = confirm("Are you sure to send it to printer?");
 				if(!confirmed){
 					return;
@@ -221,6 +221,7 @@
 							}	
 							io${i}.close();
 	                    }
+						
 						<!--implement the onerror method-->
 						io${i}.onerror= function(e){
 							alert("Error: the content might not printed correctly, please check the printer or internet connection.");

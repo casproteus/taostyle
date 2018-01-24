@@ -15,8 +15,6 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint(value = "/websocket/refreshNotice")
 public class RefreshNoticeCenter {
 
-    // private static final Log log = LogFactory.getLog(ChatAnnotation.class);
-
     private static final String GUEST_PREFIX = "Guest";
     private static final AtomicInteger connectionIds = new AtomicInteger(0);
     private static final HashMap<String, CopyOnWriteArraySet<RefreshNoticeCenter>> connectionPoolMap =
