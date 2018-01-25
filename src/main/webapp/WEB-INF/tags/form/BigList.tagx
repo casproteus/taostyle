@@ -87,7 +87,11 @@
 		<script type="text/javascript">
 		
 		<c:if test="${auto_print}">
-			setTimeout(function(){ printMainOrder('${mainOrderID}', '${auto_print}'); }, ${auto_print_delay} * 1000);
+			var auto_print_delay = 2;
+			<c:if test="${auto_print_delay}">
+				auto_print_delay = ${auto_print_delay};
+			</c:if>
+			setTimeout(function(){ printMainOrder('${mainOrderID}', '${auto_print}'); }, auto_print_delay * 1000);
 		</c:if>
 		
 		function backToMainOrder() {
