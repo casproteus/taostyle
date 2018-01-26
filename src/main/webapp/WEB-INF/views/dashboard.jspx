@@ -317,7 +317,7 @@
 				                	orderToBePrint = orderToBePrint.substring(p+1);
 		                		}else{
 				                	//remember the last item which resultMin is 0, will launch up a update base on it's time.
-				                	nearestUpdatTime = limit * 60 * 1000 - elapseMs;
+				                	nearestUpdatTime = limit * 60 * 1000 - elapseMs * 1000;
 				                }
 		                	}
 		                }
