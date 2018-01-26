@@ -643,7 +643,7 @@ public class MainPageController extends BaseController {
                 TaoDebug.error("tax not set yet!", request);
             }
             model.addAttribute("tax", taxValue);
-            model.addAttribute("endPrice", totalPrice + taxValue);
+            model.addAttribute("endPrice", (float) (Math.round((totalPrice + taxValue) * 100)) / 100);
             if (currentUser != null) {
                 model.addAttribute("printStyle", currentUser.getFax());
             }
@@ -2899,6 +2899,12 @@ public class MainPageController extends BaseController {
         List<Material> materials = Material.findAllMaterialsByMainOrder(mainOrder);
         for (Material material : materials) {
             material.remove();
+        }
+        List<TaxonomyMaterial> taxonomyMaterials =
+                TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(mainOrder);
+        for (TaxonomyMaterial taxonomyMaterial : taxonomyMaterials) {
+            taxonomyMaterial.setMainOrder(null);
+            taxonomyMaterial.persist();
         }
         mainOrder.remove();
     }
