@@ -89,290 +89,290 @@
 		</div>
 		
 		<c:if test="${user_role != '[ROLE_PRINTER]'}">
-		<script type="text/javascript">
-		
-		<c:if test="${auto_print and recordStatus eq 0}">
-			var auto_print_delay = 1;
-			<c:if test="${auto_print_delay}">
-				auto_print_delay = ${auto_print_delay};
-			</c:if>
-			setTimeout(function(){ printMainOrder('${mainOrderID}', '${auto_print}'); }, auto_print_delay * 1000);
-		</c:if>
-		
-		function backToMainOrder() {
-			window.location = "../dashboard";
-		}
-		
-		function MyHashMap(){
-		     var size = 0;
-		     var entry = new Object();
-		     this.put = function (key , value){
-		         if(!this.containsKey(key)){
-		             size ++ ;
-		         }
-		         entry[key] = value;
-		     }
-		     this.get = function (key){
-		         if( this.containsKey(key)){
-		             return entry[key];
-		         }else{
-		             return null;
-		         }
-		     }
-		     this.remove = function ( key ){
-		         if( delete entry[key] ){
-		             size --;
-		         }
-		     }
-		     this.containsKey = function ( key ){
-		         return (key in entry);
-		     }
-		     this.containsValue = function ( value ){
-		         for(var prop in entry){
-		             if(entry[prop] == value){
-		                 return true;
-		             }
-		         }
-		         return false;
-		     }
-		     this.values = function (){
-		         var values = new Array(size);
-		         for(var prop in entry){
-		             values.push(entry[prop]);
-		         }
-		         return values;
-		     }
-		     this.keys = function (){
-		         var keys = new Array(size);
-		         for(var prop in entry){
-		             keys.push(prop);
-		         }
-		         return keys;
-		     }
-		     this.size = function (){
-		         return size;
-		     }
-		 }
-		
-		function printMainOrder(mainOrderID, isAutoPrinting) {
-			if(isAutoPrinting != 'true'){
-				var confirmed = confirm("Are you sure to send it to printer?");
-				if(!confirmed){
-					return;
-				}
-			}
-			<c:if test="${fn:length(fn:split(printers[0], '.')) eq 4}">	<!--do a simple check on the name of first printer-->
-				var printsMap = new MyHashMap();
-				<c:forEach items = "${printersMap}" var = "item"> <!-- why do we copy the printerIP and printStyle? can not use${printersMap} directly?-->
-					printsMap.put("${item.key}", "${item.value}");
-				</c:forEach>
-				//to print on each printer
-				<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
-					<c:if test="${not empty materialsForPrinters[i-1]}">
-						var io${i} = createWebSocketIO();   
-						<!--implement the onopen method-->
-						io${i}.onopen=function(e){
-							
-	                    	POS_Reset(io${i});
-	    					POS_Beep(io${i}, 0, 0);
-	                   		//all or togo mode, will put all content into string, then print.
-				            var printType=printsMap.get("${printers[i-1]}");
-	                   		
-							if(printType=== 'togo' || printType=== 'all'){
-						       POS_TextOut(io${i}," " + "${sizeTable}" + "         "+"${targetTime}"+'\n',0,1,1,0,0);
-						       POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
-								<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">
-								    <c:choose>
-										<c:when test="${not empty auto_combine_print}">
-											POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} "+" X${materialsForPrinters [i-1][j-1]['recordStatus']}" + '\n',0,1,1,0,0);
-										</c:when>
-										<c:otherwise>
-											POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} " + '\n',0,1,1,0,0);
-										</c:otherwise>
-									</c:choose>
-									POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
-							    </c:forEach>
-								
-								if(printType=== 'togo'){
-									POS_TextOut(io${i},"${address}" +'\n',0,0,0,1,0);
-									POS_TextOut(io${i},"${contactPhone}"+'\n',0,0,0,1,0);
-									POS_TextOut(io${i},"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${endPrice}"+'\n',0,0,0,1,0);
-								}
-								
-								POS_FeedAndCutPaper(io${i});
-							    //can we assume that if the code here reahed, means the content printed well? what about the outof paper?
-							    var parent = document.getElementById("printAreaForReceip");
-								var child=document.getElementById("${printers[i-1]}");
-								parent.removeChild(child);
-							}else if(printType=== 'separate'){
-								//separate print, will printe "fn:length(materialsForPrinters [i-1])" times.
-								<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
-									
-									POS_TextOut(io${i}," " + "${sizeTable}" +"         "+"${targetTime}"+'\n',0,1,1,0,0);
-									POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
-									
-									<c:choose>
-										<c:when test="${not empty auto_combine_print}">
-											POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} "+" X${materialsForPrinters [i-1][j-1]['recordStatus']}" +'\n',0,1,1,0,0);
-										</c:when>
-										<c:otherwise>
-											POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} " + '\n',0,1,1,0,0);
-										</c:otherwise>
-									</c:choose>
-									POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
-									POS_FeedAndCutPaper(io${i});
-								</c:forEach>
-								var parent = document.getElementById("printAreaForReceip");
-								var child=document.getElementById("${printers[i-1]}");
-								parent.removeChild(child);
-							}else{
-								alert("Error: the printer type is not set correctly, please contact info@ShareTheGoodOnes for correct configuration.");
-							}	
-							io${i}.close();
-	                    }
-						
-						<!--implement the onerror method-->
-						io${i}.onerror= function(e){
-							alert("Error: the content might not printed correctly, please check the printer or internet connection.");
-	                    	console.log(e);
-	                    	orderNotPrintWell(mainOrderID);
-	    				}
-						
-	                    var printerIpAddress ="${printers[i-1]}";
-	                    io${i}.open(printerIpAddress, 8080);
-	                    addElementDiv(printerIpAddress);
-					</c:if>
-				</c:forEach>
-				<!-- start a timer to check if the status disppeared, if not beep()!-->
-				<c:if test="${fn:length(printers) gt 0}">
-					setTimeout(function(){ checkstatus(false); }, 5000);
-				</c:if>
-			</c:if>
+			<script type="text/javascript">
 			
-			orderPrinted(mainOrderID);
-		}
-
-		function checkstatus(end){
-			//check last element:
-			var text = document.getElementById("printAreaForReceip").lastElementChild.innerHTML;
-			if(text.startsWith('printing to ')){
-				var warn_sound_duration = 4000;
-            	if('${warn_sound_duration}' != ''){
-            		warn_sound_duration = '${warn_sound_duration}';
-            	}
-            	var warn_sound_freq = 940;
-            	if('${warn_sound_freq}' != ''){
-            		warn_sound_freq = '${warn_sound_freq}';
-            	}
-            	if(end){
-					beep(warn_sound_duration, warn_sound_freq);
-            	}else{
-            		setTimeout(function(){ checkstatus(true); }, 6000);
-            	}
-				return;
-			}
-			//back to dashboard.
-			window.location.href = "../dashboard";
-		}
+				<c:if test="${auto_print and recordStatus eq 0}">
+					var auto_print_delay = 1;
+					<c:if test="${auto_print_delay}">
+						auto_print_delay = ${auto_print_delay};
+					</c:if>
+					setTimeout(function(){ printMainOrder('${mainOrderID}', '${auto_print}'); }, auto_print_delay * 1000);
+				</c:if>
+				
+				function backToMainOrder() {
+					window.location = "../dashboard";
+				}
+				
+				function MyHashMap(){
+				     var size = 0;
+				     var entry = new Object();
+				     this.put = function (key , value){
+				         if(!this.containsKey(key)){
+				             size ++ ;
+				         }
+				         entry[key] = value;
+				     }
+				     this.get = function (key){
+				         if( this.containsKey(key)){
+				             return entry[key];
+				         }else{
+				             return null;
+				         }
+				     }
+				     this.remove = function ( key ){
+				         if( delete entry[key] ){
+				             size --;
+				         }
+				     }
+				     this.containsKey = function ( key ){
+				         return (key in entry);
+				     }
+				     this.containsValue = function ( value ){
+				         for(var prop in entry){
+				             if(entry[prop] == value){
+				                 return true;
+				             }
+				         }
+				         return false;
+				     }
+				     this.values = function (){
+				         var values = new Array(size);
+				         for(var prop in entry){
+				             values.push(entry[prop]);
+				         }
+				         return values;
+				     }
+				     this.keys = function (){
+				         var keys = new Array(size);
+				         for(var prop in entry){
+				             keys.push(prop);
+				         }
+				         return keys;
+				     }
+				     this.size = function (){
+				         return size;
+				     }
+				 }
+				
+				function printMainOrder(mainOrderID, isAutoPrinting) {
+					if(isAutoPrinting != 'true'){
+						var confirmed = confirm("Are you sure to send it to printer?");
+						if(!confirmed){
+							return;
+						}
+					}
+					<c:if test="${fn:length(fn:split(printers[0], '.')) eq 4}">	<!--do a simple check on the name of first printer-->
+						var printsMap = new MyHashMap();
+						<c:forEach items = "${printersMap}" var = "item"> <!-- why do we copy the printerIP and printStyle? can not use${printersMap} directly?-->
+							printsMap.put("${item.key}", "${item.value}");
+						</c:forEach>
+						//to print on each printer
+						<c:forEach var="i" begin="1" end="${fn:length(printers)}" step="1">
+							<c:if test="${not empty materialsForPrinters[i-1]}">
+								var io${i} = createWebSocketIO();   
+								<!--implement the onopen method-->
+								io${i}.onopen=function(e){
+									
+			                    	POS_Reset(io${i});
+			    					POS_Beep(io${i}, 0, 0);
+			                   		//all or togo mode, will put all content into string, then print.
+						            var printType=printsMap.get("${printers[i-1]}");
+			                   		
+									if(printType=== 'togo' || printType=== 'all'){
+								       POS_TextOut(io${i}," " + "${sizeTable}" + "         "+"${targetTime}"+'\n',0,1,1,0,0);
+								       POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
+										<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">
+										    <c:choose>
+												<c:when test="${not empty auto_combine_print}">
+													POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} "+" X${materialsForPrinters [i-1][j-1]['recordStatus']}" + '\n',0,1,1,0,0);
+												</c:when>
+												<c:otherwise>
+													POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} " + '\n',0,1,1,0,0);
+												</c:otherwise>
+											</c:choose>
+											POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
+									    </c:forEach>
+										
+										if(printType=== 'togo'){
+											POS_TextOut(io${i},"${address}" +'\n',0,0,0,1,0);
+											POS_TextOut(io${i},"${contactPhone}"+'\n',0,0,0,1,0);
+											POS_TextOut(io${i},"Total:"+"${total}"+" Tax:"+"${tax}"+" = $"+"${endPrice}"+'\n',0,0,0,1,0);
+										}
+										
+										POS_FeedAndCutPaper(io${i});
+									    //can we assume that if the code here reahed, means the content printed well? what about the outof paper?
+									    var parent = document.getElementById("printAreaForReceip");
+										var child=document.getElementById("${printers[i-1]}");
+										parent.removeChild(child);
+									}else if(printType=== 'separate'){
+										//separate print, will printe "fn:length(materialsForPrinters [i-1])" times.
+										<c:forEach var="j" begin="1" end="${fn:length(materialsForPrinters [i-1])}" step="1">	
+											
+											POS_TextOut(io${i}," " + "${sizeTable}" +"         "+"${targetTime}"+'\n',0,1,1,0,0);
+											POS_TextOut(io${i},"------------------------------------------"+'\n',0,0,0,0,0);
+											
+											<c:choose>
+												<c:when test="${not empty auto_combine_print}">
+													POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} "+" X${materialsForPrinters [i-1][j-1]['recordStatus']}" +'\n',0,1,1,0,0);
+												</c:when>
+												<c:otherwise>
+													POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['portionName']} " + '\n',0,1,1,0,0);
+												</c:otherwise>
+											</c:choose>
+											POS_TextOut(io${i},"${materialsForPrinters [i-1][j-1]['remark']}"+'\n',-3,1,1,0,0);
+											POS_FeedAndCutPaper(io${i});
+										</c:forEach>
+										var parent = document.getElementById("printAreaForReceip");
+										var child=document.getElementById("${printers[i-1]}");
+										parent.removeChild(child);
+									}else{
+										alert("Error: the printer type is not set correctly, please contact info@ShareTheGoodOnes for correct configuration.");
+									}	
+									io${i}.close();
+			                    }
+								
+								<!--implement the onerror method-->
+								io${i}.onerror= function(e){
+									alert("Error: the content might not printed correctly, please check the printer or internet connection.");
+			                    	console.log(e);
+			                    	orderNotPrintWell(mainOrderID);
+			    				}
+								
+			                    var printerIpAddress ="${printers[i-1]}";
+			                    io${i}.open(printerIpAddress, 8080);
+			                    addElementDiv(printerIpAddress);
+							</c:if>
+						</c:forEach>
+						<!-- start a timer to check if the status disppeared, if not beep()!-->
+						<c:if test="${fn:length(printers) gt 0}">
+							setTimeout(function(){ checkstatus(false); }, 5000);
+						</c:if>
+					</c:if>
+					
+					orderPrinted(mainOrderID);
+				}
 		
-		function beep(duration, frequency) {
-			var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
-            var oscillator = audioCtx.createOscillator();
-            var gainNode = audioCtx.createGain();
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            if (frequency){oscillator.frequency.value = frequency;}
-
-            oscillator.start();
-            setTimeout(function(){oscillator.stop()}, (duration ? duration : 500));
-        }
-        
-		function addElementDiv(ip) {
-			var parent = document.getElementById("printAreaForReceip");
-			var div = document.createElement("div");
-			div.setAttribute("id", ip);
-			div.style.textAlign = "left";
-			div.innerHTML = "printing to " + ip + "......";
-			parent.appendChild(div);
-		}
-
-		function orderPrinted(mainOrderID){
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateAnOrderStatus/"+mainOrderID,
-		       data: "recordStatus=10",
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		       		}
-		        	//because when this executed, print job might still in thread (not printed yet), so we can not go back to dashboard.
-		        	//window.location = "../dashboard";
+				function checkstatus(end){
+					//check last element:
+					var text = document.getElementById("printAreaForReceip").lastElementChild.innerHTML;
+					if(text.startsWith('printing to ')){
+						var warn_sound_duration = 4000;
+		            	if('${warn_sound_duration}' != ''){
+		            		warn_sound_duration = '${warn_sound_duration}';
+		            	}
+		            	var warn_sound_freq = 940;
+		            	if('${warn_sound_freq}' != ''){
+		            		warn_sound_freq = '${warn_sound_freq}';
+		            	}
+		            	if(end){
+							beep(warn_sound_duration, warn_sound_freq);
+		            	}else{
+		            		setTimeout(function(){ checkstatus(true); }, 6000);
+		            	}
+						return;
+					}
+					//back to dashboard.
+					window.location.href = "../dashboard";
+				}
+				
+				function beep(duration, frequency) {
+					var audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+		            var oscillator = audioCtx.createOscillator();
+		            var gainNode = audioCtx.createGain();
+		
+		            oscillator.connect(gainNode);
+		            gainNode.connect(audioCtx.destination);
+		
+		            if (frequency){oscillator.frequency.value = frequency;}
+		
+		            oscillator.start();
+		            setTimeout(function(){oscillator.stop()}, (duration ? duration : 500));
 		        }
-		    });
-		}
+		        
+				function addElementDiv(ip) {
+					var parent = document.getElementById("printAreaForReceip");
+					var div = document.createElement("div");
+					div.setAttribute("id", ip);
+					div.style.textAlign = "left";
+					div.innerHTML = "printing to " + ip + "......";
+					parent.appendChild(div);
+				}
 		
-		function orderNotPrintWell(mainOrderID){
-			$.ajax({
-		    	headers: "Accept=application/json",
-		        type: "POST",
-		        url: "updateAnOrderStatus/"+mainOrderID,
-		       data: "recordStatus=0",
-		        async:false,
-		        success:function(textContent){
-		        	if(textContent == null || textContent.length == 0){
-		        	}else{
-		        		alert( "Please check the connection of internet or cotact the admin.");
-		       		}
-		        }
-		    });
-		}
-		
-		function orderCompleted(mainOrderID) {
-			var confirmed = confirm("Are you sure all served?");
-			if(confirmed){
-				$.ajax({
-			    	headers: "Accept=application/json",
-			        type: "POST",
-			        url: "updateAnOrderStatus/"+mainOrderID,
-			        data: "recordStatus=50",
-			        async:false,
-			        success:function(textContent){
-			        	if(textContent == null || textContent.length == 0){
-			        	}else{
-			        		alert( "Please check the connection of internet or cotact the admin.");
-			        	}
-			        	window.location = "../dashboard";
-			        }
-		    	});
-			}
-		}
-		
-		function cleanAnOrder(mainOrderID) {
-			var confirmed = confirm("Are you sure to remove it?");
-			if(confirmed){
-				$.ajax({
-			    	headers: "Accept=application/json",
-			        type: "POST",
-			        url: "updateAnOrderStatus/"+mainOrderID,
-			        data: "recordStatus=-1",
-			        async:false,
-			        success:function(textContent){
-			        	if(textContent == null || textContent.length == 0){
-			        	}else{
-			        		alert( "Please check the connection of internet or cotact the admin.");
-			        	}
-			        	window.location = "../dashboard";
-			        }
-			    });
-			}
-		}
-		
-		</script>
+				function orderPrinted(mainOrderID){
+					$.ajax({
+				    	headers: "Accept=application/json",
+				        type: "POST",
+				        url: "updateAnOrderStatus/"+mainOrderID,
+				       data: "recordStatus=10",
+				        async:false,
+				        success:function(textContent){
+				        	if(textContent == null || textContent.length == 0){
+				        	}else{
+				        		alert( "Please check the connection of internet or cotact the admin.");
+				       		}
+				        	//because when this executed, print job might still in thread (not printed yet), so we can not go back to dashboard.
+				        	//window.location = "../dashboard";
+				        }
+				    });
+				}
+				
+				function orderNotPrintWell(mainOrderID){
+					$.ajax({
+				    	headers: "Accept=application/json",
+				        type: "POST",
+				        url: "updateAnOrderStatus/"+mainOrderID,
+				       data: "recordStatus=0",
+				        async:false,
+				        success:function(textContent){
+				        	if(textContent == null || textContent.length == 0){
+				        	}else{
+				        		alert( "Please check the connection of internet or cotact the admin.");
+				       		}
+				        }
+				    });
+				}
+				
+				function orderCompleted(mainOrderID) {
+					var confirmed = confirm("Are you sure all served?");
+					if(confirmed){
+						$.ajax({
+					    	headers: "Accept=application/json",
+					        type: "POST",
+					        url: "updateAnOrderStatus/"+mainOrderID,
+					        data: "recordStatus=50",
+					        async:false,
+					        success:function(textContent){
+					        	if(textContent == null || textContent.length == 0){
+					        	}else{
+					        		alert( "Please check the connection of internet or cotact the admin.");
+					        	}
+					        	window.location = "../dashboard";
+					        }
+				    	});
+					}
+				}
+				
+				function cleanAnOrder(mainOrderID) {
+					var confirmed = confirm("Are you sure to remove it?");
+					if(confirmed){
+						$.ajax({
+					    	headers: "Accept=application/json",
+					        type: "POST",
+					        url: "updateAnOrderStatus/"+mainOrderID,
+					        data: "recordStatus=-1",
+					        async:false,
+					        success:function(textContent){
+					        	if(textContent == null || textContent.length == 0){
+					        	}else{
+					        		alert( "Please check the connection of internet or cotact the admin.");
+					        	}
+					        	window.location = "../dashboard";
+					        }
+					    });
+					}
+				}
+			
+			</script>
 		</c:if>
 	</c:if>
 </jsp:root>
