@@ -32,6 +32,11 @@
 	<jsp:directive.attribute name="mainOrderID" type="java.lang.Long"
 		required="true" rtexprvalue="true"
 		description="The id of MainOrder, it will be used to delete the whole order." />
+		
+	<jsp:directive.attribute name="recordStatus" type="java.lang.Long"
+		required="false" rtexprvalue="true"
+		description="The status of MainOrder, it will be used to check if the auto_print should work or not." />
+		
 	<jsp:directive.attribute name="labelPlural" type="java.lang.String"
 		required="false" rtexprvalue="true"
 		description="The label used for this object, will default to a message bundle if not supplied" />
@@ -86,8 +91,8 @@
 		<c:if test="${user_role != '[ROLE_PRINTER]'}">
 		<script type="text/javascript">
 		
-		<c:if test="${auto_print}">
-			var auto_print_delay = 2;
+		<c:if test="${auto_print and recordStatus eq 0}">
+			var auto_print_delay = 1;
 			<c:if test="${auto_print_delay}">
 				auto_print_delay = ${auto_print_delay};
 			</c:if>

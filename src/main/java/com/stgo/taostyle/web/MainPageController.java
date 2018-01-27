@@ -535,6 +535,9 @@ public class MainPageController extends BaseController {
             model.addAttribute("printersMap", printersMap);
             model.addAttribute("materialsForPrinters", materialsForPrinters);
             // end preparing data for websocket printers.
+
+            // if the status is not 0, then auto_print should not work when open showing detail.
+            model.addAttribute("recordStatus", mainOrder.getRecordStatus());
             return returnPath;
         } else {
             model.addAttribute("materials", null);
@@ -2900,8 +2903,7 @@ public class MainPageController extends BaseController {
         for (Material material : materials) {
             material.remove();
         }
-        List<TaxonomyMaterial> taxonomyMaterials =
-                TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(mainOrder);
+        List<TaxonomyMaterial> taxonomyMaterials = TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(mainOrder);
         for (TaxonomyMaterial taxonomyMaterial : taxonomyMaterials) {
             taxonomyMaterial.setMainOrder(null);
             taxonomyMaterial.persist();

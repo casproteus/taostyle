@@ -23,7 +23,7 @@
 			<div id="printPreview" class="${span}" align="center" style="margin-left:${leftmargin}">
 				<!-- Material list -->
 				<page:BigList id="pl_com_stgo_taostyle_domain_material" label="${targetTime} ( ${sizeTable}${contactPhone} )" items="${materials}"
-				 mainOrderID="${mainOrderID}" render="${fn:length(materials) gt 0}">
+				 mainOrderID="${mainOrderID}" recordStatus="${recordStatus}" render="${fn:length(materials) gt 0}">
 					<table:BigSortable data="${materials}" id="l_com_stgo_taostyle_domain_material" path="/materials" showdetail="false" create="false" 
 					update="true"  delete="${isEmployee}" showHeader="${isNotPrinter}" total="${isNotPrinter? total : null}" tax="${tax}"  endPrice="${endPrice}">
 						<table:column id="c_com_stgo_taostyle_domain_material_portionname" label="Name" property="color"/>
