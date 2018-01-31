@@ -245,14 +245,18 @@
 						</c:forEach>
 						<!-- start a timer to check if the status disppeared, if not beep()!-->
 						<c:if test="${fn:length(printers) gt 0}">
-							setTimeout(function(){ checkstatus(false); }, 5000);
+							var delay_1st_checkstatus = 5000;
+							if('${delay_1st_checkstatus}' != ''){
+								delay_1st_checkstatus = '${delay_1st_checkstatus}';
+			            	}
+							setTimeout(function(){ checkstatus(false); }, delay_1st_checkstatus);
 						</c:if>
 					</c:if>
 					
 					orderPrinted(mainOrderID);
 				}
 		
-				function checkstatus(end){
+				function checkstatus(finalcheck){
 					//check last element:
 					var text = document.getElementById("printAreaForReceip").lastElementChild.innerHTML;
 					if(text.startsWith('printing to ')){
@@ -264,10 +268,14 @@
 		            	if('${warn_sound_freq}' != ''){
 		            		warn_sound_freq = '${warn_sound_freq}';
 		            	}
-		            	if(end){
+		            	if(finalcheck){
 							beep(warn_sound_duration, warn_sound_freq);
 		            	}else{
-		            		setTimeout(function(){ checkstatus(true); }, 6000);
+		            		var delay_2ed_checkstatus = 10000;
+		            		if('${delay_2ed_checkstatus}' != ''){
+		            			delay_2ed_checkstatus = '${delay_2ed_checkstatus}';
+			            	}
+		            		setTimeout(function(){ checkstatus(true); }, delay_2ed_checkstatus);
 		            	}
 						return;
 					}
