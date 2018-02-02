@@ -233,9 +233,9 @@
 								
 								<!--implement the onerror method-->
 								io${i}.onerror= function(e){
-									alert("Error: the content might not printed correctly, please check the printer or internet connection.");
+									//alert("Error: the content might not printed correctly, please check the printer or internet connection.");
 			                    	console.log(e);
-			                    	orderNotPrintWell(mainOrderID);
+			                    	//orderNotPrintWell(mainOrderID);
 			    				}
 								
 			                    var printerIpAddress ="${printers[i-1]}";
