@@ -51,6 +51,9 @@ public interface CC {
     String default_feature_menu = "default_feature_menu";
     String show_status_message1 = "show_status_message1";
     String show_status_message2 = "show_status_message2";
+    String show_status_category1 = "show_status_category1";
+    String show_status_category2 = "show_status_category2";
+
     String flash_1_URL = "flash_1_URL";
     String LANG = "lang";
     String menuIdx = "menuIdx";

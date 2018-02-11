@@ -2435,6 +2435,7 @@ public class MainPageController extends BaseController {
         model.addAttribute("show_status_bell", "");
         model.addAttribute("show_status_submit", "true");
         model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message2));
+        model.addAttribute("show_status_category", session.getAttribute(langPrf + CC.show_status_category2));
         model.addAttribute("show_status_total", "true");
         model.addAttribute("show_status_break", "true");
         //
@@ -3468,8 +3469,8 @@ public class MainPageController extends BaseController {
         createACustomize(request, "show_status_bell", "true", person);
         createACustomize(request, "show_status_break", "true", person);
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
-        createACustomize(request, "en_show_status_message1",
-                (String) request.getSession().getAttribute(langPrf + CC.show_status_message1), person);
+        createACustomize(request, "en_show_status_message1", "My Order", person);
+        createACustomize(request, "en_show_status_category1", "MENU", person);
         createACustomize(request, "show_status_total", "false", person);
 
         createACustomize(request, "status_y", "50", person);

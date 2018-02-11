@@ -480,6 +480,7 @@ public class TaoUtil {
             model.addAttribute("refForDelete", refList);
             model.addAttribute("menus", menus);
             model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message1));
+            model.addAttribute("show_status_category", session.getAttribute(langPrf + CC.show_status_category1));
         }
 
         if (isAboveManager(session)) {
@@ -797,6 +798,7 @@ public class TaoUtil {
         }
 
         model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message1));
+        model.addAttribute("show_status_category", session.getAttribute(langPrf + CC.show_status_category1));
         TaoDebug.info(TaoDebug.getSB(request.getSession()),
                 "completed initServiceSubPage, menukey is {}, serviceAmount is {}", key, serviceAmount);
         return menuIdx;
@@ -950,7 +952,7 @@ public class TaoUtil {
         }
         session.setAttribute(CC.CLIENT, person);
         TaoDebug.setDebugFlag(session, (String) session.getAttribute(CC.debugFlag), person);
-        session.setMaxInactiveInterval(-1);
+        // Why do we want to set the session to be never time out??? session.setMaxInactiveInterval(-1);
     }
 
     private static void cleanSessionAttributes(
