@@ -72,16 +72,14 @@
 	  	<input id="longitude" type="hidden" value="${longitude}" /> 
 	  	<script type="text/javascript">
 			//for location
-			if((latitude.value == '' || longitude.value == '') &amp; (user_role.value == '' || '[ROLE_CLIENT]' == user_role.value)){
+			if('true' == '${need_geo_check}' &amp; (latitude.value == '' || longitude.value == '') &amp; (user_role.value == '' || '[ROLE_CLIENT]' == user_role.value)){
 				//init the location
-			    if (navigator.geolocation) {
+			    if (navigator.geolocation) {	//if geolocation is supported by the browser.
 	               // timeout at 60000 milliseconds (60 seconds)
 	               var options = {timeout:15000};
 	               geoLoc = navigator.geolocation;
 	               watchID = geoLoc.watchPosition(showPosition, errorHandler, options);
-			    } else { 
-			        alert("Geolocation is not supported by this browser.");
-			    }
+			    } 
 			}
 			
 			function showPosition(position) {
