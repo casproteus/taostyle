@@ -119,7 +119,7 @@ public class MediaUpload {
         tEntityManager.setFlushMode(FlushModeType.COMMIT);
         MediaUpload tObeFR;
         TypedQuery<MediaUpload> tQuery = tEntityManager.createQuery(
-                "SELECT o FROM MediaUpload AS o WHERE o.filepath = :pKey and o.person =:person order by o.id",
+                "SELECT o FROM MediaUpload AS o WHERE o.filepath = :pKey and o.person =:person order by o.id DESC",
                 MediaUpload.class);
         tQuery = tQuery.setParameter("pKey", key);
         tQuery = tQuery.setParameter("person", person);

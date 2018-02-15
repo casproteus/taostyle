@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -235,6 +236,15 @@ public class TaoUtil {
                 : request.getSession().getAttribute(CC.LANG);
 
         if (lang == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if (c != null && c.getName().equals("langPrf")) {
+                        return c.getValue();
+                    }
+                }
+            }
+
             return getDefalutLang(request) + "_";
         } else {
             return lang.toString() + "_";

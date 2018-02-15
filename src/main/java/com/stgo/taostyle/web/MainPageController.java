@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -95,6 +96,7 @@ public class MainPageController extends BaseController {
     public String clientComing(
             Model model,
             HttpServletRequest request,
+            HttpServletResponse response,
             @PathVariable("identity") String identity) {
         HttpSession session = request.getSession();
         TaoDebug.info(TaoDebug.getSB(session), "Entry1, start to switching user to {}:", identity);
@@ -111,7 +113,7 @@ public class MainPageController extends BaseController {
             TaoDebug.info(TaoDebug.getSB(session), "it's in login status, stop switching user: {}", identity);
         }
 
-        return showFromFlashpage(model, request);
+        return showFromFlashpage(model, request, response);
     }
 
     /**
@@ -122,6 +124,7 @@ public class MainPageController extends BaseController {
     public String showWebPageWithClientInfo(
             Model model,
             HttpServletRequest request,
+            HttpServletResponse response,
             @PathVariable("client") String client,
             @PathVariable("menuIdxString") String menuIdxString) {
         TaoDebug.info(TaoDebug.getSB(request.getSession()),
@@ -129,7 +132,7 @@ public class MainPageController extends BaseController {
         if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
-        return buildPageForMenu(model, request, menuIdxString);
+        return buildPageForMenu(model, request, response, menuIdxString);
     }
 
     /**
@@ -166,7 +169,8 @@ public class MainPageController extends BaseController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String showFromFlashpage(
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         if (TaoUtil.hasNotLoggedIn(request)) {
             String app_name_inRequest = TaoUtil.getAppNameInRequest(request);
             if (app_name_inRequest != null) {
@@ -183,7 +187,8 @@ public class MainPageController extends BaseController {
         if (flash_1_URL != null && !StringUtils.isBlank(flash_1_URL.toString()))
             return "flashpage";
         else
-            return buildPageForMenu(model, request, null);// if No Flash paged set, then got to main page directly.
+            return buildPageForMenu(model, request, response, null);// if No Flash paged set, then got to main page
+                                                                    // directly.
     }
 
     /**
@@ -198,11 +203,19 @@ public class MainPageController extends BaseController {
     public String buildPageForMenu(
             Model model,
             HttpServletRequest request,
+            HttpServletResponse response,
             @PathVariable("menuIdxString") String menuIdxString) {
         TaoDebug.info(request, "Entry5, start to buildWebPage under {}, for person: {}, path:{}", menuIdxString);
         makesureSessionInitialized(request);
 
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
+        if (langPrf != null) {
+            final Cookie cookie = new Cookie("langPrf", langPrf);
+            cookie.setMaxAge(31536000); // One year
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }
+
         Person person = TaoUtil.getCurPerson(request);
         makesureCommonTextInitialized(model, request, langPrf, person);
 
@@ -262,7 +275,8 @@ public class MainPageController extends BaseController {
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public String signup(
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         String loginname = request.getParameter("loginname");
         if (CC.ADMIN.equalsIgnoreCase(loginname)) {
             Person person = new Person();
@@ -335,13 +349,14 @@ public class MainPageController extends BaseController {
             tUserAccount.setSecuritylevel(CC.ROLE_CLIENT);
             tUserAccount.persist();
         }
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public String register(
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         Person person = TaoUtil.getCurPerson(request);
         String loginname = request.getParameter("loginname");
         if (person.getName().equalsIgnoreCase(loginname)) {
@@ -383,13 +398,14 @@ public class MainPageController extends BaseController {
             TaoEmail.sendMessage(managerEmail.toString(), "Register Conformation!", email, content, null);
         }
         // notice the user go and check their email box.
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     @RequestMapping(value = "/updateUserInfo", method = RequestMethod.POST)
     public String updateUserInfo(
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         Long id = Long.valueOf(request.getParameter("id"));
         UserAccount tUserAccount = UserAccount.findUserAccount(id);
@@ -445,7 +461,7 @@ public class MainPageController extends BaseController {
         }
 
         tUserAccount.persist();
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     @RequestMapping(value = "/dashboard", method = RequestMethod.GET)
@@ -802,16 +818,18 @@ public class MainPageController extends BaseController {
     @RequestMapping(value = "/changeTextForm", method = RequestMethod.POST)
     public String changeTextForm(
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         model.addAttribute("position", request.getParameter("position"));
         model.addAttribute("replacingContent", request.getParameter("content"));
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     @RequestMapping(value = "/changeText", method = RequestMethod.POST)
     public String changeText(
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         // Note: to make it stronger, if the language sign already in the
         // positionString, remove it.
         String tPosStr = request.getParameter("position");
@@ -835,7 +853,7 @@ public class MainPageController extends BaseController {
         // in case the text in common area modified, and language not modified, so it
         // will not update.
         checkIfDirtFlagNeeded(tPosStr);
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     private boolean isContentValid(
@@ -981,7 +999,8 @@ public class MainPageController extends BaseController {
     @RequestMapping(value = "/changeImgForm", method = RequestMethod.POST)
     public String changeImgForm(
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         model.addAttribute("position", request.getParameter("position"));
         model.addAttribute("imageIndex", request.getParameter("imageIndex"));
         model.addAttribute("operation", request.getParameter("operation"));
@@ -994,7 +1013,7 @@ public class MainPageController extends BaseController {
 
         model.addAttribute("mediaUpload", new MediaUpload());
         // return index(model, request);
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     // ===================for JustPrint Client================
@@ -1279,7 +1298,8 @@ public class MainPageController extends BaseController {
             BindingResult bindingResult,
             Model model,
             @RequestParam("content") CommonsMultipartFile[] contents,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         CommonsMultipartFile content = contents[0];
         String keyString = request.getParameter("position"); // can be category, big-slid, product's pratNo...
         FileItem tFileItem = content.getFileItem();
@@ -1304,7 +1324,7 @@ public class MainPageController extends BaseController {
         if (checkIfIsDeleteCommand(fileName, media)) { // delete a image not allowed in service :(
             if (!keyString.startsWith("service_"))
                 media.remove();
-            return buildPageForMenu(model, request, null);
+            return buildPageForMenu(model, request, response, null);
         }
 
         // ------------if need to save to disk-------------
@@ -1320,18 +1340,18 @@ public class MainPageController extends BaseController {
             pageOnError = saveDocumentToDB(model, content, fileName, media, keyString, person);
         } else if ("careerApply".equals(keyString)) { // save document to db
             TaoEmail.sendJobApplyEmail(content, request, person);
-            return saveJobApplicationToDB(model, content, fileName, media, request, person);
+            return saveJobApplicationToDB(model, content, fileName, media, request, response, person);
         } else if (keyString.contains("service_")) {
             String keyForTempralStopThum = CC.THUMNEEDED_ + tKeyStr;
             request.getSession().setAttribute(keyForTempralStopThum, "false");
             pageOnError = null;
             try {
-                pageOnError = saveImageToDB(model, content, fileName, media, tKeyStr, request);
+                pageOnError = saveImageToDB(model, content, fileName, media, tKeyStr, request, response);
             } finally {
                 request.getSession().removeAttribute(keyForTempralStopThum);
             }
         } else {// save image to db
-            pageOnError = saveImageToDB(model, content, fileName, media, tKeyStr, request);
+            pageOnError = saveImageToDB(model, content, fileName, media, tKeyStr, request, response);
         }
 
         if ("logo".equals(keyString)) {
@@ -1349,7 +1369,7 @@ public class MainPageController extends BaseController {
                 }
             }
         }
-        return pageOnError != null ? pageOnError : buildPageForMenu(model, request, null);
+        return pageOnError != null ? pageOnError : buildPageForMenu(model, request, response, null);
     }
 
     // hard code here, because As we know only the 2.3,4,5 are disigned to display
@@ -1360,12 +1380,13 @@ public class MainPageController extends BaseController {
             BindingResult bindingResult,
             Model model,
             @RequestParam("content") CommonsMultipartFile[] contents,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         Person person = TaoUtil.getCurPerson(request);
         // if idle too long time, the person will be null;
         if (person == null) {
-            return buildPageForMenu(model, request, null);
+            return buildPageForMenu(model, request, response, null);
         }
 
         String langPrf = TaoUtil.getLangPrfWithDefault(request);
@@ -1382,7 +1403,7 @@ public class MainPageController extends BaseController {
                 : countOfExistingImage;
 
         if (countOfExistingImage < 0) {
-            return buildPageForMenu(model, request, null);
+            return buildPageForMenu(model, request, response, null);
         }
 
         // !!!to be same with the number index of programming is also start from 1.
@@ -1467,7 +1488,7 @@ public class MainPageController extends BaseController {
                 processFileType(fileName, media);
                 // save images to
                 // db----------------------------------------------------------------
-                saveImageToDB(model, content, fileName, media, tKeyStr, request);
+                saveImageToDB(model, content, fileName, media, tKeyStr, request, response);
 
                 // service and product
                 if (tKeyStr.startsWith("service_")) {
@@ -1488,7 +1509,7 @@ public class MainPageController extends BaseController {
         if (needCleanUp) {
             TaoImage.vacumGellaryImages(person, tKeyStr);
         }
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     private String checkValidation(
@@ -1578,7 +1599,8 @@ public class MainPageController extends BaseController {
             String fileName,
             MediaUpload media,
             String tKeyStr,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         uiModel.asMap().clear();
 
@@ -1600,7 +1622,7 @@ public class MainPageController extends BaseController {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("got exception when resizing the image!" + e);
-            return buildPageForMenu(uiModel, request, null);
+            return buildPageForMenu(uiModel, request, response, null);
         }
         media.persist();
 
@@ -1703,6 +1725,7 @@ public class MainPageController extends BaseController {
             String fileName,
             MediaUpload media,
             HttpServletRequest request,
+            HttpServletResponse response,
             Person person) {
 
         // always create new user, in case some one mistyped with client's email, thus,
@@ -1735,7 +1758,7 @@ public class MainPageController extends BaseController {
 
         uiModel.asMap().clear();
         uiModel.addAttribute("email", userAccount.getEmail());
-        return buildPageForMenu(uiModel, request, null);
+        return buildPageForMenu(uiModel, request, response, null);
     }
 
     private UserAccount createANewUserForJobApplier(
@@ -2045,10 +2068,11 @@ public class MainPageController extends BaseController {
     @RequestMapping(value = "/deleteFeatureGroup", method = RequestMethod.POST)
     public String deleteFeatureGroup(
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         String refMenuIdx = request.getParameter("refMenuIdxForDelete");
         if (StringUtils.isBlank(refMenuIdx)) {
-            return buildPageForMenu(model, request, null);
+            return buildPageForMenu(model, request, response, null);
         }
 
         Person person = TaoUtil.getCurPerson(request);
@@ -2056,7 +2080,7 @@ public class MainPageController extends BaseController {
 
         List<Feature> features = Feature.findAllFeaturesByMenuIdxAndPerson(menuIdx, person);
         if (features == null) {
-            return buildPageForMenu(model, request, null);
+            return buildPageForMenu(model, request, response, null);
         }
 
         for (int i = features.size() - 1; i >= 0; i--) {
@@ -2068,7 +2092,7 @@ public class MainPageController extends BaseController {
         }
 
         // return "redirect:/menu_" + menuIdx;
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     @RequestMapping(value = "/{client}/updateFeature/{imageKey}", headers = "Accept=application/json",
@@ -2593,6 +2617,9 @@ public class MainPageController extends BaseController {
 
         String langPrf = (String) session.getAttribute("lang_printer") + "_";
         String moneyLetter = (String) session.getAttribute("moneyLetter");
+        if (moneyLetter == null) {
+            moneyLetter = "$";
+        }
 
         for (String item : items) {
             String key = langPrf + (item.startsWith("service_") ? item : ("service_" + item)) + "_description";
@@ -3047,7 +3074,8 @@ public class MainPageController extends BaseController {
     public ResponseEntity<String> showNote(
             @PathVariable(CC.CLIENT) String client,
             @PathVariable("keyStr") String keyStr,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
@@ -3077,7 +3105,8 @@ public class MainPageController extends BaseController {
     public String generateQRCode(
             Model model,
             @RequestParam(CC.position) String menuIdx,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         String filePath = "QRCode_" + menuIdx;
 
         String text = composeQRCodeText(request, menuIdx);
@@ -3085,7 +3114,7 @@ public class MainPageController extends BaseController {
         Person person = TaoUtil.getCurPerson(request);
 
         generateQRCode(request, filePath, text, person);
-        return buildPageForMenu(model, request, null);
+        return buildPageForMenu(model, request, response, null);
     }
 
     private void generateQRCode(
