@@ -2497,12 +2497,13 @@ public class MainPageController extends BaseController {
             @PathVariable("client") String client,
             @PathVariable("orderedItems") String orderedItems,
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         if (TaoUtil.hasNotLoggedIn(request)) {
             dirtFlagCommonText = TaoUtil.switchClient(request, client);
         }
-        return createMainOrder(orderedItems, model, request);
+        return createMainOrder(orderedItems, model, request, response);
     }
 
     @RequestMapping(value = "createAnOrder/{orderedItems}", headers = "Accept=application/json",
@@ -2511,7 +2512,8 @@ public class MainPageController extends BaseController {
     public ResponseEntity<String> createMainOrder(
             @PathVariable("orderedItems") String orderedItems,
             Model model,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
         HttpSession session = request.getSession();
         if (TaoSecurity.isHecker(request)) {
             session.setAttribute(CC.totalPrice, 0.00f);
@@ -2541,6 +2543,8 @@ public class MainPageController extends BaseController {
         String tel = params[2];
         String address = params[3];
         String delieverdate = params[4];
+
+        saveIntoCookie(name, tel, address, delieverdate, response);
 
         UserAccount client = null;
         if (curUser != null) {
@@ -3552,5 +3556,32 @@ public class MainPageController extends BaseController {
         customize.setPerson(person);
         customize.persist();
         request.getSession().setAttribute(cusKey, value);
+    }
+
+    private void saveIntoCookie(
+            String name,
+            String tel,
+            String address,
+            String delieverdate,
+            HttpServletResponse response) {
+        final Cookie cookie_name = new Cookie("name", name);
+        cookie_name.setMaxAge(31536000); // One year
+        cookie_name.setPath("/");
+        response.addCookie(cookie_name);
+
+        final Cookie cookie_tel = new Cookie("tel", tel);
+        cookie_tel.setMaxAge(31536000); // One year
+        cookie_tel.setPath("/");
+        response.addCookie(cookie_tel);
+
+        final Cookie cookie_address = new Cookie("address", address);
+        cookie_address.setMaxAge(31536000); // One year
+        cookie_address.setPath("/");
+        response.addCookie(cookie_address);
+
+        final Cookie cookie_delieverdate = new Cookie("delieverdate", delieverdate);
+        cookie_delieverdate.setMaxAge(31536000); // One year
+        cookie_delieverdate.setPath("/");
+        response.addCookie(cookie_delieverdate);
     }
 }

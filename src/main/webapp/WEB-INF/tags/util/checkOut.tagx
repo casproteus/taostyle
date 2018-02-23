@@ -170,15 +170,22 @@
 				var name = "n";
 				var geoOutRange = false;
 				if(tableID == null || tableID.length == 0){
+					
+					dojo.require("dojo.cookie");
+					var cookie_name = dojo.cookie('name');
+					var cookie_tel = dojo.cookie('tel');
+					var cookie_address = dojo.cookie('address');
+					var cookie_delieverdate = dojo.cookie('delieverdate');
+					
 					tableID = "not_on_site"
-					phoneNumber = prompt("Thank you for ordering, please leave your phone number:","");
+					phoneNumber = prompt("Thank you for ordering, please leave your phone number:",cookie_tel);
 					if(phoneNumber == ""){
 						phoneNumber = "did-not-input"
 					}else if(phoneNumber == null){
 						return;
 					}
-					
-					address = prompt("Delever to address:(Leave it empty for picking up in store)","");		
+					  
+					address = prompt("Delever to address:(Leave it empty for picking up in store)",cookie_address);		
 					if(address == ""){
 						address =  "did-not-input"
 					}else if(address == null){
@@ -186,14 +193,14 @@
 					}
 					
 					var myDate = new Date();    
-					arrive = prompt("Approximate time you would like to have it:", myDate.getHours() + ":" + myDate.getMinutes());
+					arrive = prompt("Approximate time you would like to have it:", cookie_delieverdate);
 					if(arrive == ""){
 						arrive =  "did-not-input"
 					}else if(arrive == null){
 						return;
 					}
 					
-					name = prompt("Your name please:", "");
+					name = prompt("Your name please:", cookie_name);
 					if(name == ""){
 						name =  "did-not-input"
 					}else if(arrive == null){
