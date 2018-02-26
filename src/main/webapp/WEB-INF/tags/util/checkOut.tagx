@@ -244,13 +244,13 @@
 			}
 		
         	function getCleanContent(content){
-        		if(contetn.startsWith("\"")){
+        		if(content.startsWith("\"")){
         			content = content.substring(1);
         		}
         		if(content.endsWith("\"")){
         			content = content.substring(0,content.length-1);
         		}
-        		return content == "n" ? "" : cookie_address;
+        		return content == "n" ? "" : content;
         	}
         	
 			function send(orderedItems, source, latitude, longitude, MAP_POS_X2, MAP_POS_Y2, limit_location_diff, contact_phone){	
