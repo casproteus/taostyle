@@ -2538,11 +2538,11 @@ public class MainPageController extends BaseController {
         // format:var source = tableID + "," + name + "," + phoneNumber + "," + address
         // + "," + arrive;
         String[] params = StringUtils.split(source, "zSTGOz");
-        String sizeTable = params[0];
-        String name = params[1];
-        String tel = params[2];
-        String address = params[3];
-        String delieverdate = params[4];
+        String sizeTable = getCleanContent(params[0]);
+        String name = getCleanContent(params[1]);
+        String tel = getCleanContent(params[2]);
+        String address = getCleanContent(params[3]);
+        String delieverdate = getCleanContent(params[4]);
 
         saveIntoCookie(name, tel, address, delieverdate, response);
 
@@ -3583,5 +3583,17 @@ public class MainPageController extends BaseController {
         cookie_delieverdate.setMaxAge(31536000); // One year
         cookie_delieverdate.setPath("/");
         response.addCookie(cookie_delieverdate);
+    }
+
+    private String getCleanContent(
+            String content) {
+        content = content.trim();
+        if (content.startsWith("\"")) {
+            content = content.substring(1);
+        }
+        if (content.endsWith("\"")) {
+            content = content.substring(0, content.length() - 1);
+        }
+        return content;
     }
 }

@@ -169,6 +169,7 @@
 				var location = "n";
 				var name = "n";
 				var geoOutRange = false;
+				//NOTE: when used from some explore like wechat explore, 
 				if(tableID == null || tableID.length == 0){
 					
 					dojo.require("dojo.cookie");
@@ -178,14 +179,14 @@
 					var cookie_delieverdate = dojo.cookie('delieverdate');
 					
 					tableID = "not_on_site"
-					phoneNumber = prompt("Thank you for ordering, please leave your phone number:",cookie_tel);
+					phoneNumber = prompt("Thank you for ordering, please leave your phone number:",cookie_tel == "n" ? "" : cookie_tel);
 					if(phoneNumber == ""){
 						phoneNumber = "did-not-input"
 					}else if(phoneNumber == null){
 						return;
 					}
 					  
-					address = prompt("Delever to address:(Leave it empty for picking up in store)",cookie_address);		
+					address = prompt("Delever to address:(Leave it empty for picking up in store)",cookie_address == "n" ? "" : cookie_address);		
 					if(address == ""){
 						address =  "did-not-input"
 					}else if(address == null){
@@ -193,14 +194,14 @@
 					}
 					
 					var myDate = new Date();    
-					arrive = prompt("Approximate time you would like to have it:", cookie_delieverdate);
+					arrive = prompt("Approximate time you would like to have it:", cookie_delieverdate == "n" ? "" : cookie_delieverdate);
 					if(arrive == ""){
 						arrive =  "did-not-input"
 					}else if(arrive == null){
 						return;
 					}
 					
-					name = prompt("Your name please:", cookie_name);
+					name = prompt("Your name please:", cookie_name == "n" ? "" : cookie_name);
 					if(name == ""){
 						name =  "did-not-input"
 					}else if(arrive == null){
@@ -219,7 +220,9 @@
 					}
 				}else{
 					<c:if test="${style_askName eq 'always'}">
-						name = prompt("Your name please:", "");
+						dojo.require("dojo.cookie");
+						var cookie_name = dojo.cookie('name');
+						name = prompt("Your name please:", cookie_name == "n" ? "": cookie_name);
 						if(name == ""){
 							name =  "did-not-input";
 						}
