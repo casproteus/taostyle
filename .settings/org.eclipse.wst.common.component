@@ -2,7 +2,7 @@
 	<wb-module deploy-name="taostyle-0.1.1.BUILD-SNAPSHOT">
 		<wb-resource deploy-path="/" source-path="src/main/webapp"/>
 		<property name="java-output-path" value="/target/classes"/>
-        <property name="context-root" value="/"/>
+        <property name="context-root" value="taostyle"/>
 		<wb-resource deploy-path="/WEB-INF/classes" source-path="src/main/java"/>
 		<wb-resource deploy-path="/WEB-INF/classes" source-path="src/main/resources"/>
 		<wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
