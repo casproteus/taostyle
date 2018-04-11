@@ -942,6 +942,7 @@ public class TaoUtil {
             Person person) {
         // clean current configuration
         TaoDebug.info(TaoDebug.getSB(session), "start to reInitSession for client : {}", person.getName());
+        Object user_role = session.getAttribute(CC.user_role);
         if (session.getAttribute(CC.CLIENT) != null) {
             cleanSessionAttributes(session);
         }
@@ -961,6 +962,7 @@ public class TaoUtil {
             }
         }
         session.setAttribute(CC.CLIENT, person);
+        session.setAttribute(CC.user_role, user_role);
         TaoDebug.setDebugFlag(session, (String) session.getAttribute(CC.debugFlag), person);
         // Why do we want to set the session to be never time out??? session.setMaxInactiveInterval(-1);
     }

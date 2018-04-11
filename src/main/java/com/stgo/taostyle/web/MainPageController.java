@@ -1223,18 +1223,23 @@ public class MainPageController extends BaseController {
         // check if the mediaUpload exists
         MediaUpload mediaUpload = null;
         mediaUpload = MediaUpload.findMediaByKeyAndPerson(filepath, person);
-
         if (mediaUpload == null) {
             mediaUpload = new MediaUpload();
             mediaUpload.setFilepath(filepath);
             mediaUpload.setPerson(person);
             mediaUpload.setContent(content);
+            mediaUpload.setFilesize(content.length);
             mediaUpload.setSubmitDate(new Date());
+            UserAccount userAccount =
+                        UserAccount.findUserAccountByName("system*" + person.getId());
+            if(userAccount != null)
+                mediaUpload.setAudient(userAccount);
             mediaUpload.persist();
         } else {
             if (date != null && mediaUpload.getSubmitDate().before(date)) { // updating
                 mediaUpload.setContent(content);
                 mediaUpload.setSubmitDate(date);
+                mediaUpload.setFilesize(content.length);
                 mediaUpload.persist();
             } else { // downloading
                 String contentFR = null;
