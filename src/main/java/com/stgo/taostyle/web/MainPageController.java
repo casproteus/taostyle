@@ -1015,82 +1015,8 @@ public class MainPageController extends BaseController {
         // return index(model, request);
         return buildPageForMenu(model, request, response, null);
     }
-
-    // ===================for JustPrint Client================
-    @RequestMapping(value = "/activeJustPrintAccount", method = RequestMethod.POST, headers = "Accept=application/json")
-    public ResponseEntity<String> activeJustPrintAccount(
-            @RequestBody String content) {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-
-        Person person = makeSurePersonExist("JustPrint");
-        Customize customize = makeSureSNexist(person);// Customize.findCustomizeByKeyAndPerson(SN, person);
-        String snsValue = customize.getCusValue();
-        String[] SNs = StringUtils.split(snsValue, ',');
-
-        String contentFR = "0";
-        // add the new remark base on content in param: {"username":"asdfas,StoreName"}
-        if (content != null && content.length() > 0) {
-            int p = content.indexOf("\"username\"");
-            if (p > -1) {
-                int startP = p + 12;
-                p = content.indexOf("}");
-                if (p > -1) {
-                    int endP = p - 1;
-                    content = content.substring(startP, endP); // get out "asdfas,StoreName"
-                    p = content.indexOf(',');
-                    if (p > -1) {
-                        String snStr = content.substring(0, p); // get out sn
-                        String storeName = content.substring(p + 1); // get out stre name
-
-                        UserAccount userAccount = getAnUserAnyway(person, storeName); // get out the userAccout of
-                                                                                      // person JustPrint
-                        String snInAccount = userAccount.getCel();// SN
-                        if (snInAccount == null) {
-                            for (String sn : SNs) {
-                                if (sn.equals(snStr)) {
-                                    contentFR = userAccount.getTel(); // left time
-                                    userAccount.setCel(sn); // activate code
-                                    userAccount.setFax(String.valueOf(new Date().getTime())); // activated time
-                                    userAccount.persist();
-                                    break;
-                                }
-                            }
-                        } else if (snInAccount.equals(snStr)) {
-                            contentFR = userAccount.getTel(); // left time
-                            userAccount.setFax(String.valueOf(new Date().getTime())); // activate time
-                            userAccount.persist();
-                        }
-                    }
-                }
-
-            }
-        }
-
-        if (contentFR == null) {
-            contentFR = "34560000000";// 400days=400*1000*3600*24=34,560,000,000
-        }
-        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
-    }
-
-    private UserAccount getAnUserAnyway(
-            Person person,
-            String name) {
-        name = name + "*" + person.getId();
-        UserAccount userAccount = UserAccount.findUserAccountByName(name);
-        if (userAccount == null) {
-            userAccount = new UserAccount();
-            userAccount.setPerson(person);
-            userAccount.setLoginname(name);
-            userAccount.setPassword("Byiz2GrdTDE=");
-            userAccount.setTel(null); // Time left
-            userAccount.setFax(null); // registered time.
-            userAccount.setCel(null); // SN
-        }
-        return userAccount;
-    }
-
+    
+    //for under security frame work apps, including simonstyle
     /**
      * 
      * @param request
@@ -1179,6 +1105,81 @@ public class MainPageController extends BaseController {
         return label.contains(ALARM);
     }
 
+    // ===================for JustPrint Client================
+    @RequestMapping(value = "/activeJustPrintAccount", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> activeJustPrintAccount(
+            @RequestBody String content) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+
+        Person person = makeSurePersonExist("JustPrint");
+        Customize customize = makeSureSNexist(person);// Customize.findCustomizeByKeyAndPerson(SN, person);
+        String snsValue = customize.getCusValue();
+        String[] SNs = StringUtils.split(snsValue, ',');
+
+        String contentFR = "0";
+        // add the new remark base on content in param: {"username":"asdfas,StoreName"}
+        if (content != null && content.length() > 0) {
+            int p = content.indexOf("\"username\"");
+            if (p > -1) {
+                int startP = p + 12;
+                p = content.indexOf("}");
+                if (p > -1) {
+                    int endP = p - 1;
+                    content = content.substring(startP, endP); // get out "asdfas,StoreName"
+                    p = content.indexOf(',');
+                    if (p > -1) {
+                        String snStr = content.substring(0, p); // get out sn
+                        String storeName = content.substring(p + 1); // get out stre name
+
+                        UserAccount userAccount = getAnUserAnyway(person, storeName); // get out the userAccout of
+                                                                                      // person JustPrint
+                        String snInAccount = userAccount.getCel();// SN
+                        if (snInAccount == null) {
+                            for (String sn : SNs) {
+                                if (sn.equals(snStr)) {
+                                    contentFR = userAccount.getTel(); // left time
+                                    userAccount.setCel(sn); // activate code
+                                    userAccount.setFax(String.valueOf(new Date().getTime())); // activated time
+                                    userAccount.persist();
+                                    break;
+                                }
+                            }
+                        } else if (snInAccount.equals(snStr)) {
+                            contentFR = userAccount.getTel(); // left time
+                            userAccount.setFax(String.valueOf(new Date().getTime())); // activate time
+                            userAccount.persist();
+                        }
+                    }
+                }
+
+            }
+        }
+
+        if (contentFR == null) {
+            contentFR = "34560000000";// 400days=400*1000*3600*24=34,560,000,000
+        }
+        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+    }
+
+    private UserAccount getAnUserAnyway(
+            Person person,
+            String name) {
+        name = name + "*" + person.getId();
+        UserAccount userAccount = UserAccount.findUserAccountByName(name);
+        if (userAccount == null) {
+            userAccount = new UserAccount();
+            userAccount.setPerson(person);
+            userAccount.setLoginname(name);
+            userAccount.setPassword("Byiz2GrdTDE=");
+            userAccount.setTel(null); // Time left
+            userAccount.setFax(null); // registered time.
+            userAccount.setCel(null); // SN
+        }
+        return userAccount;
+    }
+
     @RequestMapping(value = "/syncJustPrintDb", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<String> syncJustPrintDb(
             HttpServletRequest request,
@@ -1237,6 +1238,25 @@ public class MainPageController extends BaseController {
             mediaUpload.persist();
         } else {
             if (date != null && mediaUpload.getSubmitDate().before(date)) { // updating
+            	//add a check, incase it's replaced by mistake: if existing backup is very small or the new committed content must be 
+            	//big enough.
+            	if(content.length < 100000 &&  mediaUpload.getFilesize() > 120000 ) {
+            		TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "JustPrint Sync Alarm!", "tao.mtl@hotmail.com", mediaUpload.toJson(),
+                            null);
+            		
+            		mediaUpload = new MediaUpload();
+                    mediaUpload.setFilepath(filepath);
+                    mediaUpload.setPerson(person);
+                    mediaUpload.setContent(content);
+                    mediaUpload.setFilesize(content.length);
+                    mediaUpload.setSubmitDate(new Date());
+                    UserAccount userAccount = UserAccount.findUserAccountByName("system*for_demo");
+                    if(userAccount != null)
+                        mediaUpload.setAudient(userAccount);
+                    mediaUpload.persist();
+                    
+            		return new ResponseEntity<String>("", headers, HttpStatus.LENGTH_REQUIRED);
+            	}
                 mediaUpload.setContent(content);
                 mediaUpload.setSubmitDate(date);
                 mediaUpload.setFilesize(content.length);
@@ -1280,7 +1300,8 @@ public class MainPageController extends BaseController {
         }
         return person;
     }
-
+//---------------
+    
     private Customize makeSureSNexist(
             Person person) {
         Customize customize = Customize.findCustomizeByKeyAndPerson("SNs", person);
