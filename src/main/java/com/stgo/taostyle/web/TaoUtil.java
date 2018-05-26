@@ -836,7 +836,7 @@ public class TaoUtil {
             tLanguage = "en_"; // in case that no language has been selected.
 
         if (!tLanguage.trim().endsWith("_"))
-            tLanguage = tLanguage.trim() + "_"; // in case that "en" has been inputted as parameter.
+            tLanguage = tLanguage.trim() + "_"; // in case that "en" has been input as parameter.
 
         // set the name_display of the products, so it can display a language relevant name.
         for (int i = pMultLanItems.size() - 1; i >= 0; i--) {

@@ -1913,7 +1913,7 @@ public class MainPageController extends BaseController {
 
         if (tNoNumException != null) {
             uiModel.addAttribute("Update_ErrorMessage", tNoNumException
-                    + " was inputted with character, while only number allowed. Please input right number.");
+                    + " was input with character, while only number allowed. Please input right number.");
             uiModel.addAttribute("product", tProduct);
             return "products/update";
         }
