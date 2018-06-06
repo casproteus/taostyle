@@ -1050,7 +1050,7 @@ public class MainPageController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=UTF-8");
 
-        // make sure JustPrint user exist.
+        // make sure Security user exist.
         Person person = makeSurePersonExist(personName);
 
         // get the submitDate ready for use
