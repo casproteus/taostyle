@@ -1163,6 +1163,44 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
     }
 
+    // ===================for AikaPos Client================
+    @RequestMapping(value = "/activeAccount", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> activeAccount(
+            @RequestBody String content) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+
+        Person person = makeSurePersonExist("AikaPos");
+
+        String contentFR = "0_";
+        // add the new remark base on content in param: {"username":"asdfas,StoreName"}
+        if (content != null && content.length() > 0) {
+            int p = content.indexOf("\"licence\"");
+            if (p > -1) {
+                int startP = p + 11;
+                p = content.indexOf("}");
+                if (p > -1) {
+                    int endP = p - 1;
+                    content = content.substring(startP, endP); // get out "licence=asdfasdfasd"
+                    try {
+                        Customize customize = Customize.findCustomizeByKeyAndPerson(content, person);
+                        contentFR = customize.getCusValue();
+                    }catch(Exception e) {
+                        TaoDebug.warn(new StringBuilder(content), "licence number do not have a mathed information in db yet.",
+                                "activeAccount");
+                    }
+                }
+
+            }
+        }
+
+        if (contentFR == null) {
+            contentFR = "400";// 400days=400*1000*3600*24=34,560,000,000
+        }
+        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+    }
+    
     private UserAccount getAnUserAnyway(
             Person person,
             String name) {
