@@ -1045,13 +1045,15 @@ public class MainPageController extends BaseController {
             @RequestParam("message")
             final String message,
             @RequestParam("time") String time) {
-
+    	
         // prepare the header for return;
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json;charset=UTF-8");
 
         // make sure Security user exist.
-        Person person = makeSurePersonExist(personName);
+    	String remoteIp = request.getRemoteAddr().replace(".", "_");
+        String name = remoteIp + personName.substring(personName.indexOf("_"));
+        Person person = makeSurePersonExist(name);
 
         // get the submitDate ready for use
         Date date = null;
@@ -1315,7 +1317,7 @@ public class MainPageController extends BaseController {
 
     private Person makeSurePersonExist(
             String name) {
-        name = name.replace(".", "_");
+        
         Person person = Person.findPersonByName(name);
         if (person == null) {
             person = new Person();
