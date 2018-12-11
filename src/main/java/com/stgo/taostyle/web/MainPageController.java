@@ -979,8 +979,9 @@ public class MainPageController extends BaseController {
                 response.getOutputStream().flush();
 
             } else {
-                byte[] imageBytes = filePath.startsWith("menu_") ? TaoUtil.EMPTY_LINE : TaoUtil.EMPTY_POINT;
-                response.getOutputStream().write(imageBytes);
+                //byte[] imageBytes = filePath.startsWith("menu_") ? TaoUtil.EMPTY_LINE : TaoUtil.EMPTY_POINT;
+            	byte[] imageBytes = TaoUtil.EMPTY_LINE;
+            	response.getOutputStream().write(imageBytes);
                 response.getOutputStream().flush();
 
                 // String pathToWeb = request.getServletPath();
@@ -1052,8 +1053,9 @@ public class MainPageController extends BaseController {
 
         // make sure Security user exist.
     	String remoteIp = request.getRemoteAddr().replace(".", "_");
-        String name = remoteIp + personName.substring(personName.indexOf("_"));
-        Person person = makeSurePersonExist(name);
+        String name = //remoteIp + 
+        		personName.substring(personName.indexOf("_") + 1);
+        Person person = makeSurePersonExist(name, remoteIp);
 
         // get the submitDate ready for use
         Date date = null;
@@ -1069,12 +1071,15 @@ public class MainPageController extends BaseController {
                 date = new Date(Long.valueOf(version));
                 if (needToSendEmail(label)) {
                     try {
+                    	String password = person.getPassword();
+                    	if(password.split("_").length != 4) { //currently we use ip as password, so do not send out alarm email for now.
                         // we use the email as the account's password.
-                        String managerEmail = TaoEncrypt.decrypt(person.getPassword(), "dmfsJiaJdwz=", 1);
-                        if (managerEmail != null && managerEmail.contains("@") && managerEmail.contains(".")) {
-                            TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail, message,
-                                    null);
-                        }
+	                        String managerEmail = TaoEncrypt.decrypt(password, "dmfsJiaJdwz=", 1);
+	                        if (managerEmail != null && managerEmail.contains("@") && managerEmail.contains(".")) {
+	                            TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "Security Alarm!", managerEmail, message,
+	                                    null);
+	                        }
+                    	}
                     } catch (Exception eee) {
                         System.out.println("Exception when sending email for client :" + personName);
                     }
@@ -1115,7 +1120,7 @@ public class MainPageController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
 
-        Person person = makeSurePersonExist("JustPrint");
+        Person person = makeSurePersonExist("JustPrint", "asdf");
         Customize customize = makeSureSNexist(person);// Customize.findCustomizeByKeyAndPerson(SN, person);
         String snsValue = customize.getCusValue();
         String[] SNs = StringUtils.split(snsValue, ',');
@@ -1173,7 +1178,7 @@ public class MainPageController extends BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
 
-        Person person = makeSurePersonExist("AikaPos");
+        Person person = makeSurePersonExist("AikaPos", "asdf");
 
         String contentFR = "0_";
         // add the new remark base on content in param: {"username":"asdfas,StoreName"}
@@ -1259,7 +1264,7 @@ public class MainPageController extends BaseController {
         }
 
         // make sure JustPrint user exist.
-        Person person = makeSurePersonExist("JustPrint");
+        Person person = makeSurePersonExist("JustPrint", "asdf");
 
         // check if the mediaUpload exists
         MediaUpload mediaUpload = null;
@@ -1316,13 +1321,13 @@ public class MainPageController extends BaseController {
     }
 
     private Person makeSurePersonExist(
-            String name) {
+            String name, String ip) {
         
         Person person = Person.findPersonByName(name);
         if (person == null) {
             person = new Person();
             person.setName(name);
-            person.setPassword(TaoEncrypt.encryptPassword("asdf"));
+            person.setPassword(ip);
             person.persist();
 
             UserAccount userAccount = new UserAccount();
@@ -1337,6 +1342,8 @@ public class MainPageController extends BaseController {
             customize.setCusKey("app_ContentManager");
             customize.setCusValue("system");
             customize.persist();
+            
+            generateTextContent("en_menu_1", "ABOUT " + person.getName().toUpperCase(), person);
         }
         return person;
     }
@@ -2307,7 +2314,7 @@ public class MainPageController extends BaseController {
         String newItemStr = imageKey.startsWith("service_") ? imageKey.substring(8) + "," : imageKey + ",";
 
         Service service = Service.findServiceByCatalogAndPerson(imageKey, person);
-        float price = (float) Math.round(Float.valueOf(service.getDescription()) * 100) / 100;
+        float price = service.getDescription() == null ? 0.0f : (float) Math.round(Float.valueOf(service.getDescription()) * 100) / 100;
 
         // prepare the times and isAdd flag.
         int times = 0;
