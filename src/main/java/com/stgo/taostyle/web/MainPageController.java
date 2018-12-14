@@ -1289,11 +1289,10 @@ public class MainPageController extends BaseController {
                         Customize customize = Customize.findCustomizeByKeyAndPerson(content, person);
                         contentFR = customize.getCusValue();
                     }catch(Exception e) {
-                        TaoDebug.warn(new StringBuilder(content), "licence number do not have a mathed information in db yet.",
+                        TaoDebug.warn(new StringBuilder(content), "licence number do not have a matched information in db yet.",
                                 "activeAccount");
                     }
                 }
-
             }
         }
 
@@ -1302,7 +1301,122 @@ public class MainPageController extends BaseController {
         }
         return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
     }
+
+    //content in accountInfo must be: <username>:<asdfas>
+    @RequestMapping(value = "/requestNewOrders", method = RequestMethod.GET, headers = "Accept=application/json")
+    public ResponseEntity<String> requestNewOrders(@RequestBody String accountInfo) {
+
+        Person person = TaoDbUtil.verifyAccountInfo(accountInfo);
+        if(person == null) {
+        	return null;
+        }
+        
+        // header
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+        
+        //prepare the json String.
+        Collection<String> collection = new ArrayList<String>();
+
+        // mainOrder
+        List<MainOrder> mainOrders = MainOrder.findMainOrdersByStatusAndPerson(0, person, "DESC");
+        if (mainOrders == null)
+            mainOrders = new ArrayList<MainOrder>();
+        String tMainOrdersJsonAryStr = new JSONSerializer().exclude("*.class").serialize(mainOrders);
+        collection.add(tMainOrdersJsonAryStr);
+
+        // material
+        // taxonomyMaterial
+        List<Material> materials = new ArrayList<Material>();
+        List<TaxonomyMaterial> taxonomyMaterials = new ArrayList<TaxonomyMaterial>();
+        for (MainOrder mainOrder : mainOrders) {
+            List<Material> tMaterials = Material.findAllMaterialsByMainOrder(mainOrder);
+            List<TaxonomyMaterial> tTaxonomyMaterials = TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(mainOrder);
+            if (tMaterials != null) {
+                for (Material material : tMaterials) {
+                    materials.add(material);
+                }
+            }
+            if (tTaxonomyMaterials != null) {
+                for (TaxonomyMaterial taxonomyMaterial : tTaxonomyMaterials) {
+                    taxonomyMaterials.add(taxonomyMaterial);
+                }
+            }
+        }
+        String tMaterialsJsonAryStr = new JSONSerializer().exclude("*.class").serialize(materials);
+        collection.add(tMaterialsJsonAryStr);
+        String tTaxonomyMaterialsJsonAryStr = new JSONSerializer().exclude("*.class").serialize(taxonomyMaterials);
+        collection.add(tTaxonomyMaterialsJsonAryStr);
+
+        // return
+        String jsonStr = new JSONSerializer().exclude("*.class").serialize(collection);
+        return new ResponseEntity<String>(jsonStr, headers, HttpStatus.OK);
+    }
     
+    @RequestMapping(value = "/synchronizeFromServer", method = RequestMethod.GET, headers = "Accept=application/json")
+    public ResponseEntity<String> synchronizeFromServer(@RequestBody String accountInfo) {
+
+        Person person = TaoDbUtil.verifyAccountInfo(accountInfo);
+        if(person == null) {
+        	return null;
+        }
+        
+        // header
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+        
+        //prepare the json String.
+        Collection<String> collection = new ArrayList<String>();
+
+        // useraccounts
+        List<UserAccount> userAccounts = UserAccount.findAllUserAccountsByPerson(person);
+        if (userAccounts == null)
+            userAccounts = new ArrayList<UserAccount>();
+        String tUserAccountJsonAryStr = UserAccount.toJsonArray(userAccounts);
+        collection.add(tUserAccountJsonAryStr);
+
+        // service
+        List<Service> services = Service.findServiceByPerson(person);
+        if (services == null)
+            services = new ArrayList<Service>();
+        String tServicesJsonAryStr = Service.toJsonArray(services);
+        collection.add(tServicesJsonAryStr);
+
+        // textContent
+        List<TextContent> textContents = TextContent.findAllMatchedTextContents("%", null, person);
+        if (textContents == null)
+            textContents = new ArrayList<TextContent>();
+        String tTextContentJsonAryStr = TextContent.toJsonArray(textContents);
+        collection.add(tTextContentJsonAryStr);
+
+        // return
+        String jsonStr = new JSONSerializer().exclude("*.class").serialize(collection);
+        return new ResponseEntity<String>(jsonStr, headers, HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/updateMainOrderStatus/{mainOrdeID}/{status}", method = RequestMethod.GET, headers = "Accept=application/json")
+    public ResponseEntity<String> updateMainOrderStatus(
+            @PathVariable("mainOrdeID") Long mainOrdeID,
+            @PathVariable("status") int status,//could be 20--printed, 50--served, -1--paid
+            @RequestBody String accountInfo) {
+        Person person = TaoDbUtil.verifyAccountInfo(accountInfo);
+        if(person == null) {
+        	return null;
+        }
+        // verify pass!---------------------
+        
+        // header
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+        
+        MainOrder mainOrder = MainOrder.findMainOrder(mainOrdeID);
+        mainOrder.setRecordStatus(status);
+        mainOrder.persist();
+        
+        // return
+        return new ResponseEntity<String>(headers, HttpStatus.OK);
+    }
+	
     private UserAccount getAnUserAnyway(
             Person person,
             String name) {
@@ -1320,14 +1434,13 @@ public class MainPageController extends BaseController {
         return userAccount;
     }
 
-    private Person makeSurePersonExist(
-            String name, String ip) {
+    private Person makeSurePersonExist(String name, String password) {
         
         Person person = Person.findPersonByName(name);
         if (person == null) {
             person = new Person();
             person.setName(name);
-            person.setPassword(ip);
+            person.setPassword(password);
             person.persist();
 
             UserAccount userAccount = new UserAccount();
@@ -3266,25 +3379,15 @@ public class MainPageController extends BaseController {
     public ResponseEntity<String> personDBBKout(
             @PathVariable("accountInfo") String accountInfo,
             HttpServletRequest request) {
-        int pos = accountInfo.indexOf(":");
-        if (pos < 1)
-            return null;
-
-        String personName = accountInfo.substring(0, pos);
-        Person person = Person.findPersonByName(personName);
-        if (person == null)
-            return null;
-
-        String password = TaoEncrypt.stripURLFriendlyPassword(accountInfo.substring(pos + 1));
-
-        if (!person.getPassword().equals(password)) // directly compare with the encrypt password.
-            return null;
-
+        Person person = TaoDbUtil.verifyAccountInfo(accountInfo);
+        if(person == null)
+        	return null;
+        // verify passed! ------------------------
         // header
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/json; charset=utf-8");
 
-        // verify pass! prepare the json String.
+        //prepare the json String.
         Collection<String> collection = new ArrayList<String>();
 
         // useraccounts

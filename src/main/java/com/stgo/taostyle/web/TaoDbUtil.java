@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import com.stgo.taostyle.backend.security.TaoEncrypt;
 import com.stgo.taostyle.domain.Customize;
 import com.stgo.taostyle.domain.Feature;
 import com.stgo.taostyle.domain.MediaUpload;
@@ -376,4 +377,20 @@ public class TaoDbUtil {
         return urlConnection;
     }
 
+	public static Person verifyAccountInfo(String accountInfo) {
+		int pos = accountInfo.indexOf(":");
+        if (pos < 1)
+            return null;
+
+        String personName = accountInfo.substring(0, pos);
+        Person person = Person.findPersonByName(personName);
+        if (person == null)
+            return null;
+
+        String password = TaoEncrypt.stripURLFriendlyPassword(accountInfo.substring(pos + 1));
+        if (!person.getPassword().equals(password)) // directly compare with the encrypt password.
+            return null;
+        
+		return person;
+	}
 }
