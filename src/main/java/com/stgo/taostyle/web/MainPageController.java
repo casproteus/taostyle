@@ -651,8 +651,8 @@ public class MainPageController extends BaseController {
             model.addAttribute("contactPhone", mainOrder.getSampleRequirement());
             model.addAttribute("address", mainOrder.getClientSideModelNumber());
             String total = mainOrder.getPayCondition();
-            model.addAttribute("total", total);
-            float totalPrice = Float.valueOf(total.substring(1)).floatValue();
+            model.addAttribute("total", total == null ? "$0" : total);
+            float totalPrice = Float.valueOf(total == null ? "0" : total.substring(1)).floatValue();
             String taxRate = (String) request.getSession().getAttribute("tax_rate");
             float taxValue = 0.00f;
             try {
@@ -1170,61 +1170,6 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
     }
 
-    // ===================for AikaPos Client================
-    @RequestMapping(value = "/activeAccount", method = RequestMethod.POST, headers = "Accept=application/json")
-    public ResponseEntity<String> activeAccount(
-            @RequestBody String content) {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=utf-8");
-
-        Person person = makeSurePersonExist("AikaPos", "asdf");
-
-        String contentFR = "0_";
-        // add the new remark base on content in param: {"username":"asdfas,StoreName"}
-        if (content != null && content.length() > 0) {
-            int p = content.indexOf("\"licence\"");
-            if (p > -1) {
-                int startP = p + 11;
-                p = content.indexOf("}");
-                if (p > -1) {
-                    int endP = p - 1;
-                    content = content.substring(startP, endP); // get out "licence=asdfasdfasd"
-                    try {
-                        Customize customize = Customize.findCustomizeByKeyAndPerson(content, person);
-                        contentFR = customize.getCusValue();
-                    }catch(Exception e) {
-                        TaoDebug.warn(new StringBuilder(content), "licence number do not have a mathed information in db yet.",
-                                "activeAccount");
-                    }
-                }
-
-            }
-        }
-
-        if (contentFR == null) {
-            contentFR = "400";// 400days=400*1000*3600*24=34,560,000,000
-        }
-        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
-    }
-    
-    private UserAccount getAnUserAnyway(
-            Person person,
-            String name) {
-        name = name + "*" + person.getId();
-        UserAccount userAccount = UserAccount.findUserAccountByName(name);
-        if (userAccount == null) {
-            userAccount = new UserAccount();
-            userAccount.setPerson(person);
-            userAccount.setLoginname(name);
-            userAccount.setPassword("Byiz2GrdTDE=");
-            userAccount.setTel(null); // Time left
-            userAccount.setFax(null); // registered time.
-            userAccount.setCel(null); // SN
-        }
-        return userAccount;
-    }
-
     @RequestMapping(value = "/syncJustPrintDb", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<String> syncJustPrintDb(
             HttpServletRequest request,
@@ -1320,6 +1265,61 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>("", headers, HttpStatus.OK);
     }
 
+    // ===================for AikaPos Client================
+    @RequestMapping(value = "/activeAccount", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> activeAccount(
+            @RequestBody String content) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=utf-8");
+
+        Person person = makeSurePersonExist("AikaPos", "asdf");
+
+        String contentFR = "0_";
+        // add the new remark base on content in param: {"username":"asdfas,StoreName"}
+        if (content != null && content.length() > 0) {
+            int p = content.indexOf("\"licence\"");
+            if (p > -1) {
+                int startP = p + 11;
+                p = content.indexOf("}");
+                if (p > -1) {
+                    int endP = p - 1;
+                    content = content.substring(startP, endP); // get out "licence=asdfasdfasd"
+                    try {
+                        Customize customize = Customize.findCustomizeByKeyAndPerson(content, person);
+                        contentFR = customize.getCusValue();
+                    }catch(Exception e) {
+                        TaoDebug.warn(new StringBuilder(content), "licence number do not have a mathed information in db yet.",
+                                "activeAccount");
+                    }
+                }
+
+            }
+        }
+
+        if (contentFR == null) {
+            contentFR = "400";// 400days=400*1000*3600*24=34,560,000,000
+        }
+        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+    }
+    
+    private UserAccount getAnUserAnyway(
+            Person person,
+            String name) {
+        name = name + "*" + person.getId();
+        UserAccount userAccount = UserAccount.findUserAccountByName(name);
+        if (userAccount == null) {
+            userAccount = new UserAccount();
+            userAccount.setPerson(person);
+            userAccount.setLoginname(name);
+            userAccount.setPassword("Byiz2GrdTDE=");
+            userAccount.setTel(null); // Time left
+            userAccount.setFax(null); // registered time.
+            userAccount.setCel(null); // SN
+        }
+        return userAccount;
+    }
+
     private Person makeSurePersonExist(
             String name, String ip) {
         
@@ -1347,6 +1347,7 @@ public class MainPageController extends BaseController {
         }
         return person;
     }
+
 //---------------
     
     private Customize makeSureSNexist(
@@ -3408,7 +3409,7 @@ public class MainPageController extends BaseController {
             // taxonomymaterial, textcontents.
             commandStr = commandStr.endsWith(".com/") ? commandStr
                     : (commandStr.endsWith(".com") ? commandStr + "/" : commandStr + ".com/");
-            commandStr = commandStr.endsWith("localhost.com/") ? "bkDB:localhost/taostyle/" : commandStr;
+            commandStr = commandStr.endsWith("localhost:91.com/") ? "bkDB:localhost:91/taostyle/" : commandStr;
             String url = new StringBuilder("http://").append(commandStr.substring(5)).append("persondbbk/")
                     .append(person.getName()).append(":")
                     .append(TaoEncrypt.getURLFriendlyPassword(person.getPassword())).toString();

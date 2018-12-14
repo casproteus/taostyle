@@ -1178,7 +1178,8 @@ public class TaoUtil {
         if (StringUtils.isBlank(description)) {
             return "";
         }
-        String html = description.substring(0, description.indexOf(moneyLetter));
+        int p = description.indexOf(moneyLetter);
+        String html = p > 0 ? description.substring(0, p) : description;
         return trimContentFromHTML(html);
     }
 
@@ -1188,7 +1189,8 @@ public class TaoUtil {
         if (StringUtils.isBlank(description)) {
             return "";
         }
-        String html = description.substring(description.lastIndexOf(moneyLetter) + 1);
+        int p = description.lastIndexOf(moneyLetter);
+        String html = p > 0 ? description.substring(p + 1) : "0";
         return trimContentFromHTML(html);
     }
 

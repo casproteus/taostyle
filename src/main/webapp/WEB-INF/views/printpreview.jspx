@@ -82,7 +82,7 @@
 		<c:if test="${pageContext['request'].userPrincipal != null and (not empty materials)}">
 			<div id="plainTextForReceip" class="${span}" align="left" style="margin-left:${leftmargin}">
 				<p align="center"> ${targetTime}  ( ${sizeTable}${contactPhone} ) </p>
-				<div id="deshesArea">
+				<div id="dishesArea">
 					<c:forEach var="i" begin="1" end="${fn:length(materials)}" step="1">
 						<div id="dish_${i}">
 							<p>${i}) ${materials[i-1]['portionName']}</p>
@@ -108,7 +108,7 @@
 		    		if(item == null){
 		    			return;
 		    		}
-		    		document.getElementById("deshesArea").innerHTML = item.innerHTML;
+		    		document.getElementById("dishesArea").innerHTML = item.innerHTML;
 			     	window.print();
 			     	
 			     	setTimeout("printByEach('" + printContents + "','" + elementId + "',"+ (i+1)+")", ${5 * 1000});
