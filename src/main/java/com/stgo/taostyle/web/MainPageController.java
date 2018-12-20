@@ -1416,14 +1416,18 @@ public class MainPageController extends BaseController {
         String jsonStr = new JSONSerializer().exclude("*.class").serialize(collection);
         return new ResponseEntity<String>(jsonStr, headers, HttpStatus.OK);
     }
-    
-    @RequestMapping(value = "/updateMainOrderStatus/{mainOrdeID}/{status}", method = RequestMethod.POST, headers = "Accept=application/json")
+
+    @RequestMapping(value = "/{storeName}/updateMainOrderStatus/{mainOrdeID}/{status}", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<String> updateMainOrderStatus(
+    		@PathVariable("storeName") String storeName,
             @PathVariable("mainOrdeID") Long mainOrdeID,
             @PathVariable("status") int status,//could be 20--printed, 50--served, -1--paid
             @RequestBody String accountInfo) {
-        Person person = TaoDbUtil.verifyAccountInfo(accountInfo);
-        if(person == null) {
+    	
+    	Person person = makeSurePersonExist("AikaPos", "asdf");
+    	String headInfo = "";
+    	headInfo = getHeadInfoString(accountInfo, person, headInfo);
+        if(!headInfo.contains(storeName)) {
         	return null;
         }
         // verify pass!---------------------
