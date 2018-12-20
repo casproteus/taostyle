@@ -1276,7 +1276,16 @@ public class MainPageController extends BaseController {
         Person person = makeSurePersonExist("AikaPos", "asdf");
 
         String contentFR = "0_";
-        // add the new remark base on content in param: {"username":"asdfas,StoreName"}
+        contentFR = getHeadInfoString(content, person, contentFR);
+
+        if (contentFR == null) {
+            contentFR = "400";// 400days=400*1000*3600*24=34,560,000,000
+        }
+        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+    }
+
+	private String getHeadInfoString(String content, Person person, String contentFR) {
+		// add the new remark base on content in param: {"username":"asdfas,StoreName"}
         if (content != null && content.length() > 0) {
             int p = content.indexOf("\"licence\"");
             if (p > -1) {
@@ -1295,19 +1304,19 @@ public class MainPageController extends BaseController {
                 }
             }
         }
-
-        if (contentFR == null) {
-            contentFR = "400";// 400days=400*1000*3600*24=34,560,000,000
-        }
-        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
-    }
+		return contentFR;
+	}
 
     //content in accountInfo must be: <username>:<asdfas>
-    @RequestMapping(value = "/requestNewOrders", method = RequestMethod.GET, headers = "Accept=application/json")
-    public ResponseEntity<String> requestNewOrders(@RequestBody String accountInfo) {
+    @RequestMapping(value = "/{storeName}/requestNewOrders", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> requestNewOrders(
+    		@PathVariable("storeName") String storeName,
+    		@RequestBody String accountInfo) {
 
-        Person person = TaoDbUtil.verifyAccountInfo(accountInfo);
-        if(person == null) {
+        Person person = makeSurePersonExist("AikaPos", "asdf");
+    	String headInfo = "";
+    	headInfo = getHeadInfoString(accountInfo, person, headInfo);
+        if(!headInfo.contains(storeName)) {
         	return null;
         }
         
@@ -1319,41 +1328,55 @@ public class MainPageController extends BaseController {
         Collection<String> collection = new ArrayList<String>();
 
         // mainOrder
-        List<MainOrder> mainOrders = MainOrder.findMainOrdersByStatusAndPerson(0, person, "DESC");
+        List<MainOrder> mainOrders = MainOrder.findMainOrdersByStatusAndPerson(5, Person.findPersonByName(storeName), "DESC");
         if (mainOrders == null)
             mainOrders = new ArrayList<MainOrder>();
         String tMainOrdersJsonAryStr = new JSONSerializer().exclude("*.class").serialize(mainOrders);
         collection.add(tMainOrdersJsonAryStr);
 
-        // material
-        // taxonomyMaterial
+        // Material
         List<Material> materials = new ArrayList<Material>();
-        List<TaxonomyMaterial> taxonomyMaterials = new ArrayList<TaxonomyMaterial>();
         for (MainOrder mainOrder : mainOrders) {
             List<Material> tMaterials = Material.findAllMaterialsByMainOrder(mainOrder);
-            List<TaxonomyMaterial> tTaxonomyMaterials = TaxonomyMaterial.findAllTaxonomyMaterialsByMainOrder(mainOrder);
             if (tMaterials != null) {
                 for (Material material : tMaterials) {
                     materials.add(material);
                 }
             }
-            if (tTaxonomyMaterials != null) {
-                for (TaxonomyMaterial taxonomyMaterial : tTaxonomyMaterials) {
-                    taxonomyMaterials.add(taxonomyMaterial);
-                }
-            }
         }
         String tMaterialsJsonAryStr = new JSONSerializer().exclude("*.class").serialize(materials);
         collection.add(tMaterialsJsonAryStr);
-        String tTaxonomyMaterialsJsonAryStr = new JSONSerializer().exclude("*.class").serialize(taxonomyMaterials);
-        collection.add(tTaxonomyMaterialsJsonAryStr);
+
+        // TextContent in case in the web, the service has changed name, then pos should also change name.
+        List<TextContent> menuTextContents = new ArrayList<TextContent>();
+        List<TextContent> serviceTextContents = new ArrayList<TextContent>();
+        for (Material material : materials) {
+        	String location = material.getLocation();
+        	String[] nums = location.split("_");
+        	String menyKey = "%_menu_" + nums[0] + "_" + nums[1];
+        	String serviceKey = "%_service_" + location + "_%";
+	        List<TextContent> tMenuTextContents = TextContent.findAllMatchingTextContents(menyKey, material.getMainOrder().getPerson());
+	        if (tMenuTextContents != null) {
+                for (TextContent textContent : tMenuTextContents) {
+                	menuTextContents.add(textContent);
+                }
+            }
+	        List<TextContent> tServiceTextContents = TextContent.findAllMatchingTextContents(serviceKey, material.getMainOrder().getPerson());
+	        if (tServiceTextContents != null) {
+                for (TextContent textContent : tServiceTextContents) {
+                	serviceTextContents.add(textContent);
+                }
+            }
+        }
+        collection.add(new JSONSerializer().exclude("*.class").serialize(menuTextContents));
+        collection.add(new JSONSerializer().exclude("*.class").serialize(serviceTextContents));
 
         // return
         String jsonStr = new JSONSerializer().exclude("*.class").serialize(collection);
         return new ResponseEntity<String>(jsonStr, headers, HttpStatus.OK);
     }
     
-    @RequestMapping(value = "/synchronizeFromServer", method = RequestMethod.GET, headers = "Accept=application/json")
+    @RequestMapping(value = "/synchronizeFromServer", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<String> synchronizeFromServer(@RequestBody String accountInfo) {
 
         Person person = TaoDbUtil.verifyAccountInfo(accountInfo);
@@ -1394,7 +1417,7 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(jsonStr, headers, HttpStatus.OK);
     }
     
-    @RequestMapping(value = "/updateMainOrderStatus/{mainOrdeID}/{status}", method = RequestMethod.GET, headers = "Accept=application/json")
+    @RequestMapping(value = "/updateMainOrderStatus/{mainOrdeID}/{status}", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<String> updateMainOrderStatus(
             @PathVariable("mainOrdeID") Long mainOrdeID,
             @PathVariable("status") int status,//could be 20--printed, 50--served, -1--paid
@@ -2506,8 +2529,7 @@ public class MainPageController extends BaseController {
         return new ResponseEntity<String>(HttpStatus.OK);
     }
 
-    // ===================Operations for
-    // dashboard==========================================================
+    // ===================Operations for dashboard=======================================
 
     @RequestMapping(value = "/showSelection")
     public String showFeaturePage(
