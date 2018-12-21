@@ -60,6 +60,10 @@
 		<put-attribute name="body" value="/WEB-INF/views/contactus.jspx" />
 	</definition>
 
+	<definition name="/tableSelection" extends="default">
+		<put-attribute name="body" value="/WEB-INF/views/tableSelection.jspx" />
+	</definition>
+	
 	<definition name="/generalGalleryPage" extends="content">
 		<put-attribute name="body"
 			value="/WEB-INF/views/generalGalleryPage.jspx" />

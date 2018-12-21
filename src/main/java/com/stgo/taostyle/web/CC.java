@@ -195,4 +195,5 @@ public interface CC {
 
     // -------------------------------
     String tableID = "tableID";
+	String TABLESELECTION = "TABLESELECTION";
 }

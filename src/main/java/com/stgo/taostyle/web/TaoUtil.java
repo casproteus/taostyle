@@ -345,6 +345,13 @@ public class TaoUtil {
                 menuIdx = initLocationPage(request.getSession(), model, langPrf, idx, subIdx, subSubIdx, person);
                 returnPath = "/contactus";
                 break;
+            case CC.TABLESELECTION:
+                TaoDebug.info(TaoDebug.getSB(request.getSession()),
+                        "start to initServiceSubPage for: submenu_{}, for client: {}", subIdx,
+                        request.getSession().getAttribute(CC.CLIENT));
+                menuIdx = initTableSelectionPage(request.getSession(), model, langPrf, idx, subIdx, subSubIdx, person);
+                returnPath = "/tableSelection";
+                break;
             default:
                 TaoDebug.info(TaoDebug.getSB(request.getSession()),
                         "start to initModelUiForMainPage for: SUBmenu:{}, for client: {}", subIdx,
@@ -605,6 +612,30 @@ public class TaoUtil {
         model.addAttribute(CC.MAP_POS_Y, Ys);
 
         return completeMenuIdx;
+    }
+    
+    private static String initTableSelectionPage(
+            HttpSession session,
+            Model model,
+            String langPrf,
+            int pMenuIdx,
+            int pSubMenuIdx,
+            int pSubSubMenuIdx,
+            Person person) {
+        
+        
+        String menuIdx = completeMenuIdx(pMenuIdx, pSubMenuIdx, pSubSubMenuIdx, langPrf, person);
+        String key = "gallery_" + menuIdx;
+
+        TaoUtil.initSubpageContent(model, "tables_" + menuIdx, langPrf, person);
+        // for gallery should always divided by 2, because it always has thumb.
+        long pictureAmount = MediaUpload.countMediaUploadsByKeyAndPerson(key, person) / 2;
+        model.addAttribute("pictureAmount", pictureAmount);
+
+        TaoDebug.info(TaoDebug.getSB(session),
+                "start to initGallerySubPage, key is {}, pictureAmount is {}", key, pictureAmount);
+        return menuIdx;
+        
     }
 
     private static String initModelUiForMainPage(
