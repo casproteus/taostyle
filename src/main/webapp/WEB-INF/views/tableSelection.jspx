@@ -24,7 +24,7 @@
 		margin-left:${leftmargin}; padding-top:30px; padding-bottom:30px; 
    		background:#${background_subpage}; opacity:${subpage_opacity}">
 		<c:forEach var="i" begin="1" end="${pictureAmount}" step="1">
-			<a href="menu_3_1?t=${i}" data-gallery="_">
+			<a href="menu_2_1?t=${i}" data-gallery="_">
 				<img src="getImage/gallery_${menuIdx}_${i}_thum" alt="Image" />
 			</a>
 		</c:forEach>
