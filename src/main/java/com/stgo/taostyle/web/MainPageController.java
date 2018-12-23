@@ -1053,8 +1053,8 @@ public class MainPageController extends BaseController {
 
         // make sure Security user exist.
     	String remoteIp = request.getRemoteAddr().replace(".", "_");
-        String name = //remoteIp + 
-        		personName.substring(personName.indexOf("_") + 1);
+        String name = personName.equals("for_demo") ? personName  //remoteIp + 
+        		: personName.substring(personName.indexOf("_") + 1);
         Person person = makeSurePersonExist(name, remoteIp);
 
         // get the submitDate ready for use
@@ -1090,7 +1090,7 @@ public class MainPageController extends BaseController {
         }
 
         // check if the mediaUpload exists
-        if (mediaUpload != null) {
+        if (mediaUpload != null && mediaUpload.getContent() != null) {
             // if it's backing up images, there's no submit date. only submitted document has submit date.
             if (mediaUpload.getSubmitDate() == null || (date != null && mediaUpload.getSubmitDate().after(date))) { // downloading
                 try {

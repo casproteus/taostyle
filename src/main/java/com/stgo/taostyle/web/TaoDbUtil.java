@@ -317,12 +317,12 @@ public class TaoDbUtil {
                     .append("&time=").append("");//
             byte[] content = reqeustImageContentFromServer(enrichedURL.toString(), label, person.getName(),
                     instance.getContentType());
-
-            instance.setContent(content);
-            instance.setPerson(person);
-            instance.setId(null); // make the Id null, or the recode with that ID will be replaced.
-            instance.persist();
-
+            if(content != null) {
+	            instance.setContent(content);
+	            instance.setPerson(person);
+	            instance.setId(null); // make the Id null, or the recode with that ID will be replaced.
+	            instance.persist();
+            }
         }
         return true;
     }
