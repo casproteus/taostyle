@@ -8,6 +8,7 @@
             <!-- only comment/uncomment between the following tow lines when switching between postgreSQL and MySQL -->
             <!-- property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/-->
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect"/>
+            <!-- DO NOT WORK!!! property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/-->
             
             <!-- value="create" to build a new database on each run; value="update" to modify an existing database; value="create-drop" means the same as "create" but also drops tables when Hibernate closes; value="validate" makes no changes to the database -->
             <property name="hibernate.hbm2ddl.auto" value="update"/>
