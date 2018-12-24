@@ -22,17 +22,25 @@
 			  <c:forEach var="i" begin="0" end="${fn:length(subMenu)}" step="1">
 				<c:if test="${subMenu[i][0] != null and subMenu[i][0] != '' or user_role == '[ROLE_ADMIN]'}">
 					<div class="accordion-group" >
-						<div class="accordion-heading" style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
-							<c:choose>
-								<c:when test="${fn:length(subMenu[i]) > 1 or user_role == '[ROLE_ADMIN]'}">
-									<a href="#accordion-element-${i+1}" onclick="javascript:checkMenu('${topIdx}${i+1}')" class="accordion-toggle" 
-									 data-toggle="collapse" data-parent="#accordionLeftBar">${subMenu[i][0]}</a>
-								</c:when>
-								<c:otherwise>
-									<a href="${topIdx}${i+1}" class="accordion-toggle">${subMenu[i][0]}</a>
-								</c:otherwise>
-							</c:choose>
-						</div>
+						
+						<c:choose>
+							<c:when test="${fn:length(subMenu[i]) > 1 or user_role == '[ROLE_ADMIN]'}">
+								<a href="#accordion-element-${i+1}" onclick="javascript:checkMenu('${topIdx}${i+1}')" class="accordion-toggle" 
+								 data-toggle="collapse" data-parent="#accordionLeftBar">
+								 	<div class="accordion-heading" style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
+										${subMenu[i][0]}
+									</div>
+								</a>
+							</c:when>
+							<c:otherwise>
+								<a href="${topIdx}${i+1}" class="accordion-toggle">
+									<div class="accordion-heading" style="padding-top: ${leftbar_item_padding}px; padding-bottom:${leftbar_item_padding}px; vertical-align: top;">
+										${subMenu[i][0]}
+									</div>
+								</a>
+							</c:otherwise>
+						</c:choose>
+						
 						<div id="accordion-element-${i+1}" class="accordion-body collapse" style="margin-left: 10px">
 							<div class="accordion-inner">
 							  <c:set value="${fn:length(subMenu[i])}" var="subsubMenu_length" />

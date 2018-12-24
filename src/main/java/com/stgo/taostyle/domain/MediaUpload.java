@@ -30,7 +30,7 @@ public class MediaUpload {
 
     @NotNull
     @Size(max = 128)
-    @Column(unique = true)
+    @Column(unique = false)
     private String filepath;
 
     private long filesize;
