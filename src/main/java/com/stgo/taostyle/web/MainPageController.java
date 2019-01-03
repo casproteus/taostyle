@@ -1329,7 +1329,7 @@ public class MainPageController extends BaseController {
         Collection<String> collection = new ArrayList<String>();
 
         // mainOrder
-        List<MainOrder> mainOrders = MainOrder.findMainOrdersByStatusAndPerson(5, Person.findPersonByName(storeName), "DESC");
+        List<MainOrder> mainOrders = MainOrder.findMainOrdersByStatusAndPerson(0, Person.findPersonByName(storeName), "DESC");
         if (mainOrders == null)
             mainOrders = new ArrayList<MainOrder>();
         String tMainOrdersJsonAryStr = new JSONSerializer().exclude("*.class").serialize(mainOrders);
