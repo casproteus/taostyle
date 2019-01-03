@@ -865,7 +865,8 @@ public class MainPageController extends BaseController {
         if ("true".equals(need_calculate_price) && (posStr.startsWith("service_") || posStr.startsWith("product_"))
                 && posStr.endsWith("_description")) {
             String moneyLetter = (String) request.getSession().getAttribute("moneyLetter");
-
+            if(moneyLetter == null)
+            	moneyLetter = "$";
             String productName = TaoUtil.fetchProductName(description, moneyLetter);
             if (StringUtils.isBlank(productName)) {
                 return false;

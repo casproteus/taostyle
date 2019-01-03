@@ -1248,7 +1248,7 @@ public class TaoUtil {
             html = html.substring(0, html.length() - 6).trim();
         }
 
-        return html;
+        return html.trim();
     }
 
     public static String formateDate(
