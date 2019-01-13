@@ -1135,11 +1135,11 @@ public class MainPageController extends BaseController {
                 p = content.indexOf("}");
                 if (p > -1) {
                     int endP = p - 1;
-                    content = content.substring(startP, endP); // get out "asdfas,StoreName"
+                    content = content.substring(startP, endP); // get out "asdfas,StoreName-username"
                     p = content.indexOf(',');
                     if (p > -1) {
                         String snStr = content.substring(0, p); // get out sn
-                        String storeName = content.substring(p + 1); // get out stre name
+                        String storeName = content.substring(p + 1); // get out storname-username
 
                         UserAccount userAccount = getAnUserAnyway(person, storeName); // get out the userAccout of
                                                                                       // person JustPrint
