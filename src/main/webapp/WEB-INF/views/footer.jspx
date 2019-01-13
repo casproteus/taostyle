@@ -95,8 +95,9 @@
 					</a>
 					<c:out value=" | " />
 			  </c:if> 
+            
 			  <c:if test="${user_role eq '[ROLE_ADMIN]'}">
-					<spring:url value="/useraccounts" var="useraccounts_url" />
+					<spring:url value="/useraccounts?sortFieldName=id" var="useraccounts_url" />
 					<c:if test="${client != null and (client.name eq 'for_demo' or client.name eq 'stgo')}">
 						<spring:url value="/people" var="useraccounts_url" />
 					</c:if>
