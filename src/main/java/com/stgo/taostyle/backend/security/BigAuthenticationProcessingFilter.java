@@ -74,7 +74,7 @@ public class BigAuthenticationProcessingFilter extends AbstractAuthenticationPro
             request.getSession().setAttribute(CC.currentUser, useraccount);
         } else {
             // if it's not already switched to this client.
-        	if(!authentication.getName().equals(enrichedName)) {
+        	if(!authentication.getName().equals(enrichedName) && enrichedName.startsWith(authentication.getName())) {
         		TaoUtil.switchClient(request, authentication.getName());
         	}
         }

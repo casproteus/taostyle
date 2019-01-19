@@ -564,8 +564,10 @@ public class TaoImage {
             boolean isThumNeeded,
             Person person) {
         if (imageInsertPosition > countOfExistingImage) {
-            TaoDebug.error("given position are out of bounds! pos:{}, bounds:{}", imageInsertPosition,
-                    countOfExistingImage);
+        	if(imageInsertPosition > countOfExistingImage + 1) {
+	            TaoDebug.error("given position are out of bounds! pos:{}, bounds:{}", imageInsertPosition,
+	                    countOfExistingImage);
+        	}
             return;
         }
 
