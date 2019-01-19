@@ -10,7 +10,7 @@
 		<!-- when screen is not too small, occupy 2 cols -->
 		<c:set value="col-sm-2 col-md-2 col-lg-2" var="span" />
 		
-		<c:if test="${not empty show_big_hander}">
+		<c:if test="${'true' eq show_big_hander}">
 			<c:set var="hander_padding" value="${show_big_hander}" />
 		</c:if>
 		<c:if test="${'true' == show_big_hander}">

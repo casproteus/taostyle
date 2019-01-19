@@ -52,7 +52,7 @@
 			  			<c:set var="opacity" value="0.1"/>
 			        </c:if>
 			        
-					<c:if test="${not empty descriptions[i-1] and not empty showDescriptionsOnTop}" >
+					<c:if test="${not empty descriptions[i-1] and 'true' eq showDescriptionsOnTop}" >
 			          	<div id="des-${menuIdx}_${i}" align="left" style="opacity:${opacity}">${descriptions[i-1]}</div> 
 			          	<util:edit position="service_${menuIdx}_${i}_description" content="${descriptions[i]}" richText="true"/>
 			        </c:if>
