@@ -13,35 +13,35 @@
 			text-decoration: underline}
 	</style>
 
-	<c:if test="${'true' eq show_AboveMenu}">
+	<c:if test="${not empty show_AboveMenu}">
 		<!-- logo above menu -->
 		<form method="get" action="http://www.google.com/search"
 			target="_blank" style="text-align: right; padding: 5px">
-			<c:if test="${'true' eq showFacebookOnTop}">
+			<c:if test="${not empty showFacebookOnTop}">
 				<a href="${showFacebookOnTop}" style="padding-right: 25px"> 
 					<spring:url value="/resources/images/facebook1.png" var="facebook1_img_url" />
 					<img alt="facebook |" src="${facebook1_img_url}" /> <!--  title="Click here to modify my account information."  -->
 				</a>
 			</c:if>
-			<c:if test="${'true' eq showTwitterOnTop}">
+			<c:if test="${not empty showTwitterOnTop}">
 				<a href="${showTwitterOnTop}" style="padding-right: 25px"> <spring:url
 						value="/resources/images/twitter1.png" var="twitter1_img_url" />
 					<img alt="twitter |" src="${twitter1_img_url}" />
 				</a>
 			</c:if>
-			<c:if test="${'true' eq showGooglePlusOnTop}">
+			<c:if test="${not empty showGooglePlusOnTop}">
 				<a href="${showGooglePlusOnTop}" style="padding-right: 25px"> <spring:url
 						value="/resources/images/google1.png" var="google1_img_url" /> <img
 					alt="google+ |" src="${google1_img_url}" />
 				</a>
 			</c:if>
-			<c:if test="${'true' eq showRssOnTop}">
+			<c:if test="${not empty showRssOnTop}">
 				<a href="${showRssOnTop}" style="padding-right: 25px"> <spring:url
 						value="/resources/images/rss1.png" var="rss1_img_url" /> <img
 					alt="rss |" src="${rss1_img_url}" />
 				</a>
 			</c:if>
-			<c:if test="${'true' eq showGoogleSearchOnTop}">
+			<c:if test="${not empty showGoogleSearchOnTop}">
 				<!-- <img src="getImage/logoTop" vspace="3"/><util:changeImg position="logoTop"/> -->
 				<input type="search" value="" placeholder="search"
 					style="background: url(http://webdesignerwall.com/wp-content/themes/wall/images/nav-icons.png) no-repeat scroll 168px -497px; border: 1px solid #bebdaa; border-radius: 2px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 3px 20px 3px 3px; transition: all 0.7s ease 0s; width: 200px;" />
@@ -88,7 +88,7 @@
 	</c:if>
 
 	<!-- Menu Bar -->
-	<c:if test="${'true' eq show_Menu}">
+	<c:if test="${not empty show_Menu}">
 		<nav class="navbar navbar-inverse"
 			style="margin-bottom: ${show_Menu}px; border-radius: 0px; background-color:#${background_menu}; color:#${foreground_menu};">
 
@@ -117,7 +117,7 @@
 					<img src="getImage/logo" vspace="3" />
 				</a>
 				<util:changeImg position="logo"/>
-				<c:if test="${'true' eq showSearchOnHomePage}">
+				<c:if test="${not empty showSearchOnHomePage}">
 					<!-- the product search tool -->
 					<spring:url value="/searchProductUrl" var="searchProductUrl">
 						<spring:param name="searchProducts" />

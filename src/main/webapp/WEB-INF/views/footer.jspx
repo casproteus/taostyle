@@ -36,7 +36,7 @@
 					<div align="left" style="margin-left: ${margin_left}px; margin-right: ${margin_right}px; ">${text_footContent3}</div>
 					<util:edit position="text_footContent3"
 						content="${text_footContent3}" richText="true" />
-					<c:if test="${'true' eq show_registerForm}">
+					<c:if test="${not empty show_registerForm}">
 						<util:signupForPromotion returnPath="/register" />
 					</c:if>
 				</c:if>
@@ -67,11 +67,11 @@
 			<span class="pull-right" style="padding-right: 30px"> 
 			
 			  <!-- for shopping car related icon -->
-			  <c:if test="${'true' eq show_ShoppingTool and (user_role eq '[ROLE_ADMIN]' or user_role eq '[ROLE_EMPLOYEE]')}">
+			  <c:if test="${not empty show_ShoppingTool and (user_role eq '[ROLE_ADMIN]' or user_role eq '[ROLE_EMPLOYEE]')}">
 		    	<spring:url value="/carts" var="list_url"/>
 		      	<c:out value=" | " />
 		      </c:if>
-		      <c:if test="${'true' eq show_ShoppingTool and user_role eq '[ROLE_CLIENT]'}">
+		      <c:if test="${not empty show_ShoppingTool and user_role eq '[ROLE_CLIENT]'}">
 		    	<spring:url value="/mycarts" var="list_url"/>
 		      	<a href="${list_url}">
 		        	<spring:url value="/resources/images/content.png" var="content_img_url" />

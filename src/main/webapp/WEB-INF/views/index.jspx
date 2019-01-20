@@ -24,14 +24,14 @@
 	<!-- dosen't work, because absolute path doesn't work even for local tomcat! <spring:url var="imgBasePath" value="${imgBasePath}" /> -->
 	<!-- can not replace the imaged insite Root.war, and can not allow it lost when update the application.  <spring:url var="imgBasePath" value="/resources/images/" /> -->
 	<!-- Main -->
-	<c:if test="${'true' eq show_MainSlider}">
+	<c:if test="${not empty show_MainSlider}">
 		<div id="myCarousel" class="carousel slide"
 			style="margin-bottom: ${show_MainSlider}px;">
 			<div class="carousel-inner">
 				<div class="item active" align="center">
 					<img src="getImage/slide_superBig_1" />
 					<util:changeImg position="slide_superBig_1"/>
-					<c:if test="${'true' eq showTextOnSlider}">
+					<c:if test="${not empty showTextOnSlider}">
 						<div class="carousel-caption" style="left:${showTextOnSlider}px">
 							${text_on_slid[0]}
 							<util:edit position="text_on_slid_1" content="${text_on_slid[0]}"
@@ -47,7 +47,7 @@
 					<div class="item" align="center">
 						<img src="getImage/slide_superBig_${i}" />
 						<util:changeImg position="slide_superBig_${i}"/>
-						<c:if test="${'true' eq showTextOnSlider}">
+						<c:if test="${not empty showTextOnSlider}">
 							<div class="carousel-caption" style="left: ${showTextOnSlider}px">
 								${text_on_slid[i-1]}
 								<util:edit position="text_on_slid_${i}"
@@ -74,7 +74,7 @@
 		</div>
 	</c:if>
 
-	<c:if test="${'true' eq show_SmallSlider}">
+	<c:if test="${not empty show_SmallSlider}">
 		<table
 			style="width:860px; border:100px; margin-bottom: ${show_SmallSlider}px"
 			align="center">
@@ -171,7 +171,7 @@
 		</div>
 	</c:if>
 
-	<c:if test="${'true' eq showFloatingPromotion}">
+	<c:if test="${not empty showFloatingPromotion}">
 		<div style="position: fixed; z-index: 3000; top: 100px; right: 10px">
 			<util:taoImg src="getImage/floating_promotion"
 				link="${showFloatingPromotion}" />
@@ -179,13 +179,13 @@
 		</div>
 	</c:if>
 
-	<c:if test="${'true' eq show_1_TextObject}">
+	<c:if test="${not empty show_1_TextObject}">
 		<div style="margin-bottom: ${show_1_TextObject}px;">${text_subTitle0}</div>
 		<util:edit position="text_subTitle0" content="${text_subTitle0}"
 			richText="true" />
 	</c:if>
 
-	<c:if test="${'true' eq show_1_imgObject}">
+	<c:if test="${not empty show_1_imgObject}">
 		<div class="row">
 			<div 
 				style="margin-bottom: ${show_1_imgObject}px; text-align: center;">
@@ -197,7 +197,7 @@
 	</c:if>
 
 	<!-- firstLine -->
-	<c:if test="${'true' eq show_3_Object_inSmallerRow}">
+	<c:if test="${not empty show_3_Object_inSmallerRow}">
 		<div class="row" style="width: 80%; margin-left: ${margin_left}px; margin-right: ${margin_right}px; margin-bottom: ${show_3_Object_inSmallerRow}px">
 			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4"
 				style="text-align: center;">
@@ -236,7 +236,7 @@
 	</c:if>
 
 	<!-- second line -->
-	<c:if test="${'true' eq show_4_Object}">
+	<c:if test="${not empty show_4_Object}">
 		<div class="row" style="${margin_left}px; margin-right: ${margin_right}px; margin-bottom: ${show_4_Object}px">
 			<div class="col-xs-12 col-sm-6 col-md-3 col-lg-3" style="text-align: center;">
 				<!-- <c:if test="${(not empty text_categoryTitle1 and not empty text_categoryTitle2 and not empty text_categoryTitle3 and not empty text_categoryTitle4) or user_role == '[ROLE_ADMIN]'}" >
@@ -285,7 +285,7 @@
 	</c:if>
 
 	<!-- log -->
-	<c:if test="${'true' eq show_3_Object}">
+	<c:if test="${not empty show_3_Object}">
 		<div class="row" style="margin-left: ${margin_left}px; margin-right: ${margin_right}px; margin-bottom: ${show_3_Object}px;">
 			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" style="text-align: center;">
 				<!-- <c:if test="${(not empty text_LogTitle1 and not empty text_LogTitle2 and not empty text_LogTitle3) or user_role == '[ROLE_ADMIN]'}" >
@@ -293,7 +293,7 @@
 		        </c:if> -->
 				<util:taoImg src="getImage/log_1" link="${link_log1}" />
 				<util:changeImg position="log_1" />
-				<c:if test="${'true' eq show_3_Object_text}">
+				<c:if test="${not empty show_3_Object_text}">
 					<div align="center"
 						style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent1}</div>
 					<util:edit position="text_logContent1"
@@ -313,7 +313,7 @@
 					<area shape="rect" coords="10,116,340,180" href="mailto:reservation@spaviva.ca" />
 				</map> -->
 				<util:changeImg position="log_2" />
-				<c:if test="${'true' eq show_3_Object_text}">
+				<c:if test="${not empty show_3_Object_text}">
 					<div align="center" style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent2}</div>
 					<util:edit position="text_logContent2" content="${text_logContent2}" richText="true" />
 				</c:if>
@@ -326,7 +326,7 @@
 		        </c:if> -->
 				<util:taoImg src="getImage/log_3" link="${link_log3}" />
 				<util:changeImg position="log_3" />
-				<c:if test="${'true' eq show_3_Object_text}">
+				<c:if test="${not empty show_3_Object_text}">
 					<div align="center" style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent3}</div>
 					<util:edit position="text_logContent3" content="${text_logContent3}" richText="true" />
 				</c:if>
@@ -348,7 +348,7 @@
 			$('#"emailConformation"').modal('show');
 	  </script>
 	<!-- for sharethis,  while seems no effect on local, but has effect on openshift! don't know why yet.-->
-	<c:if test="${'true' eq show_shareThis}">
+	<c:if test="${not empty show_shareThis}">
 		<script type="text/javascript">
 			stLight.options({
 				publisher : "a1800cce-5aac-40c5-8fbd-e0e4c83315a0",
