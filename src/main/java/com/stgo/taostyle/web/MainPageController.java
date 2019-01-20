@@ -2894,12 +2894,12 @@ public class MainPageController extends BaseController {
 
         // ----------------re-update the mainOrder-----------------------
         total = (float) (Math.round(total * 100)) / 100;
-      //@NOTE: before, it means this is actually a customer changed place and employee,
+        //@NOTE: before, it means this is actually a customer changed place and employee,
         //now because it's possible that all the dish's price are 0, so we need another way to allow user to change seat.
-//        if (total == 0) {
-//            sourcdAndNewMainOrder.setRecordStatus(CC.STATUS_CHANGED_PLACE);
-//            sourcdAndNewMainOrder.persist(); // create a new one to merge.
-//        } else {
+        if (total == 0 && curUser != null && CC.ROLE_EMPLOYEE.equals(curUser.getSecuritylevel())){
+            sourcdAndNewMainOrder.setRecordStatus(CC.STATUS_CHANGED_PLACE);
+            sourcdAndNewMainOrder.persist(); // create a new one to merge.
+        } else {
             sourcdAndNewMainOrder.setPayCondition(moneyLetter + String.valueOf(total)); // actual deal price.
             if ("true".equals(request.getSession().getAttribute(CC.auto_combine_rec))) {
                 MainOrder existingSameSourceMainOrder = searchSameSourceMainOrder(sourcdAndNewMainOrder, person,
@@ -2914,7 +2914,7 @@ public class MainPageController extends BaseController {
             } else {
                 sourcdAndNewMainOrder.persist();
             }
-//        }
+        }
 
         // -----------------log the visiting-------------------
         TaxonomyMaterial taxonomyMaterial = new TaxonomyMaterial();
