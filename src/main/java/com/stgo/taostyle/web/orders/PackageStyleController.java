@@ -1,21 +1,25 @@
 package com.stgo.taostyle.web.orders;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-
+import javax.validation.Valid;
 import com.stgo.taostyle.domain.orders.MainOrder;
 import com.stgo.taostyle.domain.orders.PackageStyle;
-
-import org.springframework.roo.addon.web.mvc.controller.scaffold.RooWebScaffold;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.WebUtils;
 
 @RequestMapping("/packagestyles")
-@Controller
-@RooWebScaffold(path = "packagestyles", formBackingObject = PackageStyle.class)
+@Controller
 public class PackageStyleController {
 
     @RequestMapping(produces = "text/html")
@@ -64,5 +68,66 @@ public class PackageStyleController {
         }
         uiModel.addAttribute("dependencies", dependencies);
         return "packagestyles/create";
+    }
+
+	@RequestMapping(method = RequestMethod.POST, produces = "text/html")
+    public String create(@Valid PackageStyle packageStyle, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
+        if (bindingResult.hasErrors()) {
+            populateEditForm(uiModel, packageStyle);
+            return "packagestyles/create";
+        }
+        uiModel.asMap().clear();
+        packageStyle.persist();
+        return "redirect:/packagestyles/" + encodeUrlPathSegment(packageStyle.getId().toString(), httpServletRequest);
+    }
+
+	@RequestMapping(value = "/{id}", produces = "text/html")
+    public String show(@PathVariable("id") Long id, Model uiModel) {
+        uiModel.addAttribute("packagestyle", PackageStyle.findPackageStyle(id));
+        uiModel.addAttribute("itemId", id);
+        return "packagestyles/show";
+    }
+
+	@RequestMapping(method = RequestMethod.PUT, produces = "text/html")
+    public String update(@Valid PackageStyle packageStyle, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
+        if (bindingResult.hasErrors()) {
+            populateEditForm(uiModel, packageStyle);
+            return "packagestyles/update";
+        }
+        uiModel.asMap().clear();
+        packageStyle.merge();
+        return "redirect:/packagestyles/" + encodeUrlPathSegment(packageStyle.getId().toString(), httpServletRequest);
+    }
+
+	@RequestMapping(value = "/{id}", params = "form", produces = "text/html")
+    public String updateForm(@PathVariable("id") Long id, Model uiModel) {
+        populateEditForm(uiModel, PackageStyle.findPackageStyle(id));
+        return "packagestyles/update";
+    }
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = "text/html")
+    public String delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
+        PackageStyle packageStyle = PackageStyle.findPackageStyle(id);
+        packageStyle.remove();
+        uiModel.asMap().clear();
+        uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+        uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
+        return "redirect:/packagestyles";
+    }
+
+	void populateEditForm(Model uiModel, PackageStyle packageStyle) {
+        uiModel.addAttribute("packageStyle", packageStyle);
+        uiModel.addAttribute("mainorders", MainOrder.findAllMainOrders());
+    }
+
+	String encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {
+        String enc = httpServletRequest.getCharacterEncoding();
+        if (enc == null) {
+            enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
+        }
+        try {
+            pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
+        } catch (UnsupportedEncodingException uee) {}
+        return pathSegment;
     }
 }

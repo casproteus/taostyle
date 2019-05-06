@@ -4,9 +4,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
-import org.springframework.roo.addon.web.mvc.controller.json.RooWebJson;
-import org.springframework.roo.addon.web.mvc.controller.scaffold.RooWebScaffold;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,9 +20,7 @@ import com.stgo.taostyle.domain.Person;
 import com.stgo.taostyle.domain.TextContent;
 
 @RequestMapping("/feature")
-@Controller
-@RooWebScaffold(path = "feature", formBackingObject = Feature.class)
-@RooWebJson(jsonObject = Feature.class)
+@Controller
 public class FeatureController {
 
     @RequestMapping(method = RequestMethod.POST, produces = "text/html")

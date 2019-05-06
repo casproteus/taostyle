@@ -1,22 +1,27 @@
 package com.stgo.taostyle.web.orders;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.roo.addon.web.mvc.controller.scaffold.RooWebScaffold;
+import javax.validation.Valid;
+import org.joda.time.format.DateTimeFormat;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.WebUtils;
 import com.stgo.taostyle.domain.orders.MainOrder;
 import com.stgo.taostyle.domain.orders.TaxonomyMaterial;
 
 @RequestMapping("/taxonomymaterials")
-@Controller
-@RooWebScaffold(path = "taxonomymaterials", formBackingObject = TaxonomyMaterial.class)
+@Controller
 public class TaxonomyMaterialController {
 
     @RequestMapping(produces = "text/html")
@@ -73,5 +78,66 @@ public class TaxonomyMaterialController {
             TaxonomyMaterial taxonomyMaterial) {
         uiModel.addAttribute("taxonomyMaterial", taxonomyMaterial);
         uiModel.addAttribute("mainorders", MainOrder.findAllMainOrders());
+    }
+
+	@RequestMapping(method = RequestMethod.POST, produces = "text/html")
+    public String create(@Valid TaxonomyMaterial taxonomyMaterial, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
+        if (bindingResult.hasErrors()) {
+            populateEditForm(uiModel, taxonomyMaterial);
+            return "taxonomymaterials/create";
+        }
+        uiModel.asMap().clear();
+        taxonomyMaterial.persist();
+        return "redirect:/taxonomymaterials/" + encodeUrlPathSegment(taxonomyMaterial.getId().toString(), httpServletRequest);
+    }
+
+	@RequestMapping(value = "/{id}", produces = "text/html")
+    public String show(@PathVariable("id") Long id, Model uiModel) {
+        addDateTimeFormatPatterns(uiModel);
+        uiModel.addAttribute("taxonomymaterial", TaxonomyMaterial.findTaxonomyMaterial(id));
+        uiModel.addAttribute("itemId", id);
+        return "taxonomymaterials/show";
+    }
+
+	@RequestMapping(method = RequestMethod.PUT, produces = "text/html")
+    public String update(@Valid TaxonomyMaterial taxonomyMaterial, BindingResult bindingResult, Model uiModel, HttpServletRequest httpServletRequest) {
+        if (bindingResult.hasErrors()) {
+            populateEditForm(uiModel, taxonomyMaterial);
+            return "taxonomymaterials/update";
+        }
+        uiModel.asMap().clear();
+        taxonomyMaterial.merge();
+        return "redirect:/taxonomymaterials/" + encodeUrlPathSegment(taxonomyMaterial.getId().toString(), httpServletRequest);
+    }
+
+	@RequestMapping(value = "/{id}", params = "form", produces = "text/html")
+    public String updateForm(@PathVariable("id") Long id, Model uiModel) {
+        populateEditForm(uiModel, TaxonomyMaterial.findTaxonomyMaterial(id));
+        return "taxonomymaterials/update";
+    }
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = "text/html")
+    public String delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
+        TaxonomyMaterial taxonomyMaterial = TaxonomyMaterial.findTaxonomyMaterial(id);
+        taxonomyMaterial.remove();
+        uiModel.asMap().clear();
+        uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+        uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
+        return "redirect:/taxonomymaterials";
+    }
+
+	void addDateTimeFormatPatterns(Model uiModel) {
+        uiModel.addAttribute("taxonomyMaterial_logtime_date_format", DateTimeFormat.patternForStyle("M-", LocaleContextHolder.getLocale()));
+    }
+
+	String encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {
+        String enc = httpServletRequest.getCharacterEncoding();
+        if (enc == null) {
+            enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
+        }
+        try {
+            pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
+        } catch (UnsupportedEncodingException uee) {}
+        return pathSegment;
     }
 }

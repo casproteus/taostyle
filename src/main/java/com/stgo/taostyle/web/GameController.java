@@ -2,9 +2,7 @@ package com.stgo.taostyle.web;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.roo.addon.web.mvc.controller.json.RooWebJson;
-import org.springframework.roo.addon.web.mvc.controller.scaffold.RooWebScaffold;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,9 +13,7 @@ import com.stgo.taostyle.domain.Person;
 import com.stgo.taostyle.domain.Product;
 
 @RequestMapping("/game")
-@Controller
-@RooWebScaffold(path = "products", formBackingObject = Product.class)
-@RooWebJson(jsonObject = Product.class)
+@Controller
 public class GameController extends BaseController {
     // this method is needed when editing a product item. the page was under the path of "\products"
     @RequestMapping("/congratulations")

@@ -1,5 +1,6 @@
 package com.stgo.taostyle.web.orders;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -7,8 +8,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-
-import org.springframework.roo.addon.web.mvc.controller.scaffold.RooWebScaffold;
+import org.joda.time.format.DateTimeFormat;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -16,13 +17,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.WebUtils;
 import com.stgo.taostyle.domain.orders.MainOrder;
 import com.stgo.taostyle.domain.orders.ShipmentStyle;
 
 @RequestMapping("/shipmentstyles")
-@Controller
-@RooWebScaffold(path = "shipmentstyles", formBackingObject = ShipmentStyle.class)
+@Controller
 public class ShipmentStyleController {
 
     @RequestMapping(produces = "text/html")
@@ -306,5 +307,37 @@ public class ShipmentStyleController {
             shipmentStyle.persist();
             return "redirect:/shipmentstyles/" + shipmentStyle.getId().toString();
         }
+    }
+
+	@RequestMapping(value = "/{id}", params = "form", produces = "text/html")
+    public String updateForm(@PathVariable("id") Long id, Model uiModel) {
+        populateEditForm(uiModel, ShipmentStyle.findShipmentStyle(id));
+        return "shipmentstyles/update";
+    }
+
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = "text/html")
+    public String delete(@PathVariable("id") Long id, @RequestParam(value = "page", required = false) Integer page, @RequestParam(value = "size", required = false) Integer size, Model uiModel) {
+        ShipmentStyle shipmentStyle = ShipmentStyle.findShipmentStyle(id);
+        shipmentStyle.remove();
+        uiModel.asMap().clear();
+        uiModel.addAttribute("page", (page == null) ? "1" : page.toString());
+        uiModel.addAttribute("size", (size == null) ? "10" : size.toString());
+        return "redirect:/shipmentstyles";
+    }
+
+	void addDateTimeFormatPatterns(Model uiModel) {
+        uiModel.addAttribute("shipmentStyle_outdoordate_date_format", DateTimeFormat.patternForStyle("M-", LocaleContextHolder.getLocale()));
+        uiModel.addAttribute("shipmentStyle_onboarddate_date_format", DateTimeFormat.patternForStyle("M-", LocaleContextHolder.getLocale()));
+    }
+
+	String encodeUrlPathSegment(String pathSegment, HttpServletRequest httpServletRequest) {
+        String enc = httpServletRequest.getCharacterEncoding();
+        if (enc == null) {
+            enc = WebUtils.DEFAULT_CHARACTER_ENCODING;
+        }
+        try {
+            pathSegment = UriUtils.encodePathSegment(pathSegment, enc);
+        } catch (UnsupportedEncodingException uee) {}
+        return pathSegment;
     }
 }
