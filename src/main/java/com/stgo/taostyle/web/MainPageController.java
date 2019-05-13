@@ -98,6 +98,8 @@ public class MainPageController extends BaseController {
             HttpServletRequest request,
             HttpServletResponse response,
             @PathVariable("identity") String identity) {
+    	if("favicon".equals(identity))
+    		return "";
         HttpSession session = request.getSession();
         TaoDebug.info(TaoDebug.getSB(session), "Entry1, start to switching user to {}:", identity);
 
@@ -1832,12 +1834,18 @@ public class MainPageController extends BaseController {
         BufferedImage inputImage = null;
         try {
             inputImage = ImageIO.read(content.getInputStream());
+            if(inputImage == null) {
+                System.out.println("ERROR!!!! got null inputImage when read from content!");
+            }
             // Image big = inputImage.getScaledInstance(256, 256,Image.SCALE_DEFAULT);
 
             BufferedImage bufferedImage = ".png".equalsIgnoreCase(tFormat) ? inputImage
                     : TaoImage.resizeImage(request, inputImage, media.getFilepath()); // because when uploading gallery,
                                                                                       // the tKeyString is like
                                                                                       // gallery_".
+            if(bufferedImage == null) {
+                System.out.println("ERROR!!!! got null bufferedImage after resizing image!");
+            }
             byte[] tContent = TaoImage.getByteFormateImage(bufferedImage, tFormat);
             media.setContent(tContent == null ? content.getBytes() : tContent);
 
