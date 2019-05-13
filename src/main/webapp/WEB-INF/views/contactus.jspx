@@ -22,16 +22,10 @@
 		        	<br/>
 		        </c:if>
 		        <c:if test="${(not empty MAP_POS_X[i] and not empty MAP_POS_Y[i]) or user_role == '[ROLE_ADMIN]'}">
-					<spring:url var="address1Url" value="http://www.dr2ooo.com/tools/maps/maps.php">
-						<spring:param name="zoom" value="${MAP_zoom}" />
-						<spring:param name="width" value="${MAP_w}" />
-						<spring:param name="height" value="${MAP_h}" />
-						<spring:param name="ll" value="${MAP_POS_X[i]}, ${MAP_POS_Y[i]}" />
-						<spring:param name="cp" value="true" />
-					</spring:url>
-					<iframe src="${address1Url}" width="${MAP_w + 5}" height="${MAP_h + 5}">
-						<!-- for firefox and chrome -->
-					</iframe>
+					<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2795.7625427245293!2d${MAP_POS_Y[i]}!3d${MAP_POS_X[i]}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sca!4v1557717858487!5m2!1sen!2sca"
+					 width="${MAP_w}" height="450" frameborder="4" style="border:4">
+					 <!-- for firefox and chrome -->
+					 </iframe>
 				</c:if>
 				<c:if test="${not empty text_Contact_Contents[i] or user_role == '[ROLE_ADMIN]'}" >
 		          	<div align="left">${text_Contact_Contents[i]}</div> 
