@@ -219,6 +219,21 @@ public class MainPageController extends BaseController {
         }
 
         Person person = TaoUtil.getCurPerson(request);
+        if(person != null && !person.toString().contains("for_demo")) {
+        	final Cookie cookie = new Cookie("site", person.toString());
+            cookie.setMaxAge(31536000); // One year
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }else if(person == null) {
+        	Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if (c != null && c.getName().equals("site")) {
+                        person = Person.findPersonByName(c.getValue());
+                    }
+                }
+            }
+        }
         makesureCommonTextInitialized(model, request, langPrf, person);
 
         // get every number out from the menuIndex which looks like: 2_1_1 or 2_1 or 2
