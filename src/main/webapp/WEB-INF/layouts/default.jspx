@@ -32,7 +32,7 @@
 	<util:qrCode/>
 		
 	<util:load-scripts />
-	<c:if test="${debugFlag eq 'true'}">
+	<c:if test="${'true' eq debugFlag}">
 		${debugInfo}
 	</c:if>
 </body>

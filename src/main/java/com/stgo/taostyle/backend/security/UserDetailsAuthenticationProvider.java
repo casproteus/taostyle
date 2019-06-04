@@ -67,10 +67,16 @@ public class UserDetailsAuthenticationProvider extends AbstractUserDetailsAuthen
         } else {
             // not possible and not allowed for 2 user with same name and password.
             UserAccount tUserAccount = UserAccount.findUserAccountByNameAndPassword(userName, password);
-            if (tUserAccount == null)
-                throw new BadCredentialsException(
-                        "The user dose not exist or the password is not correct. Please check the input and try again.");
-
+            if (tUserAccount == null) {
+            	Person person = null;
+            	if(userName.endsWith("*1")) { 	//give another chance, in case maybe user lost connection and fell back to for_demo space.
+            		String personName = userName.substring(0, userName.length() - 2);
+            		return retrieveUser(personName, authentication);
+            	}else {
+            		throw new BadCredentialsException(
+                                "The user dose not exist or the password is not correct. Please check the input and try again.");
+            	}
+            }
             authorities.add(new SimpleGrantedAuthority(tUserAccount.getSecuritylevel()));
         }
         User tUser = new User(userName, password, true, true, true, true, authorities);

@@ -62,7 +62,7 @@
 			<!-- user can open the details of a document, and view/add comments to it.-->
 			<!-- added a check might because some client might need to check the resume she/he uploaded. -->
 			<c:if
-				test="${not empty infoList and (user_role ne '[ROLE_CLIENT]' or not empty show_myDocs_toClient)}">
+				test="${not empty infoList and (user_role ne '[ROLE_CLIENT]' or 'true' eq show_myDocs_toClient)}">
 				<page:list id="pl_com_stgo_taostyle_domain_MediaUpload"
 					label="Documents" labelPlural="My Documents:" items="${infoList}"
 					z="user-managed">

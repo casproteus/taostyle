@@ -25,7 +25,7 @@
    		background:#${background_subpage}; opacity:${subpage_opacity}">
 		<c:forEach var="i" begin="1" end="${pictureAmount}" step="1">
 			<a href="menu_2_1?t=${i}" data-gallery="_">
-				<img src="getImage/gallery_${menuIdx}_${i}_thum" alt="Image" />
+				<img src="getImage/gallery_${menuIdx}_${i}_thum" alt="${i}" />
 			</a>
 		</c:forEach>
 	</div>

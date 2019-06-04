@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 
 import com.stgo.taostyle.domain.UserAccount;
 import com.stgo.taostyle.web.CC;
+import com.stgo.taostyle.web.TaoUtil;
 
 public class BigAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
@@ -72,9 +73,10 @@ public class BigAuthenticationProcessingFilter extends AbstractAuthenticationPro
             UserAccount useraccount = UserAccount.findUserAccountByName(enrichedName);
             request.getSession().setAttribute(CC.currentUser, useraccount);
         } else {
-            // do nothing, because it's already switched to this client.
-            // Person person = Person.findPersonByName(login_name);
-            // TaoUtil.switchClient(request, person.getName());
+            // if it's not already switched to this client.
+        	if(!authentication.getName().equals(enrichedName) && enrichedName.startsWith(authentication.getName())) {
+        		TaoUtil.switchClient(request, authentication.getName());
+        	}
         }
 
         if (rememberMe) {

@@ -70,7 +70,7 @@
 				        </c:if>
 
 						<!-- description and image -->
-						<c:if test="${not empty descriptions[j][i] and not empty showDescriptionsOnTop}" >
+						<c:if test="${not empty descriptions[j][i] and 'true' eq showDescriptionsOnTop}" >
 				          	<div id="des-${featureIdx}-${imageIdx}" align="left" style="opacity:${opacity}">${descriptions[j][i]}</div> 
 				        </c:if>
 				        <a id="img-${featureIdx}-${imageIdx}" href="javascript:showDetail('${imageKeys[j][i]}')" title="Click to check detailed information" style="opacity:${opacity}"> 
@@ -81,7 +81,7 @@
 				        </c:if>
 				        
 				        <!-- selection controllers -->
-				        <c:if test="${'true' eq show_service_cBox or isAboveManager eq 'true'}">
+				        <c:if test="${'true' eq show_service_cBox or 'true' eq isAboveManager}">
 				        	<!-- visibility control -->
 					    	<c:set var="visibility" value="${(empty visibleStatusList[j][i] or visibleStatusList[j][i] eq '1') ? 'visible' : 'hidden'}" />
 					    	
@@ -139,7 +139,7 @@
 	<util:checkOut />
 	
 	<!-- java scripts for Check Box (manager and above always show, they use it to select product for feature.) -->
-    <c:if test="${not empty show_service_cBox or isAboveManager eq 'true'}">
+    <c:if test="${'true' eq show_service_cBox or 'true' eq isAboveManager}">
 	<script type="text/javascript">
       	//the featureIdx could be feature.id or the index of the feature.
 		function updateStatus(imageKey,featureIdx,user_role,change, curObj) {

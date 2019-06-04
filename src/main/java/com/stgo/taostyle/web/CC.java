@@ -75,6 +75,9 @@ public interface CC {
     String STATUS_FULL = "FULL";
     String STATUS_MINE_ARE_FULL = "next";
     String STATUS_DELETED = "deleted";
+    int STATUS_CHANGED_PLACE = 1;//when employee open a new empty order, should be this status, so waiter logged in dashboard can now some order with old table
+    //number should be merged into this order. it's not so useful when there's a pos system which automatically download every 20 secs. but useful when waiter 
+    //use only web print to manage restaurant.
     int STATUS_TO_PRINT = 10;
     int STATUS_PRINTED = 20;
     int LEVEL_FULL = 120;

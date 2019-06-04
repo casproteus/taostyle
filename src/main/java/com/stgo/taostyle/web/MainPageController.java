@@ -98,6 +98,8 @@ public class MainPageController extends BaseController {
             HttpServletRequest request,
             HttpServletResponse response,
             @PathVariable("identity") String identity) {
+    	if("favicon".equals(identity))
+    		return "";
         HttpSession session = request.getSession();
         TaoDebug.info(TaoDebug.getSB(session), "Entry1, start to switching user to {}:", identity);
 
@@ -217,6 +219,21 @@ public class MainPageController extends BaseController {
         }
 
         Person person = TaoUtil.getCurPerson(request);
+        if(person != null && !person.toString().contains("for_demo")) {
+        	final Cookie cookie = new Cookie("site", person.toString());
+            cookie.setMaxAge(31536000); // One year
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }else if(person == null) {
+        	Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if (c != null && c.getName().equals("site")) {
+                        person = Person.findPersonByName(c.getValue());
+                    }
+                }
+            }
+        }
         makesureCommonTextInitialized(model, request, langPrf, person);
 
         // get every number out from the menuIndex which looks like: 2_1_1 or 2_1 or 2
@@ -1135,11 +1152,11 @@ public class MainPageController extends BaseController {
                 p = content.indexOf("}");
                 if (p > -1) {
                     int endP = p - 1;
-                    content = content.substring(startP, endP); // get out "asdfas,StoreName"
+                    content = content.substring(startP, endP); // get out "asdfas,StoreName-username"
                     p = content.indexOf(',');
                     if (p > -1) {
                         String snStr = content.substring(0, p); // get out sn
-                        String storeName = content.substring(p + 1); // get out stre name
+                        String storeName = content.substring(p + 1); // get out storname-username
 
                         UserAccount userAccount = getAnUserAnyway(person, storeName); // get out the userAccout of
                                                                                       // person JustPrint
@@ -1372,8 +1389,16 @@ public class MainPageController extends BaseController {
         collection.add(new JSONSerializer().exclude("*.class").serialize(menuTextContents));
         collection.add(new JSONSerializer().exclude("*.class").serialize(serviceTextContents));
 
-        // return
+        // get the string for return
         String jsonStr = new JSONSerializer().exclude("*.class").serialize(collection);
+        
+        //last step: modify the satatus of these mainOrders, so they will not be request by pos in a period of time. Just
+        //in case client side send an other request before the first return has been processed successfully.
+        for (MainOrder mainOrder : mainOrders) {
+        	 mainOrder.setRecordStatus(CC.STATUS_TO_PRINT);
+        	 mainOrder.persist();
+        }
+        
         return new ResponseEntity<String>(jsonStr, headers, HttpStatus.OK);
     }
     
@@ -1622,7 +1647,7 @@ public class MainPageController extends BaseController {
             return buildPageForMenu(model, request, response, null);
         }
 
-        // !!!to be same with the number index of programming is also start from 1.
+        // !!!to be same with the number, index of programming is also start from 1.
         long imageIndex;
         try {
             imageIndex = Integer.valueOf(request.getParameter("imageIndex"));
@@ -1825,12 +1850,18 @@ public class MainPageController extends BaseController {
         BufferedImage inputImage = null;
         try {
             inputImage = ImageIO.read(content.getInputStream());
+            if(inputImage == null) {
+                System.out.println("ERROR!!!! got null inputImage when read from content!");
+            }
             // Image big = inputImage.getScaledInstance(256, 256,Image.SCALE_DEFAULT);
 
             BufferedImage bufferedImage = ".png".equalsIgnoreCase(tFormat) ? inputImage
                     : TaoImage.resizeImage(request, inputImage, media.getFilepath()); // because when uploading gallery,
                                                                                       // the tKeyString is like
                                                                                       // gallery_".
+            if(bufferedImage == null) {
+                System.out.println("ERROR!!!! got null bufferedImage after resizing image!");
+            }
             byte[] tContent = TaoImage.getByteFormateImage(bufferedImage, tFormat);
             media.setContent(tContent == null ? content.getBytes() : tContent);
 
@@ -2738,8 +2769,12 @@ public class MainPageController extends BaseController {
             textContent.setContent("Reported!");
             return new ResponseEntity<String>(textContent.toJson(), HttpStatus.ALREADY_REPORTED);
         }
+        
+        //get current user info ready
         Person person = TaoUtil.getCurPerson(request);
         UserAccount curUser = (UserAccount) session.getAttribute(CC.currentUser);
+        
+        //valid current selection items.
         orderedItems = (String) session.getAttribute(CC.selectedItems);
         String[] items = StringUtils.split(orderedItems, ",");
         if (items == null || items.length == 0) {
@@ -2749,9 +2784,9 @@ public class MainPageController extends BaseController {
                 return new ResponseEntity<String>(textContent.toJson(), HttpStatus.BAD_REQUEST);
             }
         }
-        String source = request.getParameter("source");
-        // format:var source = tableID + "," + name + "," + phoneNumber + "," + address
-        // + "," + arrive;
+        
+        //fetch out the info in request, which format is:var source = tableID + "," + name + "," + phoneNumber + "," + address + "," + arrive;
+        String source = request.getParameter("source");       
         String[] params = StringUtils.split(source, "zSTGOz");
         String sizeTable = getCleanContent(params[0]);
         String name = getCleanContent(params[1]);
@@ -2760,7 +2795,8 @@ public class MainPageController extends BaseController {
         String delieverdate = getCleanContent(params[4]);
 
         saveIntoCookie(name, tel, address, delieverdate, response);
-
+        
+        //try to identify the customer
         UserAccount client = null;
         if (curUser != null) {
             client = curUser;
@@ -2773,12 +2809,15 @@ public class MainPageController extends BaseController {
             // now even logged in user should also input address and new tell, because might
             // ordered for his mother.
         }
+        
+        //validate sizeTable
         if ("not_on_site".equals(sizeTable) && !"did-not-input".equals(name) && !"null".equals(name)) {
             sizeTable = name;
         } else if ("not_on_site".equals(sizeTable) && client != null) {
             sizeTable = client.getLoginname();
         }
-
+     
+        // -----------persist the MainOrder-----------------
         MainOrder sourcdAndNewMainOrder = new MainOrder();
         sourcdAndNewMainOrder.setPerson(person);
         sourcdAndNewMainOrder.setClientSideOrderNumber(session.getId());
@@ -2825,9 +2864,7 @@ public class MainPageController extends BaseController {
             }
         }
         sourcdAndNewMainOrder.setRecordStatus(0);
-        sourcdAndNewMainOrder.setRemark(null); // like medium or well down, spicy or super spicy, will be add when
-                                               // employee
-        // process.
+        sourcdAndNewMainOrder.setRemark(null); // like medium or well down, spicy or super spicy, will be add when employee
         sourcdAndNewMainOrder.persist();
 
         // -----------persist the materials-----------------
@@ -2881,8 +2918,10 @@ public class MainPageController extends BaseController {
 
         // ----------------re-update the mainOrder-----------------------
         total = (float) (Math.round(total * 100)) / 100;
-        if (total == 0) {//
-            sourcdAndNewMainOrder.setRecordStatus(5);// means this is actually a customer changed place and employee
+        //@NOTE: before, it means this is actually a customer changed place and employee,
+        //now because it's possible that all the dish's price are 0, so we need another way to allow user to change seat.
+        if (total == 0 && curUser != null && CC.ROLE_EMPLOYEE.equals(curUser.getSecuritylevel())){
+            sourcdAndNewMainOrder.setRecordStatus(CC.STATUS_CHANGED_PLACE);
             sourcdAndNewMainOrder.persist(); // create a new one to merge.
         } else {
             sourcdAndNewMainOrder.setPayCondition(moneyLetter + String.valueOf(total)); // actual deal price.
@@ -2915,7 +2954,7 @@ public class MainPageController extends BaseController {
         taxonomyMaterial.setQuality((String) session.getAttribute(CC.longitude));
         taxonomyMaterial.persist();
 
-        // resection selection status.
+        // reset selection status.
         session.setAttribute(CC.totalPrice, 0.00f);
         session.setAttribute(CC.itemNumber, 0);
         session.setAttribute(CC.selectedItems, null);
