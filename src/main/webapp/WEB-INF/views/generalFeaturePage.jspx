@@ -108,13 +108,13 @@
 					  			<span style="border-style:none; font-size: 24px; ">
 						  			<c:set var="aboveDisTreshold" value="${not empty visibleStatusList and not empty visibleStatusList[j][i] and visibleStatusList[j][i] != '1'}" />
 						  			
-									<a id="decreaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','down1')" style="visibility:${aboveDisTreshold?'visible':'hidden'};"> - </a>
+									<a id="decreaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','down1')" > - </a>
 						     		
 						     		<input id="txt-${featureIdx}-${imageIdx}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[j][i]} " readonly="readonly" 
-									style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px; visibility:${aboveDisTreshold?'visible':'hidden'}"/>
+									style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px;"/>
 								 	
 								 	<a id="increaser-${featureIdx}-${imageIdx}" onclick="javascript:updateStatus('${imageIdx}','${featureIdx}','${user_role}','up1')"
-								 	 style="visibility:${user_role != '[ROLE_ADMIN]'  and user_role != '[ROLE_MANAGER]' and user_role != '[ROLE_PRINTER]' and not empty visibleStatusList[j][i]? 'visible':'hidden'}">  +   </a>
+								 	 >  +   </a>
 							 	</span>
 					    	</c:if>
 					    	
@@ -195,7 +195,7 @@
 	            image.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1;
 				
 	            //current num and total
-	            if(typeof selectedItem !== 'undefined'){
+	            if(typeof selectedItems !== 'undefined'){
 		           	var itemNum = Number(selectedItem.value);
 		            var total = Number(totalPrice.value); 
 		            var text = description.innerText;
@@ -270,7 +270,7 @@
 			        data:"change=" + change,
 			        async:true,
 			        success:function(textContent){
-			        	//do nothing.
+			        	location.reload();
 			        }
 			    });
 			}

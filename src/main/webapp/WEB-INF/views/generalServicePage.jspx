@@ -144,7 +144,7 @@
 	            image.style.cssText = "opacity: " + selected > 0 ? 1 : 0.1;
 	            
 	            //current num and total
-	            if(typeof selectedItem !== 'undefined'){
+	            if(typeof selectedItems !== 'undefined'){
 		           	var itemNum = Number(selectedItem.value);
 		            var total = Number(totalPrice.value); 
 					//selected price
@@ -186,7 +186,9 @@
 			        data:"change=" + change,
 			        async:true,
 			        success:function(textContent){
-			        	//do nothing.
+			        	//var textField = document.getElementById("txt-" + imageKey);
+			        	//textField.value = 10;
+			        	location.reload();
 			        }
 			    });
 			}
