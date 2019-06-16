@@ -20,7 +20,7 @@
 	
 	<!-- if have menu, then display-->
 	<c:if test="${not empty subMenu and 'true' eq leftbar_fixed}">
-		<c:set value=" col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xs-offset-1 col-sm-offset-1 col-md-offset-2 col-lg-offset-1" var="span" />
+		<c:set value=" col-xs-11 col-sm-11 col-md-11 col-lg-11 col-xs-offset-1 col-sm-offset-1 col-md-offset-2 col-lg-offset-1" var="span" />
 		<c:set value="20px" var="leftmargin" />
 	</c:if>
 
@@ -66,26 +66,28 @@
 			        
 			        <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 					    <c:set var="visibility" value="${empty visibleStatusList[i-1] or visibleStatusList[i-1] eq 1 ? 'visible' : 'hidden'}" />
-				    	<c:choose>
-							<c:when test="${not empty visibleStatusList and not empty visibleStatusList[i-1]}">
-								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility};"
-								 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','check')" />
-					       	</c:when>
-					        <c:otherwise>
-								<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility}; "
-								 onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','check')" />
-					        </c:otherwise>
-				  		</c:choose>
+				    	<c:if test = "${support_times ne true}">
+					    	<c:choose>
+								<c:when test="${not empty visibleStatusList and not empty visibleStatusList[i-1]}">
+									<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility};"
+									 checked="checked" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','check')" />
+						       	</c:when>
+						        <c:otherwise>
+									<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility}; "
+									 onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','check')" />
+						        </c:otherwise>
+					  		</c:choose>
+				  		</c:if>
 				  		<c:if test="${support_times}">
 					  		<span style="border-style:none; font-size: 24px;">
 					  			<c:set var="aboveTwo" value="${not empty visibleStatusList and not empty visibleStatusList[i-1] and visibleStatusList[i-1] != '1'}" />
 					  			
-								<a id="decreaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','down1')" style="visibility:${aboveTwo?'visible':'hidden'};"> - </a>
+								<a id="decreaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','down1')"> - </a>
 					     		
 					     		<input id="txt-${menuIdx}_${i}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[i-1]}" readonly="readonly" 
-								style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px; visibility:${aboveTwo?'visible':'hidden'}"/>
+								style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px;"/>
 							 	
-							 	<a id="increaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','up1')" style="visibility:${not empty visibleStatusList[i-1]? 'visible':'hidden'}"> + </a>
+							 	<a id="increaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','up1')" > + </a>
 						 	</span>
 				    	</c:if>
 				    	
@@ -170,16 +172,6 @@
 		               	totalPrice.value = curObj.checked? (total + selectedPrice).toFixed(2) : (total - selectedPrice).toFixed(2);
 		           	}
 	            }
-	          	//check box
-				var checkBox = document.getElementById("check-" + imageKey);
-				checkBox.style.visibility = selected > 1 ? 'hidden' : 'visible';
-				//increaser,decreaser
-	            var textField = document.getElementById("txt-" + imageKey);
-				if(textField){
-	           		textField.style.visibility = selected > 1 ? 'visible' : 'hidden'; 
-	           		document.getElementById("decreaser-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
-	           		document.getElementById("increaser-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
-				}
 				//note
 				var note = document.getElementById("note-" + imageKey);
 				if(note){

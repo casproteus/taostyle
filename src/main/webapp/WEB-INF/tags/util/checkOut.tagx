@@ -35,7 +35,17 @@
 					<br/>
 				</c:if>
 				<c:if test="${not empty show_status_message}" >
-					${show_status_message}
+					<c:if test="${'true' == show_status_bell}">
+						<spring:url value="/showSelection" var="showSelection" /> 
+			  			<a href="${showSelection}">
+			  				${show_status_message}
+			  			</a>
+					</c:if>
+					<c:if test="${'true' == show_status_submit}">
+						<a style="font-weight: bold" onclick="javascript:cleanItemsAndSubmit('${tableID}', '${contact_phone}', '${MAP_POS_X2}', '${MAP_POS_Y2}', '${limit_location_diff}', '${isAboveEmployee}')">
+							${show_status_message}
+					  	</a>
+					</c:if>
 				</c:if>
 		  		<c:if test="${'true' == show_status_submit}">
 				 	<div style="position: fixed; z-index: 1001; ${topOrBottom}: ${status_y}px; right: 5px; cursor:pointer">
@@ -60,7 +70,7 @@
 	  	</div>
 	
 		<c:if test="${not empty show_status_category}">
-			<div style="position: fixed; z-index: 1001; ${topOrBottom}: ${status_y + 10}px;
+			<div style="position: fixed; z-index: 2000; ${topOrBottom}: ${status_y + 20}px;
 			 left:15px; cursor:pointer; color:#${foreground_leftbar}; visibility:hidden" id="menu_on_status_bar"
 			 ontouchend="javascript:switchHanderToBarDiv()"	>
 				${show_status_category}

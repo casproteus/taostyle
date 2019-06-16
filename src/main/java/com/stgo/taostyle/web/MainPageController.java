@@ -2705,7 +2705,13 @@ public class MainPageController extends BaseController {
         model.addAttribute("show_status_submit", "true");
         model.addAttribute("show_status_message", session.getAttribute(langPrf + CC.show_status_message2));
         model.addAttribute("show_status_category", session.getAttribute(langPrf + CC.show_status_category2));
-        model.addAttribute("show_status_total", "true");
+
+        
+        Customize cur_show_status_total = Customize.findCustomizeByKeyAndPerson("show_status_total", person);
+        if(cur_show_status_total != null && cur_show_status_total.getCusValue().equals("true")) {
+        	model.addAttribute("show_status_total", "true");
+        }
+        
         model.addAttribute("show_status_break", "true");
         //
         model.addAttribute("shoppingCartMode", "true");
