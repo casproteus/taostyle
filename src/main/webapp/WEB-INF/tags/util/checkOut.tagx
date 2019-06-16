@@ -57,7 +57,7 @@
 				</c:if>
 			</div>
 
-		  	<c:if test="${'true' == show_status_bell}">
+		  	<c:if test="${'true' == show_status_bell and width_bell_img > 20}">
 			  	<div style="position: fixed; z-index: 1001; ${topOrBottom}: ${status_y}px; right: 5px; cursor:pointer">
 			  		<spring:url value="/showSelection" var="showSelection" /> 
 					<a href="${showSelection}"> 							
