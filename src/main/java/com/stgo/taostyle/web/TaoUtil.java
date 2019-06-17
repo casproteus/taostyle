@@ -1186,11 +1186,22 @@ public class TaoUtil {
             HttpServletRequest request) {
         Person person = (Person) request.getSession().getAttribute(CC.CLIENT);
         if (person == null) {
+        	
             // trying to save it back--we normally have a copy of CC.client's value in app_name.
             // thought some time app_name will be used to save the domain name (when generate QRCode, we use app_name).
             Object app_name = request.getSession().getAttribute(CC.app_name);
             if (app_name != null) {
                 person = Person.findPersonByName(app_name.toString());
+            }
+            if(person == null) {
+	        	Cookie[] cookies = request.getCookies();
+	            if (cookies != null) {
+	                for (Cookie c : cookies) {
+	                    if (c != null && c.getName().equals("site")) {
+	                        person = Person.findPersonByName(c.getValue());
+	                    }
+	                }
+	            }
             }
             // if the app_name property in session also changed, then have to use adv person :(
             if (person == null) {

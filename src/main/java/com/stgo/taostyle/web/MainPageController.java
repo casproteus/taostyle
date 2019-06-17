@@ -220,7 +220,7 @@ public class MainPageController extends BaseController {
 
         Person person = TaoUtil.getCurPerson(request);
         //put it here, because here, have response to use:)
-        if(person != null && !person.toString().contains("for_demo")) {
+        if(person != null && !person.toString().contains(CC.ADV_USER)) {
         	final Cookie cookie = new Cookie("site", person.toString());
             cookie.setMaxAge(31536000); // One year
             cookie.setPath("/");
@@ -253,15 +253,6 @@ public class MainPageController extends BaseController {
         if(person == null || session.getAttribute(CC.CLIENT) == null) {
             TaoDebug.info(TaoDebug.getSB(session), TaoDebug.getSB(session),
                     "start to makesureSessionInitialized, cur person is: {}", person.getName());
-            
-        	Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie c : cookies) {
-                    if (c != null && c.getName().equals("site")) {
-                        person = Person.findPersonByName(c.getValue());
-                    }
-                }
-            }
             TaoUtil.reInitSession(request.getSession(), person);
         }
         
@@ -1072,7 +1063,7 @@ public class MainPageController extends BaseController {
 
         // make sure Security user exist.
     	String remoteIp = request.getRemoteAddr().replace(".", "_");
-        String name = personName.equals("for_demo") ? personName  //remoteIp + 
+        String name = personName.equals(CC.ADV_USER) ? personName  //remoteIp + 
         		: personName.substring(personName.indexOf("_") + 1);
         Person person = makeSurePersonExist(name, remoteIp);
 
