@@ -232,12 +232,12 @@
 					checkBox.style.visibility = selected > 1 ? 'hidden' : 'visible';
 	          	}
 				//increaser,decreaser
-	            var textField = document.getElementById("txt-" + featureIdx + "-" + imageKey);
-				if(textField){
-	           		textField.style.visibility = selected > 1 ? 'visible' : 'hidden'; 
-	           		document.getElementById("decreaser-" + featureIdx + "-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
-	           		document.getElementById("increaser-" + featureIdx + "-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
-				}
+	            //var textField = document.getElementById("txt-" + featureIdx + "-" + imageKey);
+				//if(textField){
+	           	//	textField.style.visibility = selected > 1 ? 'visible' : 'hidden'; 
+	           	//	document.getElementById("decreaser-" + featureIdx + "-" + imageKey).style.visibility = selected > 1 ? 'visible' : 'hidden'; 
+	           	//	document.getElementById("increaser-" + featureIdx + "-" + imageKey).style.visibility = selected > 0 ? 'visible' : 'hidden'; 
+				//}
 				var note = document.getElementById("note-" + featureIdx + "-" + imageKey);
 				if(note){
 					note.style.visibility = selected == 1 ? 'visible' : 'hidden'; 
@@ -270,7 +270,8 @@
 			        data:"change=" + change,
 			        async:true,
 			        success:function(textContent){
-			        	location.reload();
+			        	//location.reload();
+			        	textField.value= change == 'up1' ? selected + 1 : selected -1;
 			        }
 			    });
 			}

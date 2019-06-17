@@ -186,9 +186,8 @@
 			        data:"change=" + change,
 			        async:true,
 			        success:function(textContent){
-			        	//var textField = document.getElementById("txt-" + imageKey);
-			        	//textField.value = 10;
-			        	location.reload();
+			        	//location.reload();
+			        	textField.value= change == 'up1' ? selected + 1 : selected -1;
 			        }
 			    });
 			}
