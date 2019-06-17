@@ -84,7 +84,7 @@
 					  			
 								<a id="decreaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','down1')"> - </a>
 					     		
-					     		<input id="txt-${menuIdx}_${i}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[i-1]}" readonly="readonly" 
+					     		<input id="txt-${menuIdx}_${i}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[i-1] == null ? '0' : visibleStatusList[i-1]}" readonly="readonly" 
 								style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px;"/>
 							 	
 							 	<a id="increaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','up1')" > + </a>
