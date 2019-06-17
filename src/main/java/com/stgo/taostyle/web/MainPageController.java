@@ -219,20 +219,12 @@ public class MainPageController extends BaseController {
         }
 
         Person person = TaoUtil.getCurPerson(request);
+        //put it here, because here, have response to use:)
         if(person != null && !person.toString().contains("for_demo")) {
         	final Cookie cookie = new Cookie("site", person.toString());
             cookie.setMaxAge(31536000); // One year
             cookie.setPath("/");
             response.addCookie(cookie);
-        }else if(person == null) {
-        	Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie c : cookies) {
-                    if (c != null && c.getName().equals("site")) {
-                        person = Person.findPersonByName(c.getValue());
-                    }
-                }
-            }
         }
         makesureCommonTextInitialized(model, request, langPrf, person);
 
@@ -258,12 +250,21 @@ public class MainPageController extends BaseController {
         Object app_name = session.getAttribute(CC.app_name);
         TaoDebug.info(TaoDebug.getSB(session), "makesureSessionInitialized, app_name insession is: {}", app_name);
         Person person = TaoUtil.getCurPerson(request);
-        if (app_name == null || session.getAttribute(CC.CLIENT) == null) {
+        if(person == null || session.getAttribute(CC.CLIENT) == null) {
             TaoDebug.info(TaoDebug.getSB(session), TaoDebug.getSB(session),
                     "start to makesureSessionInitialized, cur person is: {}", person.getName());
+            
+        	Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if (c != null && c.getName().equals("site")) {
+                        person = Person.findPersonByName(c.getValue());
+                    }
+                }
+            }
             TaoUtil.reInitSession(request.getSession(), person);
         }
-
+        
         // if the tableId is set, then add into session. while added a null check, to avoid it will be removed by
         // unexpected request like sharethegoodones.com/showselection, sharethegoodones.com/favrateico..
         String tableID = request.getParameter("t");
