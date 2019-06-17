@@ -17,9 +17,15 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
 import org.hsqldb.lib.HashMap;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.google.zxing.common.BitMatrix;
 import com.stgo.taostyle.domain.MediaUpload;
 import com.stgo.taostyle.domain.Person;
@@ -70,6 +76,27 @@ public class TaoImage {
         }
     }
 
+    
+    public static int getBitmapDegree(FileItem tFileItem ) {
+    	try {
+    		Metadata metadata = ImageMetadataReader.readMetadata(tFileItem.getInputStream());
+    		
+	    	for (Directory directory : metadata.getDirectories()) {
+	    		if("Exif IFD0".equals(directory.getName())){
+	    			int orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+    				System.out.println("orientation|"+orientation);
+	    			for (Tag tag : directory.getTags()) {
+	    				System.out.println(tag +"|"+tag.getTagType());
+	    			}
+	    		}
+	    	}
+    	}catch(Exception e) {
+    		System.out.println("............");
+    		//L.e("TaoImage", "exception when reading the matadata of an fileItem", e);
+    	}
+    	return 0;
+    }
+    
     // Since we use servlet URL as image src property. so the full image name is not needed any more.
     // public static void initImage(Model model, String pKey, int pNum){
     // for(int i = 1; i <= pNum; i++){

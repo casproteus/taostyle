@@ -1543,6 +1543,7 @@ public class MainPageController extends BaseController {
         CommonsMultipartFile content = contents[0];
         String keyString = request.getParameter("position"); // can be category, big-slid, product's pratNo...
         FileItem tFileItem = content.getFileItem();
+        TaoImage.getBitmapDegree(tFileItem);
         Person person = TaoUtil.getCurPerson(request);
 
         // check size, no big file allowed except for
@@ -3664,7 +3665,7 @@ public class MainPageController extends BaseController {
         }
 
         // footer
-        String footerContent = "© 2017 " + person.getName();
+        String footerContent = "© 2019 " + person.getName();
         generateTextContent("en_footer_copyright", footerContent, person);
         generateTextContent("fr_footer_copyright", footerContent, person);
         generateTextContent("zh_footer_copyright", footerContent, person);
