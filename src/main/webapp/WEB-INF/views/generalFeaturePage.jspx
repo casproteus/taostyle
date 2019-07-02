@@ -74,7 +74,7 @@
 				          	<div id="des-${featureIdx}-${imageIdx}" align="left" style="opacity:${opacity}">${descriptions[j][i]}</div> 
 				        </c:if>
 				        <a id="img-${featureIdx}-${imageIdx}" href="javascript:showDetail('${imageKeys[j][i]}')" title="Click to check detailed information" style="opacity:${opacity}"> 
-							<img src="getImage/${imageKeys[j][i]}_thum" alt="image" />
+							<img src="getImage/${imageKeys[j][i]}_thum" alt="image" style="border-radius:8px;"/>
 						</a>
 						<c:if test="${not empty descriptions[j][i] and empty showDescriptionsOnTop}" >
 				          	<div id="des-${featureIdx}-${imageIdx}" align="left" style="opacity:${opacity}">${descriptions[j][i]}</div> 

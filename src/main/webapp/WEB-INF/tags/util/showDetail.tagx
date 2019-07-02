@@ -79,7 +79,7 @@
 		
 	<script type="text/javascript">
 	  function showDetail(value) {
-		
+		<c:if test="${'true' eq show_image_detail}">
 	    $.ajax({
 	    	headers: "Accept=application/json",
 	        type: "GET",
@@ -134,6 +134,7 @@
 	    		$("#luanchDetailDlg").click();
 	        }
 	    });
+	    </c:if>
 	  }
 	</script>
 </jsp:root>

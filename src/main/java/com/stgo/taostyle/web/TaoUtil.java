@@ -1182,7 +1182,8 @@ public class TaoUtil {
     }
 
     // will return 1st:current 2nd:get from_app_name 3nd:for_demo
-    public static Person getCurPerson(
+    @SuppressWarnings("deprecation")
+	public static Person getCurPerson(
             HttpServletRequest request) {
         Person person = (Person) request.getSession().getAttribute(CC.CLIENT);
         if (person == null) {
@@ -1199,6 +1200,8 @@ public class TaoUtil {
 	                for (Cookie c : cookies) {
 	                    if (c != null && c.getName().equals("site")) {
 	                        person = Person.findPersonByName(c.getValue());
+	                        request.getSession().setAttribute(CC.CLIENT, person);
+	                        TaoUtil.reInitSession(request.getSession(), person);
 	                    }
 	                }
 	            }
@@ -1206,6 +1209,8 @@ public class TaoUtil {
             // if the app_name property in session also changed, then have to use adv person :(
             if (person == null) {
                 person = TaoUtil.getAdvPerson(); // This could have caused a issue.
+                request.getSession().setAttribute(CC.CLIENT, person);
+                TaoUtil.reInitSession(request.getSession(), person);
                 TaoDebug.warn(TaoDebug.getSB(request.getSession()),
                         "no name found in both CLIENT and app_name, have to get AdvPerson", "");
             }

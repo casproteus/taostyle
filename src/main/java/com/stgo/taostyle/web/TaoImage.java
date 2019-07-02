@@ -523,7 +523,7 @@ public class TaoImage {
             if (index < 1 || index > size) {
                 TaoDebug.error("none expected index found in filepath of mediaupload! key : {}, index:{}", tKeyStr,
                         index);
-                return -1;
+                return size;
             }
 
             if (isThum) {

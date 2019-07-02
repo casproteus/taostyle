@@ -34,6 +34,11 @@
 		<c:set var="isAboveEmployee"  value="true" />
 	</c:if>
 	
+  	<c:set var="isPrinter"  value="false" />
+	<c:if test="${user_role == '[ROLE_PRINTER]'}">
+		<c:set var="isPrinter"  value="true" />
+	</c:if>
+	
 	<!-- Main Content -->
 	<div id="gridview" class="${span}" align="center"
 		style="margin-top: 10px; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity}; border-radius: 8px;">
@@ -57,7 +62,7 @@
 			          	<util:edit position="service_${menuIdx}_${i}_description" content="${descriptions[i]}" richText="true"/>
 			        </c:if>
 			        <a id="img-${menuIdx}_${i}" href="javascript:showDetail('service_${menuIdx}_${i}')" title="Click to check detailed information" style="opacity:${opacity}"> 
-						<img src="getImage/service_${menuIdx}_${i}_thum" alt="image" />
+						<img src="getImage/service_${menuIdx}_${i}_thum" alt="image" style="border-radius:8px;"/>
 					</a>
 					<c:if test="${not empty descriptions[i-1] and empty showDescriptionsOnTop or user_role == '[ROLE_ADMIN]'}" >
 			          	<div id="des-${menuIdx}_${i}" align="left" style="opacity:${opacity}">${descriptions[i-1]}</div> 
@@ -66,7 +71,8 @@
 			        
 			        <c:if test="${'true' eq show_service_cBox and isAboveManager ne 'true'}">
 					    <c:set var="visibility" value="${empty visibleStatusList[i-1] or visibleStatusList[i-1] eq 1 ? 'visible' : 'hidden'}" />
-				    	<c:if test = "${support_times ne true}">
+				    	<c:choose>
+				    	  <c:when test = "${support_times ne true or isPrinter}">
 					    	<c:choose>
 								<c:when test="${not empty visibleStatusList and not empty visibleStatusList[i-1]}">
 									<input id="check-${menuIdx}_${i}" type="checkbox" name="${menuIdx}_${i}" style="width:80px; height:20px; visibility:${visibility};"
@@ -77,20 +83,20 @@
 									 onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','check')" />
 						        </c:otherwise>
 					  		</c:choose>
-				  		</c:if>
-				  		<c:if test="${support_times}">
-					  		<span style="border-style:none; font-size: 24px;">
+				  		  </c:when>
+				  		  <c:otherwise>
+					  		<span style="border-style:none; font-size: ${fontsize_operator}px;">
 					  			<c:set var="aboveTwo" value="${not empty visibleStatusList and not empty visibleStatusList[i-1] and visibleStatusList[i-1] != '1'}" />
 					  			
 								<a id="decreaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','down1')"> - </a>
 					     		
 					     		<input id="txt-${menuIdx}_${i}" type="text" name="${menuIdx}_${i}" value="${visibleStatusList[i-1] == null ? '0' : visibleStatusList[i-1]}" readonly="readonly" 
-								style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: 16px;"/>
+								style="padding:2px; text-align:center; width:40px; border-style:none; background:none; font-size: ${fontsize_num}px;"/>
 							 	
 							 	<a id="increaser-${menuIdx}_${i}" onclick="javascript:updateStatus('${menuIdx}_${i}',0,'${user_role}','up1')" > + </a>
 						 	</span>
-				    	</c:if>
-				    	
+				    	  </c:otherwise>
+				    	</c:choose>
 				  		<c:if test="${'true'==support_customer_note}">
 					  		<spring:url value="/resources/images/note.png" var="note_img_url" /> 
 							<img id="note-${menuIdx}_${i}" alt="note" src="${note_img_url}" style="padding-bottom: 10px;  cursor:pointer; visibility:${not empty visibleStatusList and visibleStatusList[i-1] == '1'?'visible':'hidden'}"  

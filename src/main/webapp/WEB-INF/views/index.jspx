@@ -99,17 +99,17 @@
 			<div class="jumbotron">
 				<table id="pictable" style="DISPLAY: none">
 					<tr>
-						<TD><IMG src="getImage/promotion_1" /></TD>
+						<TD><IMG src="getImage/promotion_1"/></TD>
 						<TD>${text_promotion1}</TD>
 						<TD>menu_3_1_1</TD>
 					</tr>
 					<tr>
-						<TD><IMG src="getImage/promotion_2" /></TD>
+						<TD><IMG src="getImage/promotion_2"/></TD>
 						<TD>${text_promotion2}</TD>
 						<TD>menu_3_1_2</TD>
 					</tr>
 					<tr>
-						<TD><IMG src="getImage/promotion_3" /></TD>
+						<TD><IMG src="getImage/promotion_3"/></TD>
 						<TD>${text_promotion3}</TD>
 						<TD>menu_3_1_3</TD>
 					</tr>

@@ -220,7 +220,7 @@ public class MainPageController extends BaseController {
 
         Person person = TaoUtil.getCurPerson(request);
         //put it here, because here, have response to use:)
-        if(person != null && !person.toString().contains(CC.ADV_USER)) {
+        if(person != null) {
         	final Cookie cookie = new Cookie("site", person.toString());
             cookie.setMaxAge(31536000); // One year
             cookie.setPath("/");
@@ -1201,20 +1201,13 @@ public class MainPageController extends BaseController {
             return new ResponseEntity<String>("", headers, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        if (false) {
-            return new ResponseEntity<String>(strContent, headers, HttpStatus.OK);
-        }
-
         // get the submitDate ready for use
         Date date = null;
-        if (submitDate == null || submitDate.length() < 1) {
-            date = new Date(new Long(1));// if date not set yet, means not changed any thing, then make it super early.
-        } else {
+        if (submitDate != null && submitDate.length() > 1) {
             try {
-                Long time = Long.valueOf(submitDate);
-                date = new Date(time);
+                date = new Date(Long.valueOf(submitDate));
             } catch (Exception e) {
-                TaoDebug.error("the submitDate from justprint when synchronizing db is not correct:{}", submitDate);
+                //TaoDebug.error("the submitDate from justprint when synchronizing db is not correct:{}", submitDate);
             }
         }
 
@@ -1237,7 +1230,7 @@ public class MainPageController extends BaseController {
                 mediaUpload.setAudient(userAccount);
             mediaUpload.persist();
         } else {
-            if (date != null && mediaUpload.getSubmitDate().before(date)) { // updating
+            if (date != null) {//is an uploading
             	//add a check, incase it's replaced by mistake: if existing backup is very small or the new committed content must be 
             	//big enough.
             	if(content.length < 100000 &&  mediaUpload.getFilesize() > 120000 ) {
@@ -1274,7 +1267,135 @@ public class MainPageController extends BaseController {
 
         return new ResponseEntity<String>("", headers, HttpStatus.OK);
     }
+    
+    @RequestMapping(value = "/uploadDb", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> uploadDb(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam("filepath") String filepath,
+            @RequestParam("submitDate") String submitDate,
+            @RequestBody String strContent) {
 
+        // prepare the header for return;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=UTF-8");
+
+        // get content uploaded for use.
+        byte[] content;
+        try {
+            request.getInputStream();
+            content = strContent.getBytes("UTF-8");
+        } catch (Exception e) {
+            return new ResponseEntity<String>("", headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        // get the submitDate ready for use
+        Date date = null;
+        if (submitDate != null && submitDate.length() > 1) {
+            try {
+                date = new Date(Long.valueOf(submitDate));
+            } catch (Exception e) {
+                //TaoDebug.error("the submitDate from justprint when synchronizing db is not correct:{}", submitDate);
+            }
+        }
+
+        // make sure JustPrint user exist.
+        Person person = makeSurePersonExist("JustPrint", "asdf");
+
+        // check if the mediaUpload exists
+        MediaUpload mediaUpload = null;
+        mediaUpload = MediaUpload.findMediaByKeyAndPerson(filepath, person);
+        if (mediaUpload == null) {
+            mediaUpload = new MediaUpload();
+            mediaUpload.setFilepath(filepath);
+            mediaUpload.setPerson(person);
+            mediaUpload.setContent(content);
+            mediaUpload.setFilesize(content.length);
+            mediaUpload.setSubmitDate(new Date());
+            UserAccount userAccount =
+                        UserAccount.findUserAccountByName("system*" + person.getId());
+            if(userAccount != null)
+                mediaUpload.setAudient(userAccount);
+            mediaUpload.persist();
+        } else {
+        	//add a check, incase it's replaced by mistake: if existing backup is very small or the new committed content must be 
+        	//big enough.
+        	if(content.length < 100000 &&  mediaUpload.getFilesize() > 120000 ) {
+        		TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "JustPrint Sync Alarm!", "tao.mtl@hotmail.com", mediaUpload.toJson(),
+                        null);
+        		
+        		mediaUpload = new MediaUpload();
+                mediaUpload.setFilepath(filepath);
+                mediaUpload.setPerson(person);
+                mediaUpload.setContent(content);
+                mediaUpload.setFilesize(content.length);
+                mediaUpload.setSubmitDate(new Date());
+                UserAccount userAccount = UserAccount.findUserAccountByName("system*for_demo");
+                if(userAccount != null)
+                    mediaUpload.setAudient(userAccount);
+                mediaUpload.persist();
+                
+        		return new ResponseEntity<String>("", headers, HttpStatus.LENGTH_REQUIRED);
+        	}
+            mediaUpload.setContent(content);
+            mediaUpload.setSubmitDate(date != null ? date : new Date());
+            mediaUpload.setFilesize(content.length);
+            mediaUpload.persist();
+        }
+
+        return new ResponseEntity<String>("", headers, HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/downloadDb", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> downloadDb(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam("filepath") String filepath,
+            @RequestParam("submitDate") String submitDate,
+            @RequestBody String strContent) {
+
+        // prepare the header for return;
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json;charset=UTF-8");
+
+        // get content uploaded for use.
+        byte[] content;
+        try {
+            request.getInputStream();
+            content = strContent.getBytes("UTF-8");
+        } catch (Exception e) {
+            return new ResponseEntity<String>("", headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        // make sure JustPrint user exist.
+        Person person = makeSurePersonExist("JustPrint", "asdf");
+
+        // check if the mediaUpload exists
+        MediaUpload mediaUpload = null;
+        mediaUpload = MediaUpload.findMediaByKeyAndPerson(filepath, person);
+        if (mediaUpload == null) {
+            mediaUpload = new MediaUpload();
+            mediaUpload.setFilepath(filepath);
+            mediaUpload.setPerson(person);
+            mediaUpload.setContent(content);
+            mediaUpload.setFilesize(content.length);
+            mediaUpload.setSubmitDate(new Date());
+            UserAccount userAccount =
+                        UserAccount.findUserAccountByName("system*" + person.getId());
+            if(userAccount != null)
+                mediaUpload.setAudient(userAccount);
+            mediaUpload.persist();
+        }
+        
+        String contentFR = "";
+        try {
+            contentFR = new String(mediaUpload.getContent(), "UTF-8");
+        } catch (Exception e) {
+            TaoDebug.error("error happened when reading content into a String", e);
+        }
+        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+    }
+    
     // ===================for AikaPos Client================
     @RequestMapping(value = "/activeAccount", method = RequestMethod.POST, headers = "Accept=application/json")
     public ResponseEntity<String> activeAccount(
@@ -1338,7 +1459,7 @@ public class MainPageController extends BaseController {
         Collection<String> collection = new ArrayList<String>();
 
         // mainOrder
-        List<MainOrder> mainOrders = MainOrder.findMainOrdersByStatusAndPerson(0, Person.findPersonByName(storeName), "DESC");
+        List<MainOrder> mainOrders = MainOrder.findMainOrdersByStatusLimitationAndPerson(CC.STATUS_CHANGED_PLACE, Person.findPersonByName(storeName), "DESC");
         if (mainOrders == null)
             mainOrders = new ArrayList<MainOrder>();
         String tMainOrdersJsonAryStr = new JSONSerializer().exclude("*.class").serialize(mainOrders);
@@ -1364,7 +1485,7 @@ public class MainPageController extends BaseController {
         	String location = material.getLocation();
         	String[] nums = location.split("_");
         	String menyKey = "%_menu_" + nums[0] + "_" + nums[1];
-        	String serviceKey = "%_service_" + location + "_%";
+        	String serviceKey = "%_service_" + location + "_description";//@NOTE: do no use"_%", it will cause _1_description and _10_description both search out.
 	        List<TextContent> tMenuTextContents = TextContent.findAllMatchingTextContents(menyKey, material.getMainOrder().getPerson());
 	        if (tMenuTextContents != null) {
                 for (TextContent textContent : tMenuTextContents) {
