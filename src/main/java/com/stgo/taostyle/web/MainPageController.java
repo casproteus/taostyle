@@ -1318,25 +1318,6 @@ public class MainPageController extends BaseController {
                 mediaUpload.setAudient(userAccount);
             mediaUpload.persist();
         } else {
-        	//add a check, incase it's replaced by mistake: if existing backup is very small or the new committed content must be 
-        	//big enough.
-        	if(content.length < 100000 &&  mediaUpload.getFilesize() > 120000 ) {
-        		TaoEmail.sendMessage("info@ShareTheGoodOnes.com", "JustPrint Sync Alarm!", "tao.mtl@hotmail.com", mediaUpload.toJson(),
-                        null);
-        		
-        		mediaUpload = new MediaUpload();
-                mediaUpload.setFilepath(filepath);
-                mediaUpload.setPerson(person);
-                mediaUpload.setContent(content);
-                mediaUpload.setFilesize(content.length);
-                mediaUpload.setSubmitDate(new Date());
-                UserAccount userAccount = UserAccount.findUserAccountByName("system*for_demo");
-                if(userAccount != null)
-                    mediaUpload.setAudient(userAccount);
-                mediaUpload.persist();
-                
-        		return new ResponseEntity<String>("", headers, HttpStatus.LENGTH_REQUIRED);
-        	}
             mediaUpload.setContent(content);
             mediaUpload.setSubmitDate(date != null ? date : new Date());
             mediaUpload.setFilesize(content.length);
@@ -3079,7 +3060,7 @@ public class MainPageController extends BaseController {
         session.setAttribute(CC.selectedItems, null);
         session.setAttribute(CC.latitude, null);
         session.setAttribute(CC.longitude, null);
-        session.setAttribute(CC.tableID, null);
+        //in casee user go on with ordering.... session.setAttribute(CC.tableID, null);
 
         // notify the seesions to update
         RefreshNoticeCenter.broadcast("wufangshenming", person.getId().toString());
