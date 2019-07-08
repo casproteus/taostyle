@@ -180,7 +180,30 @@ public class MainOrder {
 
         return mainOrders;
     }
+    
+    @Transactional
+    public static List<MainOrder> findMainOrdersByStatusLimitationAndPerson(
+            int recordStatus,
+            Person person,
+            String order) {
+        EntityManager tEntityManager = entityManager();
+        TypedQuery<MainOrder> tQuery =
+                tEntityManager.createQuery(
+                        "SELECT o FROM MainOrder AS o WHERE o.person = :person and o.recordStatus <= :recordStatus ORDER BY o.id "
+                                + order, MainOrder.class);
+        tQuery = tQuery.setParameter("person", person);
+        tQuery = tQuery.setParameter("recordStatus", recordStatus);
 
+        List<MainOrder> mainOrders = null;
+        try {
+            mainOrders = tQuery.getResultList();
+        } catch (Exception e) {
+            return null;
+        }
+
+        return mainOrders;
+    }
+    
     @Transactional
     public static List<MainOrder> findCompletedMainOrdersByPerson(
             Person person,

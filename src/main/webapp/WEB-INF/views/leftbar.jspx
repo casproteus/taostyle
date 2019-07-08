@@ -16,7 +16,7 @@
 		<c:if test="${'true' == show_big_hander}">
 			<c:set var="hander_padding" value="${fn:length(subMenu) *(11 + leftbar_item_padding)}" />
 		</c:if>
-		<div class="leftbar" id="left_bar" style="left:10px; background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:1000;">
+		<div class="leftbar" id="left_bar" style="left:${leftbar_gap}px; background:#${background_leftbar}; opacity:${leftbar_opacity}; position:fixed; z-Index:1000;">
 			<br/>
 			<div class="accordion" id="accordionLeftBar"  >
 			  <c:forEach var="i" begin="0" end="${fn:length(subMenu)}" step="1">
