@@ -2958,7 +2958,7 @@ public class MainPageController extends BaseController {
         session.setAttribute(CC.selectedItems, null);
         session.setAttribute(CC.latitude, null);
         session.setAttribute(CC.longitude, null);
-        session.setAttribute(CC.tableID, null);
+        //in case user go on with ordering....  session.setAttribute(CC.tableID, null);
 
         // notify the seesions to update
         RefreshNoticeCenter.broadcast("wufangshenming", person.getId().toString());
