@@ -189,7 +189,7 @@ public class MainOrder {
         EntityManager tEntityManager = entityManager();
         TypedQuery<MainOrder> tQuery =
                 tEntityManager.createQuery(
-                        "SELECT o FROM MainOrder AS o WHERE o.person = :person and o.recordStatus <= :recordStatus ORDER BY o.id "
+                        "SELECT o FROM MainOrder AS o WHERE o.person = :person and o.recordStatus >= 0 and o.recordStatus <= :recordStatus ORDER BY o.id "
                                 + order, MainOrder.class);
         tQuery = tQuery.setParameter("person", person);
         tQuery = tQuery.setParameter("recordStatus", recordStatus);
