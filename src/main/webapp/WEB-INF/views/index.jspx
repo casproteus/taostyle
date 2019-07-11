@@ -291,8 +291,13 @@
 				<!-- <c:if test="${(not empty text_LogTitle1 and not empty text_LogTitle2 and not empty text_LogTitle3) or user_role == '[ROLE_ADMIN]'}" >
 		        	<div>${text_LogTitle1}</div> <util:edit position="text_LogTitle1" content="${text_LogTitle1}" richText="true"/>
 		        </c:if> -->
-				<util:taoImg src="getImage/log_1" link="${link_log1}" />
-				<util:changeImg position="log_1" />
+		        <c:if test="${not empty video_1}">
+		        	<iframe src="https://www.youtube.com/embed/${video_2}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		        </c:if>
+		        <c:if test="${empty video_1}">
+					<util:taoImg src="getImage/log_1" link="${link_log1}" />
+					<util:changeImg position="log_1" />
+				</c:if>
 				<c:if test="${not empty show_3_Object_text}">
 					<div align="center"
 						style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent1}</div>
@@ -306,13 +311,20 @@
 				<!-- <c:if test="${(not empty text_logTitle1 and not empty text_logTitle2 and not empty text_logTitle3) or user_role == '[ROLE_ADMIN]'}" >
 			        <div>${text_logTitle2}</div> <util:edit position="text_logTitle2" content="${text_logTitle2}" richText="true"/>
 		        </c:if> -->
-				<util:taoImg src="getImage/log_2" link="${link_log2}" /> <!-- usemap="#Map" />
-				<map name="Map" id="Map">
-					<spring:url var="enURL" value="/menu_1?lang=en" />
-					<area shape="rect" coords="10,20,340,115" href="${link_log2}" />
-					<area shape="rect" coords="10,116,340,180" href="mailto:reservation@spaviva.ca" />
-				</map> -->
-				<util:changeImg position="log_2" />
+		        
+		        <c:if test="${not empty video_2}">
+		        	<iframe src="https://www.youtube.com/embed/${video_2}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		        </c:if>
+		        <c:if test="${empty video_2}">
+					<util:taoImg src="getImage/log_2" link="${link_log2}" />
+					 <!-- usemap="#Map" />
+					<map name="Map" id="Map">
+						<spring:url var="enURL" value="/menu_1?lang=en" />
+						<area shape="rect" coords="10,20,340,115" href="${link_log2}" />
+						<area shape="rect" coords="10,116,340,180" href="mailto:reservation@spaviva.ca" />
+					</map> -->
+					<util:changeImg position="log_2" />
+				</c:if>
 				<c:if test="${not empty show_3_Object_text}">
 					<div align="center" style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent2}</div>
 					<util:edit position="text_logContent2" content="${text_logContent2}" richText="true" />
@@ -324,8 +336,14 @@
 				<!-- <c:if test="${(not empty text_logTitle1 and not empty text_logTitle2 and not empty text_logTitle3 and not empty text_logTitle4) or user_role == '[ROLE_ADMIN]'}" >
 		         	<div>${text_logTitle3}</div> <util:edit position="text_logTitle3" content="${text_logTitle3}" richText="true"/>
 		        </c:if> -->
-				<util:taoImg src="getImage/log_3" link="${link_log3}" />
-				<util:changeImg position="log_3" />
+		        
+		        <c:if test="${not empty video_3}">
+		        	<iframe src="https://www.youtube.com/embed/${video_3}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		        </c:if>
+		        <c:if test="${empty video_3}">
+					<util:taoImg src="getImage/log_3" link="${link_log3}" />
+					<util:changeImg position="log_3" />
+				</c:if>
 				<c:if test="${not empty show_3_Object_text}">
 					<div align="center" style="position: ${IsTextPositionAbsolute};top:10px">${text_logContent3}</div>
 					<util:edit position="text_logContent3" content="${text_logContent3}" richText="true" />
