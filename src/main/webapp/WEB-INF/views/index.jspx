@@ -292,7 +292,7 @@
 		        	<div>${text_LogTitle1}</div> <util:edit position="text_LogTitle1" content="${text_LogTitle1}" richText="true"/>
 		        </c:if> -->
 		        <c:if test="${not empty video_1}">
-		        	<iframe src="https://www.youtube.com/embed/${video_2}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		        	<iframe src="https://www.youtube.com/embed/${video_1}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"><!--  --></iframe>
 		        </c:if>
 		        <c:if test="${empty video_1}">
 					<util:taoImg src="getImage/log_1" link="${link_log1}" />
@@ -313,7 +313,7 @@
 		        </c:if> -->
 		        
 		        <c:if test="${not empty video_2}">
-		        	<iframe src="https://www.youtube.com/embed/${video_2}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		        	<iframe src="https://www.youtube.com/embed/${video_2}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="false"><!--  --></iframe>
 		        </c:if>
 		        <c:if test="${empty video_2}">
 					<util:taoImg src="getImage/log_2" link="${link_log2}" />
@@ -338,7 +338,7 @@
 		        </c:if> -->
 		        
 		        <c:if test="${not empty video_3}">
-		        	<iframe src="https://www.youtube.com/embed/${video_3}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+		        	<iframe src="https://www.youtube.com/embed/${video_3}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"><!--  --></iframe>
 		        </c:if>
 		        <c:if test="${empty video_3}">
 					<util:taoImg src="getImage/log_3" link="${link_log3}" />
