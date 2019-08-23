@@ -18,13 +18,24 @@
 				<input id="j_username" type="search" name='loginname' value=""
 					placeholder="Name"
 					style="border: 1px solid #bebdaa; border-radius: 5px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 0px; transition: all 0.7s ease 0s; width: 240px;" />
-				<br /> <input id="j_email" type="email" name='email'
+				<br />
+				<input id="j_email" type="email" name='email'
 					required="required" placeholder="Email*"
 					style="border: 1px solid #bebdaa; border-radius: 5px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 0px; transition: all 0.7s ease 0s; width: 240px;" />
-				<br /> <input id="j_tel" type="tel" name='tel'
-					placeholder="Telephone number"
-					style="border: 1px solid #bebdaa; border-radius: 5px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 0px; transition: all 0.7s ease 0s; width: 240px;" />
-				<br /> <input id="proceed" type="submit" value="Register"
+				<br />
+				<c:if test="${not empty hideTelAsk}">
+					<input id="j_tel" type="tel" name='tel'
+						placeholder="Telephone number"
+						style="border: 1px solid #bebdaa; border-radius: 5px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 0px; transition: all 0.7s ease 0s; width: 240px;" />
+					<br />
+				</c:if>
+				<c:if test="${not empty hideCommentAsk}">
+					<input id="j_tel" type="commenets" name='commenets'
+						placeholder="Questions or commenets"
+						style="border: 1px solid #bebdaa; border-radius: 5px; color: #86856f; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 0px; transition: all 0.7s ease 0s; width: 240px;" />
+					<br />
+				</c:if>
+				<input id="proceed" type="submit" value="Register"
 					style="border: 1px solid #bebdaa; border-radius: 5px; color: #222222; font: italic 105%/110% 'Times New Roman', Times, serif; padding: 4px; margin: 10px; margin-left: 140px; transition: all 0.7s ease 0s; width: 100px;" />
 			</div>
 		</form>
