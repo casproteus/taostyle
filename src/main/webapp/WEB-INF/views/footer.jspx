@@ -39,6 +39,9 @@
 					<c:if test="${not empty show_registerForm}">
 						<util:signupForPromotion returnPath="/register" />
 					</c:if>
+					<c:if test="${not empty show_CommentForm}">
+						<util:signupForPromotion returnPath="/comment" />
+					</c:if>
 				</c:if>
 			</div>
 		</div>

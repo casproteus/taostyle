@@ -381,6 +381,9 @@ public class MainPageController extends BaseController {
         String password = request.getParameter("password");
         password = StringUtils.isEmpty(password) ? person.getName() : password;
         String enrichedLoginName = TaoEncrypt.enrichName(request, loginname);
+        String tel = request.getParameter("tel");
+        String comments = request.getParameter("commenets");
+        
         if (UserAccount.findUserAccountByName(enrichedLoginName) != null) {
             model.addAttribute("SignUp_ErrorMessage", "This name is occupied, please try an other one!");
             return "signup";
@@ -389,10 +392,11 @@ public class MainPageController extends BaseController {
             tUserAccount.setPerson(person);
             tUserAccount.setLoginname(enrichedLoginName);
             tUserAccount.setPassword(TaoEncrypt.encryptPassword(password));
-            tUserAccount.setTel(request.getParameter("tel"));
+            tUserAccount.setTel(tel);
             tUserAccount.setEmail(email);
             tUserAccount.setCompanyname(request.getParameter("companyname"));
             tUserAccount.setSecuritylevel(CC.ROLE_CLIENT);
+            tUserAccount.setDescription(comments);
             tUserAccount.persist();
             model.addAttribute("email", tUserAccount.getEmail());
             model.addAttribute("loginname", loginname);
@@ -400,11 +404,37 @@ public class MainPageController extends BaseController {
         // send out an email.
         Object managerEmail = request.getSession().getAttribute(CC.app_ManagerEmail);
         if (managerEmail != null) {
-            String content =
-                    "<p>Thank you for registering with us.</p> <p>Please be noticed that your login name with us is :<b>"
-                            + loginname + "</b></p><p> Your temporal password is :<b>" + password
-                            + "</b></p><p>You can login and modify your password anytime. </p><p>Thanks!</p><p align='center'> ----Customer Care Center</p>";
-            TaoEmail.sendMessage(managerEmail.toString(), "Register Conformation!", email, content, null);
+            TaoEmail.sendMessage(managerEmail.toString(), "Register Conformation!", email, comments, null);
+        }
+        // notice the user go and check their email box.
+        return buildPageForMenu(model, request, response, null);
+    }
+    
+    @RequestMapping(value = "/comment", method = RequestMethod.POST)
+    public String comment(
+            Model model,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Person person = TaoUtil.getCurPerson(request);
+        String loginname = request.getParameter("loginname");
+        if (person.getName().equalsIgnoreCase(loginname)) {
+            model.addAttribute("SignUp_ErrorMessage", "This name is occupied, please try an other one!");
+            return "signup";
+        }
+
+        String email = request.getParameter("email");
+        if (StringUtils.isBlank(loginname)) {
+            loginname = email;
+        }
+        String password = request.getParameter("password");
+        String enrichedLoginName = TaoEncrypt.enrichName(request, loginname);
+        String tel = request.getParameter("tel");
+        String comments = request.getParameter("commenets");
+                
+        // send out an email.
+        Object managerEmail = request.getSession().getAttribute(CC.app_ManagerEmail);
+        if (managerEmail != null) {
+            TaoEmail.sendMessage(managerEmail.toString(), "Customer Requirement", email, comments, null);
         }
         // notice the user go and check their email box.
         return buildPageForMenu(model, request, response, null);
