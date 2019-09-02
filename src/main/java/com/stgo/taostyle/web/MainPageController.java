@@ -2,6 +2,7 @@ package com.stgo.taostyle.web;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -175,6 +176,14 @@ public class MainPageController extends BaseController {
             HttpServletResponse response) {
         if (TaoUtil.hasNotLoggedIn(request)) {
             String app_name_inRequest = TaoUtil.getAppNameInRequest(request);
+            if(app_name_inRequest == null) {
+            	//check if the root path(the path beyond ROOT) is not "webapps"? if it's not webapps, then use it as appname.
+            	//only the extra paied website will got a folder like this, so they can got a A record in godaddy,and can be recorgnized by search engineem.
+            	String folderName = new File(MainPageController.class.getResource("/../..").getPath()).getParentFile().getName();
+            	if(!"webapps".equals(folderName)) {
+            		app_name_inRequest = folderName;
+            	}
+            } 
             if (app_name_inRequest != null) {
                 dirtFlagCommonText = TaoUtil.switchClient(request, app_name_inRequest);
             }
