@@ -27,7 +27,7 @@
 				<spring:param name="size" value="${param.size}" />
 			</c:if>
 		</spring:url>
-		<a href="${url}" style="padding-right: 25px; padding-left: 25px"> 
+		<a href="${url}" style="color: #${background_menu}; padding-right: 25px; padding-left: 25px"> 
 			<c:if test="${true eq indicate_language_with_img}">
 				<spring:url var="img" value="/resources/images/${locale}.png" />
 				<img class="flag" src="${img}" alt="${fn:toUpperCase(locale)}" />
