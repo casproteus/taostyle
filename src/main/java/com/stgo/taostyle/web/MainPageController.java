@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONObject;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -1414,6 +1416,114 @@ public class MainPageController extends BaseController {
             TaoDebug.error("error happened when reading content into a String", e);
         }
         return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/uploadConfig", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> uploadConfig(@RequestBody String configString){
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.add("Content-Type", "application/json; charset=utf-8");
+	
+    	JSONObject rjson = new JSONObject(configString);
+		//prepare filepath and configuration
+		String filepath = rjson.getString("filepath");
+		String configuration = rjson.getString("configuration");
+		try {
+			configuration = URLDecoder.decode(configuration, "UTF-8");
+		}catch(Exception e) {
+			TaoDebug.error("CreateNewOrderAction", "exception when convert the orderContent into UTF-8", e);
+		}
+		
+		// make sure JustPrint user exist.
+        Person person = makeSurePersonExist("JustPrint", "asdf");
+
+        // check if the mediaUpload exists
+        MediaUpload mediaUpload = null;
+        mediaUpload = MediaUpload.findMediaByKeyAndPerson(filepath, person);
+        if (mediaUpload == null) {
+            mediaUpload = new MediaUpload();
+            mediaUpload.setFilepath(filepath);
+            mediaUpload.setPerson(person);
+            mediaUpload.setContentType(configuration);
+            mediaUpload.setSubmitDate(new Date());
+            UserAccount userAccount =
+                        UserAccount.findUserAccountByName("system*" + person.getId());
+            if(userAccount != null)
+                mediaUpload.setAudient(userAccount);
+            mediaUpload.persist();
+        } else {
+            mediaUpload.setContentType(configuration);
+            mediaUpload.persist();
+        }
+
+    	return new ResponseEntity<String>("OK", headers, HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/downloadCofig", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> downloadCofig(@RequestBody String configString){
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.add("Content-Type", "application/json; charset=utf-8");
+    	
+    	JSONObject rjson = new JSONObject(configString);
+		//prepare filepath and configuration
+		String filepath = rjson.getString("filepath");
+		String configuration = rjson.getString("configuration");
+		try {
+			configuration = URLDecoder.decode(configuration, "UTF-8");
+		}catch(Exception e) {
+			TaoDebug.error("CreateNewOrderAction", "exception when convert the orderContent into UTF-8", e);
+		}
+		
+        // make sure JustPrint user exist.
+        Person person = makeSurePersonExist("JustPrint", "asdf");
+
+        // check if the mediaUpload exists
+        MediaUpload mediaUpload = null;
+        mediaUpload = MediaUpload.findMediaByKeyAndPerson(filepath, person);
+        if (mediaUpload == null) {
+            mediaUpload = new MediaUpload();
+            mediaUpload.setFilepath(filepath);
+            mediaUpload.setPerson(person);
+            mediaUpload.setContentType(configuration);
+            mediaUpload.setSubmitDate(new Date());
+            UserAccount userAccount =
+                        UserAccount.findUserAccountByName("system*" + person.getId());
+            if(userAccount != null)
+                mediaUpload.setAudient(userAccount);
+            mediaUpload.persist();
+        }
+        
+        String contentFR = "";
+        try {
+            contentFR = mediaUpload.getContentType();
+        } catch (Exception e) {
+            TaoDebug.error("error happened when reading content into a String", e);
+        }
+        return new ResponseEntity<String>(contentFR, headers, HttpStatus.OK);
+    }
+    
+    @RequestMapping(value = "/sendReport", method = RequestMethod.POST, headers = "Accept=application/json")
+    public ResponseEntity<String> sendEmail(@RequestBody String content){
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.add("Content-Type", "application/json; charset=utf-8");
+    	
+    	JSONObject rjson = new JSONObject(content);
+		//prepare email and content
+		String idx = rjson.getString("idx");
+		String email = rjson.getString("email");
+		String message = rjson.getString("content");
+		try {
+			message = URLDecoder.decode(message, "UTF-8");
+		}catch(Exception e) {
+			TaoDebug.error("sendEmail", "exception when convert the emailContent into UTF-8", e);
+		}
+		
+        if(TaoEmail.isValidEmail(email)) {
+        	SimpleDateFormat df = new SimpleDateFormat(" MMM.dd HH:mm");
+        	StringBuilder subject = new StringBuilder(idx).append(df.format(new Date()));
+        	TaoEmail.sendMessage("AikaPos.STGO@gmail.com", subject.toString(), email, message, null);
+        }
+        
+        return new ResponseEntity<String>("", headers, HttpStatus.OK);
     }
     
     // ===================for AikaPos Client================
