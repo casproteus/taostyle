@@ -197,6 +197,44 @@
 	</c:if>
 
 	<!-- firstLine -->
+	<c:if test="${not empty show_2_Object_inSmallerRow}">
+		<div class="row" style="width: 80%; margin-left: ${margin_left}px; margin-right: ${margin_right}px; margin-bottom: ${show_3_Object_inSmallerRow}px">
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4"
+				style="text-align: center;">
+				<!-- <c:if test="${(not empty text_firstLineTitle1 and not empty text_firstLineTitle2 and not empty text_firstLineTitle3) or user_role == '[ROLE_ADMIN]'}" >
+		        	<div>${text_firstLineTitle1}</div> <util:edit position="text_firstLineTitle1" content="${text_firstLineTitle1}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/firstLine_1" link="${link_firstLine1}" />
+				<util:changeImg position="firstLine_1" />
+				<!-- <c:if test="${(not empty text_firstLineContent1 and not empty text_firstLineContent2 and not empty text_firstLineContent3) or user_role == '[ROLE_ADMIN]'}" >
+		          	<div align="left">${text_firstLineContent1}</div> <util:edit position="text_firstLineContent1" content="${text_firstLineContent1}" richText="true"/>
+		        </c:if> -->
+			</div>
+
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_firstLineTitle1 and not empty text_firstLineTitle2 and not empty text_firstLineTitle3) or user_role == '[ROLE_ADMIN]'}" >
+			        <div>${text_firstLineTitle2}</div> <util:edit position="text_firstLineTitle2" content="${text_firstLineTitle2}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/firstLine_2" link="${link_firstLine2}" />
+				<util:changeImg position="firstLine_2" />
+				<!-- <c:if test="${(not empty text_firstLineContent1 and not empty text_firstLineContent2 and not empty text_firstLineContent3) or user_role == '[ROLE_ADMIN]'}" >
+		 	        <div  align="left">${text_firstLineContent2}</div> <util:edit position="text_firstLineContent2" content="${text_firstLineContent2}" richText="true"/>
+		        </c:if> -->
+			</div>
+
+			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4" style="text-align: center;">
+				<!-- <c:if test="${(not empty text_firstLineTitle1 and not empty text_firstLineTitle2 and not empty text_firstLineTitle3) or user_role == '[ROLE_ADMIN]'}" >
+		         	<div>${text_firstLineTitle3}</div> <util:edit position="text_firstLineTitle3" content="${text_firstLineTitle3}" richText="true"/>
+		        </c:if> -->
+				<util:taoImg src="getImage/firstLine_3" link="${link_firstLine3}" />
+				<util:changeImg position="firstLine_3" />
+				<!-- <c:if test="${(not empty text_firstLineContent1 and not empty text_firstLineContent2 and not empty text_firstLineContent3) or user_role == '[ROLE_ADMIN]'}" >
+			        <div align="left">${text_firstLineContent3}</div> <util:edit position="text_firstLineContent3" content="${text_firstLineContent3}" richText="true"/>
+		        </c:if> -->
+			</div>
+		</div>
+	</c:if>
+	<!-- firstLine -->
 	<c:if test="${not empty show_3_Object_inSmallerRow}">
 		<div class="row" style="width: 80%; margin-left: ${margin_left}px; margin-right: ${margin_right}px; margin-bottom: ${show_3_Object_inSmallerRow}px">
 			<div class="col-xs-12 col-sm-12 col-md-4 col-lg-4"

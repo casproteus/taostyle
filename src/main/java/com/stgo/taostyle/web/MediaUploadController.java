@@ -168,8 +168,7 @@ public class MediaUploadController {
             Model uiModel) {
         MediaUpload doc = MediaUpload.findMediaUpload(id);
         try {
-            response.setHeader("Content-Disposition", "inline;filename=\"" + doc.getFilepath() + doc.getContentType()
-                    + "\"");
+            response.setHeader("Content-Disposition", "inline;filename=\"" + doc.getFilepath() + doc.getContentType() + "\"");
             OutputStream out = response.getOutputStream();
             response.setContentType(doc.getContentType());
             IOUtils.copy(new ByteArrayInputStream(doc.getContent()), out);
