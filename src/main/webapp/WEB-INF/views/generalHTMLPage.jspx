@@ -8,7 +8,6 @@
 	<!-- don't display by default -->
 	<c:set value=" col-xs-12 col-sm-12 col-md-12 col-lg-12" var="span" />
 	<c:set value="0px" var="leftmargin" />
-	
 	<!-- if have menu, then display -->
 	<c:if test="${not empty subMenu}">
 		<c:set value=" col-xs-12 col-sm-8 col-md-9 col-lg-9" var="span" />
@@ -17,7 +16,7 @@
 	
 	<!-- Main Content -->
 	<div class="content ${span}" style="color:#${background_foot}; margin-left:${leftmargin}; padding:20px; 
-	background:#${background_subpage}; opacity:${subpage_opacity}">
+	background:#${background_subpage}; opacity:${subpage_opacity}; float:right">
 		<img src="getImage/html_${menuIdx}" width="100%" />
 		<util:changeImg position="html_${menuIdx}" />
 		<div>${subpageContent}</div>

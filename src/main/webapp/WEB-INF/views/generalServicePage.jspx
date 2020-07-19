@@ -41,7 +41,7 @@
 	
 	<!-- Main Content -->
 	<div id="gridview" class="${span}" align="center"
-		style="margin-top: 10px; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity}; border-radius: 8px;">
+		style="margin-top: 10px; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity}; border-radius: 8px; float:right">
 		
 		<div style="margin-bottom: ${show_1_TextObject}px;" align="center">${subpageContent}</div>
 		<util:edit position="service_${menuIdx}_title" content="${subpageContent}" richText="true" />

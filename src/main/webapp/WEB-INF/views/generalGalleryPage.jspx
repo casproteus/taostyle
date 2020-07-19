@@ -22,7 +22,7 @@
 	<!-- Main Content -->
 	<div id="links" class="gallery ${span}" align="center" style="color:#${background_foot}; 
 		margin-left:${leftmargin}; padding-top:30px; padding-bottom:30px; 
-   		background:#${background_subpage}; opacity:${subpage_opacity}">
+   		background:#${background_subpage}; opacity:${subpage_opacity}; float:right">
 		<c:forEach var="i" begin="1" end="${pictureAmount}" step="1">
 			<a href="getImage/gallery_${menuIdx}_${i}" data-gallery="_">
 				<img src="getImage/gallery_${menuIdx}_${i}_thum" alt="Image" />

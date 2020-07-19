@@ -47,7 +47,7 @@
 	  <c:set var="featureIdx"  value="${features[j].id}" />
  	 
 	  <div id="${featureIdx}-gridview" class="gallery ${span}" align="center"
-		style="margin-left:${leftmargin}; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity};">
+		style="margin-left:${leftmargin}; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity}; float:right">
 		
 		<!-- title of the section -->
 		<div style="margin-bottom: ${show_1_TextObject}px;" align="center">${groupTitles[j]}</div>

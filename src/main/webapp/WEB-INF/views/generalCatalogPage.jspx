@@ -27,7 +27,7 @@
 	<c:if
 		test="${pageContext['request'].userPrincipal != null and user_role != '[ROLE_CLIENT]'}">
 		<div id="Listview" class="${span}" align="center"
-			style="margin-left:${leftmargin}">
+			style="margin-left:${leftmargin}; float:right">
 			<page:list_catalog id="pl_com_stgo_taostyle_domain_Product"
 				items="${products}" z="7xcAhB6xUOrJpSYdVJ8eg7jtLBY=">
 				<table:table_catalog data="${products}"

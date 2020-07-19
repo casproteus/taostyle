@@ -27,7 +27,7 @@
 	<!-- Main Content -->
 	
 	<div id="gridview" class="gallery ${span}" align="center"
-		style="margin-left:${leftmargin}; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity};">
+		style="margin-left:${leftmargin}; padding:20px; background:#${background_subpage}; opacity:${subpage_opacity}; float:right">
 		
 		<div style="margin-bottom: ${show_1_TextObject}px;" align="center">${subpageContent}</div>
 		<util:edit position="product_${menuIdx}_content" content="${subpageContent}" richText="true" />
